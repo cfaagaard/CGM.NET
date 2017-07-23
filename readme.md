@@ -4,7 +4,7 @@ Alpha version of uploader for the 600-series pump.
 ## Projects
 CGM.Communication: The core communication between pump and CNL. Coded in c# .NET standard 1.4. 
 
-CGM.Uwp: The client. Coded for UWP. 
+CGM.Uwp: The client. Coded for UWP.  Using the "Windows Template studio" with MVVM light.
 
 All tested on a laptop with windows 10 and a raspberry pi 3 with windows iot. (still some issues)
 
@@ -21,6 +21,16 @@ I did not want to make too many external reference. So there is no reference to 
 
 But I plan to make use of those services in the near future.
 
+Some screenshots:
+You can start and stop the CNL/uploader at the top, where you also can see the latest status.
+![Mainscreen](Docs/MainScreen.png)
+
+If you click on the status-icon to the left (or expand the hamburger menu) then you have the status screen:
+
+![Mainscreen](Docs/StatusScreen.png)
+
+At the bottom you have the settings-screen. I have "blued" out my settings. 
+![Mainscreen](Docs/SettingScreen.png)
 
 # Standing on the shoulders of giants....
 A big thanks goes out to the Nightscout community who without this project would not have been possible.

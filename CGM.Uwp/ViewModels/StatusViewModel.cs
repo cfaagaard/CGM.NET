@@ -67,6 +67,8 @@ namespace CGM.Uwp.ViewModels
             this.PumpStatusMessages.CollectionChanged += PumpStatusMessages_CollectionChanged;
             ItemClickCommand = new RelayCommand<ItemClickEventArgs>(OnItemClick);
             StateChangedCommand = new RelayCommand<VisualStateChangedEventArgs>(OnStateChanged);
+
+            ((App)App.Current).Data.CreateTestData();
         }
 
         private void UpdatedSession(SerializerSession session)

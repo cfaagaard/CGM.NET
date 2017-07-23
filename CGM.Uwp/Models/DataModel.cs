@@ -29,7 +29,6 @@ namespace CGM.Uwp.Models
             Messenger.Default.Register<LogEntry>(this, (entry) => LogToCollection(entry));
             Messenger.Default.Register<SerializerSession>(this, (session) => UpdatedSession(session));
 
-            // CreateTestData();
         }
 
 

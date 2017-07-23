@@ -188,9 +188,9 @@ namespace CGM.Uwp.ViewModels
          if (e.NewItems != null && e.NewItems.Count > 0)
          {
              CurrentMessage = (PumpStatusMessage)e.NewItems[0];
-             if (CurrentMessage.WarningName != Communication.MiniMed.Model.Alerts.No_Warning_0)
+             if (CurrentMessage.AlertName != Communication.MiniMed.Model.Alerts.No_Warning_0)
              {
-                 this.Alert = CurrentMessage.WarningName.ToString();
+                 this.Alert = CurrentMessage.AlertName.ToString();
                  this.ShowAlert = true;
              }
              else
