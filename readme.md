@@ -27,7 +27,9 @@ A big thanks goes out to the Nightscout community who without this project would
 Not sure if it is good manners to single out persons.... but here goes:
 
 Thanks goes out to Lennart Goedhart (https://github.com/pazaan) for the uploader and decoding work.
+
 Thanks to the 600Series team https://github.com/pazaan/600SeriesAndroidUploader  
+
 Figuring out and using the protocol would not have been possible without the work of these guys/girls.
 
 

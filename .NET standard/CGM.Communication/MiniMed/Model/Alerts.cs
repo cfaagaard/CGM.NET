@@ -6,8 +6,9 @@ namespace CGM.Communication.MiniMed.Model
 {
     public enum Alerts: Int16
     {
-        No_Warning_0=0,
+        No_Warning_0 = 0,
         Alert_On_High_816 = 816,
+        Alert_Before_High_817 = 817,
         Alert_On_Low_while_suspended_803 = 803,
         Battery_Depleted_11 = 11,
         Device_Alarm_100 = 100,
@@ -32,10 +33,11 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Alarm_798 = 798,
         Sensor_Alarm_799 = 799,
         Suspend_Before_Low_Alarm_quiet_810 = 810,
+        Suspend_Before_Low_Alarm_811 = 811,
         Basal_Delivery_Resumed_Alert_quiet_806 = 806,
         Suspend_Before_Low_Alarm_patient_unresponsive_medical_device_emergency_812 = 812,
         Basal_Delivery_Resumed_Alert_maximum_suspend_reached_808 = 808,
-        Basal_Delivery_Resumed_Alert_glucose_still_low_maximum_suspend_reached_814 = 814,
+        Basal_Delivery_Resumed_Alert_glucose_still_low_maximum_suspend_reached_814 = 814
 
     }
 }
