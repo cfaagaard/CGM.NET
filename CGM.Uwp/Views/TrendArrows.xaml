@@ -45,10 +45,10 @@
 
         <Grid Grid.Column="1" Margin="10,0,0,0" x:Name="WarningSign" >
             <Interactivity:Interaction.Behaviors>
-                <Core:DataTriggerBehavior Binding="{Binding ShowWarning}" Value="False">
+                <Core:DataTriggerBehavior Binding="{Binding ShowAlert}" Value="False">
                     <Core:ChangePropertyAction TargetObject="{Binding ElementName=WarningSign}" PropertyName="Visibility" Value="Collapsed" />
                 </Core:DataTriggerBehavior>
-                <Core:DataTriggerBehavior Binding="{Binding ShowWarning}" Value="True">
+                <Core:DataTriggerBehavior Binding="{Binding ShowAlert}" Value="True">
                     <Core:ChangePropertyAction TargetObject="{Binding ElementName=WarningSign}" PropertyName="Visibility" Value="Visible" />
                 </Core:DataTriggerBehavior>
             </Interactivity:Interaction.Behaviors>

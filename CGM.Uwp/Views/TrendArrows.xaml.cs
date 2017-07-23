@@ -51,13 +51,13 @@ namespace CGM.Uwp.Views
             set { _unknownTrend = value; }
         }
 
-        private bool _showWarning;
+        private bool _showAlert;
 
-        public bool ShowWarning
+        public bool ShowAlert
         {
-            get { return _showWarning; }
-            set { _showWarning = value;
-                OnPropertyChanged("ShowWarning");
+            get { return _showAlert; }
+            set { _showAlert = value;
+                OnPropertyChanged("ShowAlert");
             }
         }
 
@@ -121,7 +121,7 @@ namespace CGM.Uwp.Views
                     UnknownTrend = true;
                     break;
                 }
-                this.ShowWarning = StatusMessage.Alert != 0;
+                this.ShowAlert = StatusMessage.Alert != 0;
 
             }
         }

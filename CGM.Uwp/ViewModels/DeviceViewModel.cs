@@ -89,20 +89,20 @@ namespace CGM.Uwp.ViewModels
             set { Set(ref _pumpTime, value); }
         }
 
-        private string _warning;
+        private string _alert;
 
-        public string Warning
+        public string Alert
         {
-            get { return _warning; }
-            set { Set(ref _warning, value); }
+            get { return _alert; }
+            set { Set(ref _alert, value); }
         }
 
-        private bool _showWarning;
+        private bool _showAlert;
 
-        public bool ShowWarning
+        public bool ShowAlert
         {
-            get { return _showWarning; }
-            set { Set(ref _showWarning, value); }
+            get { return _showAlert; }
+            set { Set(ref _showAlert, value); }
         }
 
         public FixedSizeObservableCollection<PumpStatusMessage> PumpStatusMessages { get { return ((App)App.Current).Data.PumpStatusMessages; } }
@@ -190,13 +190,13 @@ namespace CGM.Uwp.ViewModels
              CurrentMessage = (PumpStatusMessage)e.NewItems[0];
              if (CurrentMessage.WarningName != Communication.MiniMed.Model.Alerts.No_Warning_0)
              {
-                 this.Warning = CurrentMessage.WarningName.ToString();
-                 this.ShowWarning = true;
+                 this.Alert = CurrentMessage.WarningName.ToString();
+                 this.ShowAlert = true;
              }
              else
              {
-                 this.Warning = "";
-                 this.ShowWarning = false;
+                 this.Alert = "";
+                 this.ShowAlert = false;
              }
          }
          else
