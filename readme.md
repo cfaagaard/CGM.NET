@@ -2,7 +2,7 @@
 Alpha version of uploader for the 600-series pump.
 
 ## Projects
-CGM.Communication: The core communication between pump and CNL. Coded in c# .NET standard 1.4. 
+CGM.Communication: The core communication between pump and CNL. Coded in c# [.NET standard 1.4](https://docs.microsoft.com/en-us/dotnet/standard/net-standard). 
 
 CGM.Uwp: The client. Coded for UWP.  Using the "Windows Template studio" with MVVM light. Support scenario: Always online and always power.
 
