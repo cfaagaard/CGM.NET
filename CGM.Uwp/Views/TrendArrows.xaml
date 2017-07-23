@@ -1,0 +1,69 @@
+﻿<UserControl
+    x:Class="CGM.Uwp.Views.TrendArrows"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CGM.Uwp.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+  xmlns:Core="using:Microsoft.Xaml.Interactions.Core" 
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid x:Name="ArrowImages">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <ItemsControl ItemsSource="{Binding Arrows}" VerticalAlignment="Top" HorizontalAlignment="Stretch"  >
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate  >
+                <DataTemplate>
+                    <Grid>
+                        <Ellipse Fill="{StaticResource SystemControlPageBackgroundChromeLowBrush}" Name="Fill" Visibility="Visible" Margin="5" />
+                        <Path Data="M13.643931,9.7940063L17.924967,14.289001 6.7948851,14.289001 6.7948851,17.499023 18.353987,17.499023 13.644969,22.208008 18.994982,22.208008 25.203031,15.787018 19.21001,9.7940063z M15.999089,0C20.119486,0 24.240013,1.552002 27.344038,4.6560059 33.551113,10.862 33.550075,21.136017 27.344038,27.343994 21.137026,33.552002 10.862967,33.552002 4.6549167,27.343994 -1.5521577,21.136993 -1.5511201,10.863007 4.6549167,4.6560059 7.7584233,1.552002 11.878691,0 15.999089,0z" 
+                                    Stretch="UniformToFill"    Fill="#FF000000"
+                                              Margin="0" RenderTransformOrigin="0.5,0.5">
+                            <Path.RenderTransform>
+                                <TransformGroup>
+                                    <TransformGroup.Children>
+                                        <RotateTransform Angle="{Binding Angle}" />
+                                        <!--<ScaleTransform ScaleX="1" ScaleY="1" />-->
+                                    </TransformGroup.Children>
+                                </TransformGroup>
+                            </Path.RenderTransform>
+                        </Path>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Grid Grid.Column="1" Margin="10,0,0,0" x:Name="WarningSign" >
+            <Interactivity:Interaction.Behaviors>
+                <Core:DataTriggerBehavior Binding="{Binding ShowWarning}" Value="False">
+                    <Core:ChangePropertyAction TargetObject="{Binding ElementName=WarningSign}" PropertyName="Visibility" Value="Collapsed" />
+                </Core:DataTriggerBehavior>
+                <Core:DataTriggerBehavior Binding="{Binding ShowWarning}" Value="True">
+                    <Core:ChangePropertyAction TargetObject="{Binding ElementName=WarningSign}" PropertyName="Visibility" Value="Visible" />
+                </Core:DataTriggerBehavior>
+            </Interactivity:Interaction.Behaviors>
+            <Grid Name="backgroundGrid"/>
+            <Path Data="M14.299995,21.399963L14.299995,24.399963 17.699997,24.399963 17.699997,21.399963z M14.799995,6.6000061L14.299995,17.5 17.699997,17.5 17.199997,6.6000061z M16,0C24.799995,0 32,7.1999817 32,16 32,24.799988 24.799995,32 16,32 7.1999969,32 0,24.799988 0,16 0,7.1999817 7.1999969,0 16,0z"  
+                  Stretch="Uniform" Fill="Red"  Margin="0,0,0,0" RenderTransformOrigin="0.5,0.5">
+                <Path.RenderTransform>
+                    <TransformGroup>
+                        <TransformGroup.Children>
+                            <RotateTransform Angle="0" />
+                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                        </TransformGroup.Children>
+                    </TransformGroup>
+                </Path.RenderTransform>
+            </Path>
+        </Grid>
+    </Grid>
+</UserControl>
