@@ -15,6 +15,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{5CE38FDB-9696-4E53-9748-D568E91C7DB9}"
 	ProjectSection(SolutionItems) = preProject
 		Docs\MainScreen.png = Docs\MainScreen.png
+		Docs\PieCNL.jpg = Docs\PieCNL.jpg
 		Docs\SettingScreen.png = Docs\SettingScreen.png
 		Docs\StatusScreen.png = Docs\StatusScreen.png
 	EndProjectSection

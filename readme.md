@@ -6,7 +6,9 @@ CGM.Communication: The core communication between pump and CNL. Coded in c# .NET
 
 CGM.Uwp: The client. Coded for UWP.  Using the "Windows Template studio" with MVVM light.
 
-All tested on a laptop with windows 10 and a raspberry pi 3 with windows iot. (still some issues)
+All tested on a laptop with windows 10 and a raspberry pi 3 with windows iot. 
+The Raspberry Pie 3 sits on the bedside table and runs 24/7 and just "catches" the pump whenever in range.
+![pie](Docs/PieCNL.jpg)
 
 ### If you want to use it
 1. Download [visual studio community 2017 ](https://www.visualstudio.com/downloads/).
@@ -27,10 +29,10 @@ You can start and stop the CNL/uploader at the top, where you also can see the l
 
 If you click on the status-icon to the left (or expand the hamburger menu) then you have the status screen (Showing test-data right now :-) ):
 
-![Mainscreen](Docs/StatusScreen.png)
+![´StatusScreen](Docs/StatusScreen.png)
 
 At the bottom you have the settings-screen. I have "blued" out my settings. 
-![Mainscreen](Docs/SettingScreen.png)
+![Settingscreen](Docs/SettingScreen.png)
 
 # Standing on the shoulders of giants....
 A big thanks goes out to the Nightscout community who without this project would not have been possible.
