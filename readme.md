@@ -25,7 +25,7 @@ Some screenshots:
 You can start and stop the CNL/uploader at the top, where you also can see the latest status.
 ![Mainscreen](Docs/MainScreen.png)
 
-If you click on the status-icon to the left (or expand the hamburger menu) then you have the status screen:
+If you click on the status-icon to the left (or expand the hamburger menu) then you have the status screen (Showing test-data right now :-) ):
 
 ![Mainscreen](Docs/StatusScreen.png)
 
