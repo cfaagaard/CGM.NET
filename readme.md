@@ -4,10 +4,18 @@ Alpha version of uploader for the 600-series pump.
 ## Projects
 CGM.Communication: The core communication between pump and CNL. Coded in c# .NET standard 1.4. 
 
-CGM.Uwp: The client. Coded for UWP.  Using the "Windows Template studio" with MVVM light.
+CGM.Uwp: The client. Coded for UWP.  Using the "Windows Template studio" with MVVM light. Support scenario: Always online and always power.
 
 All tested on a laptop with windows 10 and a raspberry pi 3 with windows iot. 
 The Raspberry Pie 3 sits on the bedside table and runs 24/7 and  "catches" the pump whenever in range.
+
+TODO projects:
+- Android Xamarin (uploader using CGM.Communication logic that runs on a Android phone. Great for mobile, but limited power (under a day) and the size is "not optimal" as my kid points out... :-) )
+- .NET Core (just a proof-of-concept that it can run on Linux. Why? Because you can :-)... maybe.... )
+- Scenario: Mobil: Almost always online and limited power. -> Developer module that can code generate  sketch-scripts for the arduino. (Is Ardunio the right platform??)
+Tested this scenario with a Raspberry pie 3 and a battery pack of 20000mAh. It lasted for almost 24 hours.
+
+
 
 
 ### If you want to use it
