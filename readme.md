@@ -7,8 +7,8 @@ CGM.Communication: The core communication between pump and CNL. Coded in c# .NET
 CGM.Uwp: The client. Coded for UWP.  Using the "Windows Template studio" with MVVM light.
 
 All tested on a laptop with windows 10 and a raspberry pi 3 with windows iot. 
-The Raspberry Pie 3 sits on the bedside table and runs 24/7 and just "catches" the pump whenever in range.
-![pie](Docs/PieCNL.jpg)
+The Raspberry Pie 3 sits on the bedside table and runs 24/7 and  "catches" the pump whenever in range.
+
 
 ### If you want to use it
 1. Download [visual studio community 2017 ](https://www.visualstudio.com/downloads/).
