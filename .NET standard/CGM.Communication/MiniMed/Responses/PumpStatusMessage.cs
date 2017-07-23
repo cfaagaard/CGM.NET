@@ -129,7 +129,7 @@ namespace CGM.Communication.MiniMed.Responses
         //Calculated properties
         public DateTime? SgvDateTime { get { return DateTimeExtension.GetDateTime(this.SgvDateTimeRtc, this.SgvDateTimeOffSet); } }
 
-        public DateTime? WarningDateTime
+        public DateTime? AlertDateTime
         {
             get
             {
@@ -181,7 +181,7 @@ namespace CGM.Communication.MiniMed.Responses
 
         public SgvTrend CgmTrendName { get { return TrendConvert(this.CgmTrend); } }
 
-        public Alerts WarningName { get { return (Alerts)this.Alert; } }
+        public Alerts AlertName { get { return (Alerts)this.Alert; } }
 
 
         public double SgvDateTimeEpoch
