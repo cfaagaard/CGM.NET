@@ -91,12 +91,12 @@ namespace CGM.Communication.Common.Serialize
     public class Serializer
     {
 
-        private SerializerSession _settings = new SerializerSession();
+        private SerializerSession _session = new SerializerSession();
 
 
-        public Serializer(SerializerSession settings)
+        public Serializer(SerializerSession session)
         {
-            _settings = settings;
+            _session = session;
         }
 
         class AttributeList
@@ -235,23 +235,23 @@ namespace CGM.Communication.Common.Serialize
                     foreach (var item in logicOrdered)
                     {
                         var element = (BinaryElement)item.PropInfo.GetCustomAttribute(typeof(BinaryElement));
-                        item.Logic.SetValue(temp, element.FieldOffset, item.PropInfo, s, _settings);
+                        item.Logic.SetValue(temp, element.FieldOffset, item.PropInfo, s, _session);
                     }
                 }
 
                 if (classtype.IsEncrypted)
                 {
-                    if (_settings.EncryptKey == null || _settings.EncryptIV == null)
+                    if (_session.EncryptKey == null || _session.EncryptIV == null)
                     {
                         throw new Exception("Missing encryptKey/IV in serializationsettings.");
                     }
-                    temp = temp.ToArray().Encrypt(_settings.EncryptKey, _settings.EncryptIV).ToList();
+                    temp = temp.ToArray().Encrypt(_session.EncryptKey, _session.EncryptIV).ToList();
                     //temp = temp.ToArray().Reverse().ToArray().Encrypt(_settings.EncryptKey, _settings.EncryptIV).ToList();
                 }
 
                 if (typeof(T).GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinarySerializationSetting)))
                 {
-                    ((IBinarySerializationSetting)s).OnSerialization(temp, _settings);
+                    ((IBinarySerializationSetting)s).OnSerialization(temp, _session);
                 }
 
                 return temp.ToArray();
@@ -320,11 +320,11 @@ namespace CGM.Communication.Common.Serialize
 
                 if (classtype.IsEncrypted)
                 {
-                    if (_settings.EncryptKey == null || _settings.EncryptIV == null)
+                    if (_session.EncryptKey == null || _session.EncryptIV == null)
                     {
                         throw new Exception("Missing encryptKey/IV in serializationsettings.");
                     }
-                    bytes = bytes.Decrypt(_settings.EncryptKey, _settings.EncryptIV);
+                    bytes = bytes.Decrypt(_session.EncryptKey, _session.EncryptIV);
                 }
 
 
@@ -406,16 +406,28 @@ namespace CGM.Communication.Common.Serialize
 
                                 setvalue = EndianValue.ToArray().GetInt16(0);
                             }
+                            if (property.PropertyType == typeof(UInt16))
+                            {
 
+                                setvalue = EndianValue.ToArray().GetUInt16(0);
+                            }
+                      
                             if (property.PropertyType == typeof(Int32))
                             {
                                 setvalue = EndianValue.ToArray().GetInt32(0);
+                            }
+                            if (property.PropertyType == typeof(UInt32))
+                            {
+
+                                setvalue = EndianValue.ToArray().GetUInt32(0);
                             }
 
                             if (property.PropertyType == typeof(Int64))
                             {
                                 setvalue = EndianValue.ToArray().GetInt64(0);
                             }
+
+                         
 
                             if (property.PropertyType == typeof(DateTime))
                             {
@@ -563,7 +575,7 @@ namespace CGM.Communication.Common.Serialize
                 }
                 if (typeof(T).GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinaryDeserializationSetting)))
                 {
-                    ((IBinaryDeserializationSetting)byteClass).OnDeserialization(bytes, _settings);
+                    ((IBinaryDeserializationSetting)byteClass).OnDeserialization(bytes, _session);
                 }
                 return byteClass;
             }

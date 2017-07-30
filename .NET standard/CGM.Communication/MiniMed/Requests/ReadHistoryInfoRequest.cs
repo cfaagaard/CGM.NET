@@ -15,21 +15,30 @@ namespace CGM.Communication.MiniMed.Requests
 
         public ReadHistoryRequest(DateTime fromDateTime) : base(fromDateTime)
         {
-            this.Unknown = new byte[] { 0x04, 0x02 };
+
+            this.HistoryDataType = 0x02; // PUMP_DATA: 2,SENSOR_DATA: 3,
+          
         }
     }
 
     [BinaryType(IsLittleEndian = false)]
     public class ReadHistoryInfoRequest : IBinaryType, IBinarySerializationSetting, IBinaryDeserializationSetting
     {
+        // PUMP_DATA: 2,SENSOR_DATA: 3,
         [BinaryElement(0)]
-        public byte[] Unknown { get; set; }
+        public byte HistoryDataType { get; set; }
+
+        [BinaryElement(1)]
+        public byte Unknown { get; set; }
 
         [BinaryElement(2)]
         public byte[] FromRtc { get; set; }
 
         [BinaryElement(6)]
         public int Unknown2 { get; set; }
+
+        //[BinaryElement(6)]
+        //public byte[] FromOffset { get; set; }
 
         [BinaryElement(10)]
         public byte[] Unknown3 { get; set; }
@@ -65,7 +74,8 @@ namespace CGM.Communication.MiniMed.Requests
         public ReadHistoryInfoRequest(DateTime fromDateTime)
         {
             this.FromDateTime = fromDateTime;
-            this.Unknown = new byte[] { 0x04, 0x03 };
+            this.HistoryDataType = 0x03; // PUMP_DATA: 2,SENSOR_DATA: 3,
+            this.Unknown =  0x04;
             this.Unknown3 = new byte[] { 0x00, 0x00 };
             this.Unknown2 = (new byte[] { 0xff, 0xff, 0xff, 0xff }).GetInt32(0);
         }

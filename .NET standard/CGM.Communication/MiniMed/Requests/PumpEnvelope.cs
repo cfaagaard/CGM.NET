@@ -32,7 +32,7 @@ namespace CGM.Communication.MiniMed.Requests
 
         }
 
-        public PumpEnvelope(byte[] pumpMac, byte sequenceNumber) : base(AstmCommandAction.PUMP_REQUEST)
+        public PumpEnvelope(byte[] pumpMac, byte sequenceNumber) : base(AstmCommandAction.TRANSMIT_PACKET)
         {
             this.PumpMac = pumpMac;
             this.SequenceNumber = sequenceNumber;

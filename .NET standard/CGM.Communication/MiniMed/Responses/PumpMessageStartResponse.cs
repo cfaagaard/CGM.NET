@@ -14,7 +14,15 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(1, Length = 2)]
         public byte[] MessageType { get; set; }
 
-        public AstmSendMessageType MessageTypeName { get { return (AstmSendMessageType)this.MessageType.GetInt16(0); } }
+        public AstmSendMessageType MessageTypeName
+        {
+            get
+            {
+
+                    return (AstmSendMessageType)this.MessageType.GetUInt16(0);
+                              
+            }
+        }
 
         [BinaryElement(3)]
         //[MessageType(typeof(PumpTimeMessage), nameof(MessageType), new byte[] {0x04, 0x07})]
@@ -24,12 +32,13 @@ namespace CGM.Communication.MiniMed.Responses
         //[MessageType(typeof(PumpStateHistoryReadInfoResponse), nameof(MessageType), new byte[] { 0x03, 0x0D })]
 
 
-        [MessageType(typeof(PumpTimeMessage), nameof(MessageTypeName), AstmSendMessageType.Time_Response)]
-        [MessageType(typeof(PumpStatusMessage), nameof(MessageTypeName), AstmSendMessageType.Read_Pump_Status_Response)]
-        [MessageType(typeof(PumpPattern), nameof(MessageTypeName), AstmSendMessageType.Read_Basal_Pattern_Response)]
-        [MessageType(typeof(PumpStateHistory), nameof(MessageType), new byte[] { 0xff,0x01})]
-        [MessageType(typeof(PumpStateHistoryReadInfoResponse), nameof(MessageTypeName), AstmSendMessageType.Read_History_Info_Response)]
-        [MessageType(typeof(PumpCarbRatioResponse), nameof(MessageTypeName), AstmSendMessageType.Read_Bolus_Wizard_Carb_Ratios_Response)]
+        [MessageType(typeof(PumpTimeMessage), nameof(MessageTypeName), AstmSendMessageType.TIME_RESPONSE)]
+        [MessageType(typeof(PumpStatusMessage), nameof(MessageTypeName), AstmSendMessageType.READ_PUMP_STATUS_RESPONSE)]
+        [MessageType(typeof(PumpPattern), nameof(MessageTypeName), AstmSendMessageType.READ_BASAL_PATTERN_RESPONSE)]
+        [MessageType(typeof(PumpStateHistory), nameof(MessageTypeName), AstmSendMessageType.MULTIPACKET_SEGMENT_TRANSMISSION)]
+        [MessageType(typeof(InitiateMultiPacketTransferResponse), nameof(MessageTypeName), AstmSendMessageType.INITIATE_MULTIPACKET_TRANSFER)]
+        [MessageType(typeof(PumpStateHistoryReadInfoResponse), nameof(MessageTypeName), AstmSendMessageType.READ_HISTORY_INFO_RESPONSE)]
+        [MessageType(typeof(PumpCarbRatioResponse), nameof(MessageTypeName), AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_RESPONSE)]
         [MessageType(typeof(PumpGeneral))]
         public object Message { get; set; }
 

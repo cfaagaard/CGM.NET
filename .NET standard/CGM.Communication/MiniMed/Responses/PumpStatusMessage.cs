@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    public enum StatusFlag
+    {
+        No_sgv=16
+    }
+
 
     [BinaryType(IsLittleEndian = false)]
     public class PumpStatusMessage : IBinaryType, IBinaryDeserializationSetting
@@ -19,26 +24,25 @@ namespace CGM.Communication.MiniMed.Responses
         public byte StatusFlag { get; set; }
 
         [BinaryElement(1)]
-        public byte[] Unknown1 { get; set; }
-
-        [BinaryElement(3)]
-        public Int16 Unknown1_a { get; set; }
+        public int NowBolusingAmountDelivered { get; set; }
 
         [BinaryElement(5)]
-        public byte[] Unknown1aaa { get; set; }
+        public byte[] Unknown1 { get; set; }
 
         [BinaryElement(10)]
-        public Int16 Unknown1_b { get; set; }
+        public byte NowBolusingMinutesRemaining { get; set; }
 
-        [BinaryElement(12)]
-        public byte[] Unknown1aaaaa { get; set; }
+        [BinaryElement(11)]
+        public Int16 NowBolusingReference { get; set; }
 
         [BinaryElement(13)]
-        public int BolusEstimateRaw { get; set; }
+        public int LastBolusAmount { get; set; }
 
         [BinaryElement(17)]
-        public byte[] Unknown2 { get; set; }
+        public int LastBolusTime { get; set; }
 
+        [BinaryElement(21)]
+        public Int16 LastBolusReference { get; set; }
 
         [BinaryElement(23)]
         public byte ActiveBasalPattern { get; set; }
@@ -47,7 +51,7 @@ namespace CGM.Communication.MiniMed.Responses
         public int NormalBasalRaw { get; set; }
 
         [BinaryElement(28)]
-        public byte[] Unknown4 { get; set; }
+        public int TempBasal { get; set; }
 
         [BinaryElement(32)]
         public byte TempBasalPercentage { get; set; }
@@ -67,14 +71,21 @@ namespace CGM.Communication.MiniMed.Responses
 
         [BinaryElement(44)]
         public byte InsulinHours { get; set; }
+
         [BinaryElement(45)]
         public byte InsulinMinutes { get; set; }
 
+        //[BinaryElement(46)]
+        //public Int32 ActiveInsulinRaw { get; set; }
+
         [BinaryElement(46)]
-        public byte[] Unknown5 { get; set; }
+        public byte Unknown2 { get; set; }
+
+        [BinaryElement(47)]
+        public byte BolusEstModifiedByUser { get; set; }
 
         [BinaryElement(48)]
-        public Int16 ActiveInsulinRaw { get; set; }
+        public UInt16 ActiveInsulinRaw { get; set; }
 
         public int ActiveInsulinRawConvert { get; set; }
 
@@ -96,13 +107,23 @@ namespace CGM.Communication.MiniMed.Responses
         public byte CgmTrend { get; set; }
 
         [BinaryElement(62)]
-        public byte[] Unknown6 { get; set; }
+        public byte SensorStatus { get; set; }
+
+        [BinaryElement(63)]
+        public byte Unknown3 { get; set; }
+
+        [BinaryElement(64)]
+        public Int16 SensorCalibrationMinutesRemaining { get; set; }
+
+        [BinaryElement(66)]
+        public byte SensorBattery_maybe { get; set; }
 
         [BinaryElement(67)]
-        public Int16 RateOfChangeRaw { get; set; }
+        public Int16 SensorRateOfChangeRaw { get; set; }
 
         [BinaryElement(69)]
         public byte BolusWizardRecent { get; set; }
+
         [BinaryElement(70)]
         public Int16 BolusWizardBGLRaw { get; set; }
 
@@ -120,11 +141,11 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(82)]
         public byte[] Unknown7 { get; set; }
 
-        [BinaryElement(92)]
-        public Int16 UnknownNumber { get; set; }
+        //[BinaryElement(92)]
+        //public Int16 UnknownNumber { get; set; }
 
-        [BinaryElement(94)]
-        public byte[] Unknown8 { get; set; }
+        //[BinaryElement(94)]
+        //public byte[] Unknown8 { get; set; }
 
         //Calculated properties
         public DateTime? SgvDateTime { get { return DateTimeExtension.GetDateTime(this.SgvDateTimeRtc, this.SgvDateTimeOffSet); } }
@@ -144,7 +165,7 @@ namespace CGM.Communication.MiniMed.Responses
 
             }
         }
-        public double SgvMmol { get { return Math.Round(((double)this.Sgv / 18), 1); } }
+        public double SgvMmol { get { return Math.Round(((double)this.Sgv / 18.01559), 1); } }
 
         public double NormalBasal { get { return ((double)this.NormalBasalRaw / 10000); } }
         public double ActiveInsulin { get { return ((double)this.ActiveInsulinRawConvert / 10000); } }
@@ -166,11 +187,14 @@ namespace CGM.Communication.MiniMed.Responses
         {
             get
             {
-                return ((double)this.BolusEstimateRaw / 10000);
+                return ((double)this.LastBolusAmount / 10000);
             }
         }
 
         public double BasalUnitsDeliveredToday { get { return ((double)this.BasalUnitsDeliveredTodayRaw / 10000); } }
+
+
+        //public double CalibrationFactor { get { return ((double)(this.CalibrationFactorRaw & 0x0000ffff )/ 10000); } }
 
         public double ReservoirAmount { get { return ((double)this.ReservoirAmountRaw / 10000); } }
         public PumpStatus Status
@@ -219,6 +243,11 @@ namespace CGM.Communication.MiniMed.Responses
             //}
 
             this.ActiveInsulinRawConvert = this.ActiveInsulinRaw & 0x0000ffff;
+            if (this.BolusEstModifiedByUser==1)
+            {
+                this.ActiveInsulinRawConvert += 0x0000ffff + 1;
+            }
+            //errors where sgv >= 769
             this.Sgv= this.SgvRaw & 0x0000ffff;
             this.BolusWizardBGL= this.BolusWizardBGLRaw & 0x0000ffff;
 

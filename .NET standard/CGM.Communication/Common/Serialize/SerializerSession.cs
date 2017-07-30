@@ -113,15 +113,7 @@ namespace CGM.Communication.Common.Serialize
 
         public List<PumpStatusMessage> Status { get; set; } = new List<PumpStatusMessage>();
 
-        internal void NewSession()
-        {
-            this.SessionVariables = new SessionVariables();
-            this.Status = new List<PumpStatusMessage>();
-            this.PumpDataHistory = new PumpDataHistory();
-            this.PumpPatterns = new List<PumpPattern>();
-            this.OptimalNextRead = null;
-            this.OptimalNextReadInPumpTime = null;
-        }
+
 
         public List<PumpPattern> PumpPatterns { get; set; } = new List<PumpPattern>();
 
@@ -130,8 +122,9 @@ namespace CGM.Communication.Common.Serialize
         public List<PumpMessageStartResponse> GeneralMessages { get; set; } = new List<PumpMessageStartResponse>();
 
 
-        public PumpDataHistory PumpDataHistory { get; set; } = new PumpDataHistory();
+        public PumpDataHistory PumpDataHistory { get; set; }
 
+        
 
         public byte[] LinkKey { get; set; }
 
@@ -140,6 +133,20 @@ namespace CGM.Communication.Common.Serialize
         public DateTime? OptimalNextRead { get; set; }
         public DateTime? OptimalNextReadInPumpTime { get; set; }
 
+        public SerializerSession()
+        {
+            NewSession();
+        }
+
+        internal void NewSession()
+        {
+            this.SessionVariables = new SessionVariables();
+            this.Status = new List<PumpStatusMessage>();
+            this.PumpDataHistory = new PumpDataHistory(this);
+            this.PumpPatterns = new List<PumpPattern>();
+            this.OptimalNextRead = null;
+            this.OptimalNextReadInPumpTime = null;
+        }
         public void AddStatus(PumpStatusMessage status)
         {
             this.Status.Add(status);
@@ -307,7 +314,7 @@ namespace CGM.Communication.Common.Serialize
 
             public AstmStart GetBeginEHSM()
         {
-            return GetPumpEnvelope(0x80, AstmSendMessageType.Begin_Extended_High_Speed_Mode_Session, new byte[]{ 0x00 });
+            return GetPumpEnvelope(0x80, AstmSendMessageType.HIGH_SPEED_MODE_COMMAND, new byte[]{ 0x00 });
         }
 
 
@@ -315,42 +322,42 @@ namespace CGM.Communication.Common.Serialize
         public AstmStart GetPumpTime()
         {
 
-            return GetPumpEnvelope(AstmSendMessageType.Time_Request);
+            return GetPumpEnvelope(AstmSendMessageType.TIME_REQUEST);
         }
 
         public AstmStart GetCarbRatio()
         {
 
-            return GetPumpEnvelope(AstmSendMessageType.Read_Bolus_Wizard_Carb_Ratios_Request);
+            return GetPumpEnvelope(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST);
         }
 
         public AstmStart GetPumpData()
         {
-            return GetPumpEnvelope(AstmSendMessageType.Read_Pump_Status_Request);
+            return GetPumpEnvelope(AstmSendMessageType.READ_PUMP_STATUS_REQUEST);
         }
 
         public AstmStart GetPumpBasalPattern(int patternNumber)
         {
-            return GetPumpEnvelope(AstmSendMessageType.Read_Basal_Pattern_Request,BitConverter.GetBytes(patternNumber));
+            return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST,BitConverter.GetBytes(patternNumber));
         }
 
         public AstmStart GetReadHistoryInfo(DateTime lastReadDateTime)
         {
-            AstmStart msg= GetPumpEnvelope(AstmSendMessageType.Read_History_Info);
+            AstmStart msg= GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
             ((PumpMessage)((MedtronicMessage2)msg.Message2).Message).Message = new ReadHistoryInfoRequest(lastReadDateTime);
             return msg;
         }
 
         public AstmStart GetReadHistory(DateTime lastReadDateTime)
         {
-            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.Read_History);
+            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
             ((PumpMessage)((MedtronicMessage2)msg.Message2).Message).Message = new ReadHistoryRequest(lastReadDateTime);
             return msg;
         }
 
         public AstmStart GetMultiPacket()
         {
-            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.Read_History);
+            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
             PumpGeneral request = new PumpGeneral();
             request.Unknown1 = new byte[] {0x00,0xff };
 
@@ -361,7 +368,7 @@ namespace CGM.Communication.Common.Serialize
         public AstmStart GetEndEHSM()
         {
 
-            return GetPumpEnvelope(AstmSendMessageType.Begin_Extended_High_Speed_Mode_Session);
+            return GetPumpEnvelope(AstmSendMessageType.HIGH_SPEED_MODE_COMMAND);
         }
 
         public AstmStart GetCloseConnectionRequest()

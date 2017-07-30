@@ -11,7 +11,10 @@ namespace CGM.Communication.MiniMed.Responses
         public class PumpStateHistoryReadInfoResponse : IBinaryType, IBinaryDeserializationSetting
         {
         [BinaryElement(0)]
-        public byte[] Unknown { get; set; }
+        public byte Unknown { get; set; }
+
+        [BinaryElement(1)]
+        public UInt32 HistorySize { get; set; }
 
         [BinaryElement(5)]
         public int FromDateTimeRtc { get; set; }

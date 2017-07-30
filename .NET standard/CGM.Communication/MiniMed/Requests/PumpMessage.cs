@@ -20,8 +20,8 @@ namespace CGM.Communication.MiniMed.Requests
         public byte[] MessageType { get; set; }
 
         [BinaryElement(3)]
-        [MessageType(typeof(ReadHistoryInfoRequest),nameof(MessageTypeName), AstmSendMessageType.Read_History_Info)]
-        [MessageType(typeof(ReadHistoryRequest), nameof(MessageTypeName), AstmSendMessageType.Read_History)]
+        [MessageType(typeof(ReadHistoryInfoRequest),nameof(MessageTypeName), AstmSendMessageType.READ_HISTORY_INFO_REQUEST)]
+        [MessageType(typeof(ReadHistoryRequest), nameof(MessageTypeName), AstmSendMessageType.READ_HISTORY_REQUEST)]
         
         [MessageType(typeof(PumpGeneral))]
         public object Message { get; set; }

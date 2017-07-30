@@ -33,7 +33,7 @@ namespace CGM.Communication.MiniMed.Requests
 
         }
 
-        public RadioChannelRequest(byte radioChannel, byte[] linkMac, byte[] pumpMac) : base(AstmCommandAction.CHANNEL_NEGOTIATE)
+        public RadioChannelRequest(byte radioChannel, byte[] linkMac, byte[] pumpMac) : base(AstmCommandAction.JOIN_NETWORK)
         {
             this.Unknown4 = 0x01;
             this.RadioChannel = radioChannel;
