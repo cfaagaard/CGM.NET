@@ -27,6 +27,9 @@ namespace CGM.Communication.MiniMed
         private ILogger Logger = ApplicationLogging.CreateLogger<CommunicationBlock>();
         private int delay = 250;
         private int maxdelay = 7000;
+        //private int recievedBytesLength = 0;
+        //public int MaxRecievedBytesLength { get; set; } = -1;
+        
 
         protected BlockingCollection<AstmStart> ResponsesRecieved { get; set; } = new BlockingCollection<AstmStart>();
 
@@ -110,7 +113,7 @@ namespace CGM.Communication.MiniMed
                 StopTimer();
                 return;
             }
-
+            //this.recievedBytesLength += bytes.Length;
             if (this._messageContinuePattern.Evaluate(bytes))
             {
                 _waitForMoreReports = true;
@@ -129,6 +132,10 @@ namespace CGM.Communication.MiniMed
                 //if (this._communicationBlock != null)
                 //{
                     var response = this.ExpectedResponses.Take();
+                //if (MaxRecievedBytesLength != -1 && MaxRecievedBytesLength > recievedBytesLength)
+                //{
+                //    this.ExpectedResponses.Add(response);
+                //}
 
                     if (response.Evaluate(this._reports[0]))
                     {

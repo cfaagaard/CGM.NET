@@ -1,5 +1,6 @@
 ﻿using CGM.Communication.Common.Serialize;
 using CGM.Communication.Extensions;
+using CGM.Communication.MiniMed.Infrastructur;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,10 +12,12 @@ namespace CGM.Communication.MiniMed.Responses
         public class PumpStateHistoryReadInfoResponse : IBinaryType, IBinaryDeserializationSetting
         {
         [BinaryElement(0)]
-        public byte Unknown { get; set; }
+        public byte HistoryDataTypeRaw { get; set; }
+
+        public HistoryDataTypeEnum HistoryDataType { get { return (HistoryDataTypeEnum)HistoryDataTypeRaw; } }
 
         [BinaryElement(1)]
-        public UInt32 HistorySize { get; set; }
+        public Int32 HistorySize { get; set; }
 
         [BinaryElement(5)]
         public int FromDateTimeRtc { get; set; }
@@ -34,11 +37,11 @@ namespace CGM.Communication.MiniMed.Responses
         public DateTime? ToDateTime { get { return DateTimeExtension.GetDateTime(this.ToDateTimeRtc, this.ToDateTimeOffSet); } }
 
         [BinaryElement(21)]
-        public byte[] UnknownCrc16 { get; set; }
+        public byte[] Unknown1 { get; set; }
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            settings.PumpDataHistory.ReadInfoResponse = this;
+            settings.PumpDataHistory.AddMultiHandler(this);
         }
 
         public override string ToString()

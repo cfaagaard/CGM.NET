@@ -69,7 +69,10 @@ namespace CGM.Uwp.ViewModels
         public DeviceItemViewModel SelectedDevice
         {
             get { return _selectedDevice; }
-            set { Set(ref _selectedDevice, value); }
+            set { Set(
+
+                ref _selectedDevice, value);
+            }
         }
 
 

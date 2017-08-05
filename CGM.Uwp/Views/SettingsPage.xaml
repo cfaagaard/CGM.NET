@@ -92,7 +92,7 @@
            
             </Grid>
 
-            <ListBox Grid.Row="6" Grid.Column="0" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{Binding SelectedDevice}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="DevicesList">
+            <ListBox Grid.Row="6" Grid.Column="0" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{Binding SelectedDevice,Mode=TwoWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="DevicesList">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="viewmodels:DeviceItemViewModel">
                         <StackPanel Orientation="Horizontal">

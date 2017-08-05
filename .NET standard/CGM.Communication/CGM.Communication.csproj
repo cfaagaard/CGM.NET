@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Common\Serialize\Class1.cs" />
     <Compile Remove="Common\Serialize\loz.cs" />
+    <Compile Remove="Common\Serialize\LZOCompressor.cs" />
     <Compile Remove="MiniMed\Model\Session.cs" />
   </ItemGroup>
 

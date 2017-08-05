@@ -30,7 +30,17 @@ namespace CGM.Communication.MiniMed.Infrastructur
         INITIATE_MULTIPACKET_TRANSFER = 0xFF00,
         MULTIPACKET_SEGMENT_TRANSMISSION = 0xFF01,
         MULTIPACKET_RESEND_PACKETS = 0xFF02,
-        ACK_MULTIPACKET_COMMAND = 0x00FE
+        ACK_MULTIPACKET_COMMAND = 0x00FE,
+        Read_Preset_Boluses_Request = 0x0114,
+        Read_Preset_Boluses_Response = 0x0121,
+        Read_Preset_Temp_Basals_Request = 0x0115,
+        Read_Preset_Temp_Basals_Response = 0x0122,
+        Read_Timed_Notifications_Request = 0x0134,
+        Read_Timed_Notifications_Response = 0x0135,
+        Read_Low_Glucose_Sensor_Settings_Request = 0x0211,
+        Read_Low_Glucose_Sensor_Settings_Response = 0x0212,
+        Read_High_Glucose_Sensor_Settings_Request = 0x0215,
+        Read_High_Glucose_Sensor_Settings_Response = 0x0216
 
         //NO_TYPE = 0x0,
         ////ACK_End_Multipacket_Command = 0x00FE,

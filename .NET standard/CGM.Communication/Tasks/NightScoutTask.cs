@@ -41,11 +41,11 @@ namespace CGM.Communication.Tasks
             {
                 timer.Dispose();
             }
-            if (_tokenSource!=null)
+            if (_tokenSource != null)
             {
                 _tokenSource.Cancel();
             }
-           
+
 
         }
 
@@ -84,12 +84,12 @@ namespace CGM.Communication.Tasks
                 {
                     session = await uow.Pump.GetPumpDataAndUploadAsync(_device, GetBattery(), _token);
 
-                    // session = await uow.Pump.GetPumpSessionAsync(_device,_token);
-                    if (session!=null)
+                    //session = await uow.Pump.GetPumpSessionAsync(_device,_token);
+                    if (session != null)
                     {
                         GotSession(session);
                     }
-                    
+
                     if (this.timer != null)
                     {
                         timer.Dispose();
@@ -123,7 +123,7 @@ namespace CGM.Communication.Tasks
                         SetUpTimer(session.NextRun.Value);
                         session.NewSession();
                     }
-                    
+
                 }
 
             }

@@ -17,6 +17,7 @@ using CGM.Communication.MiniMed.Requests.Standard;
 using CGM.Communication.MiniMed.Responses.Patterns;
 using System.Linq;
 using CGM.Communication.Data.Repository;
+using CGM.Communication.MiniMed.Infrastructur;
 
 namespace CGM.Communication.MiniMed
 {
@@ -70,18 +71,28 @@ namespace CGM.Communication.MiniMed
             tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
 
             //should be on the settings, some kind of parameters/flags
-            if (1 == 2)
-            {
-                tasks.Add(() => StartBasalPatternAsync(cancelToken));
-                tasks.Add(() => StartGetCarbRatio(cancelToken));
-                tasks.Add(() => StartReadHistoryInfoAsync(cancelToken));
-                tasks.Add(() => StartReadHistoryAsync(cancelToken));
-                tasks.Add(() => StartMultiPacketAsync(cancelToken));
-            }
+
+            //tasks.Add(() => StartBasalPatternAsync(cancelToken));
+            //tasks.Add(() => StartGetCarbRatio(cancelToken));
+            //tasks.Add(() => StartReadHistoryToday(cancelToken));
+
 
             return await CallPumpWithActions(tasks, cancelToken);
         }
 
+        public async Task<SerializerSession> GetPumpSessionAsync(DateTime from, DateTime to, CancellationToken cancelToken)
+        {
+            List<Func<Task>> tasks = new List<Func<Task>>();
+
+            tasks.Add(() => StartPumpTimeAsync(cancelToken));
+            tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
+            //tasks.Add(() => StartBasalPatternAsync(cancelToken));
+            //tasks.Add(() => StartGetCarbRatio(cancelToken));
+            //tasks.Add(() => StartReadHistory(from, to, cancelToken));
+
+
+            return await CallPumpWithActions(tasks, cancelToken);
+        }
 
         public async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
         {
@@ -151,7 +162,7 @@ namespace CGM.Communication.MiniMed
                                     {
                                         await EndEHSMAsync(cancelToken);
                                     }
-                                    
+
                                 }
 
 
@@ -214,20 +225,21 @@ namespace CGM.Communication.MiniMed
         {
 
 
-                Logger.LogInformation("Getting CNL deviceInformation");
+            Logger.LogInformation("Getting CNL deviceInformation");
 
 
-                CommunicationBlock block = new CommunicationBlock();
+            CommunicationBlock block = new CommunicationBlock();
 
-                block.Request = new AstmStart("X");
-                //expected responses for the request
-                block.ExpectedResponses.Add(new ReportPattern(new byte[] { 0x04, 0x02 }, 5));
-                block.ExpectedResponses.Add(new EnqOREotkPattern());
-                //Start Communication 
-                await this.StartCommunication(block, cancelToken);
-            
+            block.Request = new AstmStart("X");
+            //expected responses for the request
+            block.ExpectedResponses.Add(new ReportPattern(new byte[] { 0x00, 0x41,0x42,0x43 }, 0));
+            block.ExpectedResponses.Add(new EnqOREotkPattern());
+            //Start Communication 
+            await this.StartCommunication(block, cancelToken);
+
             if (string.IsNullOrEmpty(this.Session.Device.SerialNumber))
             {
+                
                 throw new Exception("DeviceInfo not set.");
             }
             else
@@ -271,7 +283,7 @@ namespace CGM.Communication.MiniMed
 
             if (this.Session.Device != null && this.Session.Device.HMACbyte != null)
             {
-               //Logger.LogInformation($"OpenConnection HMAC: {BitConverter.ToString(this.Session.Device.HMACbyte)}");
+                //Logger.LogInformation($"OpenConnection HMAC: {BitConverter.ToString(this.Session.Device.HMACbyte)}");
                 await StartCommunication(Session.GetOpenConnectionRequest(),
                     new OpenConnectionResponsePattern(),
                     cancelToken);
@@ -311,7 +323,7 @@ namespace CGM.Communication.MiniMed
 
             }
 
-  
+
 
             if (this.Session.LinkKey == null)
             {
@@ -368,11 +380,17 @@ namespace CGM.Communication.MiniMed
                 this.Session.RadioChannelConfirmed = false;
             }
 
-           
+
             if (this.Session.RadioChannel != 0x00)
             {
-                Logger.LogInformation($"Looking for pump. Channel: {this.Session.RadioChannel} (Last used)");
-                await StartCommunicationStandardResponse(Session.GetChannelRequest(this.Session.RadioChannel), cancelToken);
+                byte trie = this.Session.RadioChannel;
+                this.Session.RadioChannel = 0x00;
+                Logger.LogInformation($"Looking for pump. Channel: {trie} (Last used)");
+                await StartCommunicationStandardResponse(Session.GetChannelRequest(trie), cancelToken);
+                if (this.Session.RadioChannel == 0x00)
+                {
+                    Logger.LogInformation($"No connection on Channel {trie}");
+                }
             }
 
 
@@ -389,7 +407,7 @@ namespace CGM.Communication.MiniMed
                     cancelToken.ThrowIfCancellationRequested();
                     Logger.LogInformation($"Looking for pump. Channel: {item}");
                     await StartCommunicationStandardResponse(Session.GetChannelRequest(item), cancelToken);
-                    
+
                     if (this.Session.RadioChannel != 0x00)
                     {
                         break;
@@ -402,7 +420,7 @@ namespace CGM.Communication.MiniMed
                 }
             }
 
-            if (this.Session.RadioSignalStrength==0 && this.Session.RadioChannel != 0x00)
+            if (this.Session.RadioSignalStrength == 0 && this.Session.RadioChannel != 0x00)
             {
                 Logger.LogInformation($"Signal on Radiochannel {this.Session.RadioChannel.ToString()} is too weak ({this.Session.RadioSignalStrength}%)");
                 this.Session.RadioChannel = 0x00;
@@ -483,19 +501,52 @@ namespace CGM.Communication.MiniMed
 
             Logger.LogInformation("Getting Pumpstatus");
             await StartCommunicationStandardResponse(Session.GetPumpData(), cancelToken);
-            if (Session.Status.Count>0)
+            if (Session.Status.Count > 0)
             {
                 Logger.LogInformation($"Got pumpstatus: {Session.Status.Last().ToString()}");
                 Logger.LogTrace($"Decrypted bytes: {BitConverter.ToString(Session.Status.Last().AllBytes)}");
             }
         }
 
-        private async Task StartReadHistoryInfoAsync(CancellationToken cancelToken)
+        private async Task StartReadHistoryToday(CancellationToken cancelToken)
         {
-            //for now - Read only one day.....
-            DateTime lastReadDateTime = DateTime.Now;
+            DateTime from = DateTime.Now.AddDays(-1);
+            from = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+            DateTime to = DateTime.Now;
+
+            await StartReadHistory(from, to, cancelToken);
+
+        }
+
+        private async Task StartReadHistorySinceLastRead(CancellationToken cancelToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task StartReadHistory(DateTime from, DateTime to, CancellationToken cancelToken)
+        {
+            await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+            //await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+
+            await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+            //await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+
+        }
+
+        private async Task StartReadHistoryEvents(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
+        {
+            await StartReadHistoryAsync(from, to, historytype, cancelToken);
+            await StartMultiPacketAsync(new byte[] { 0x00, 0xff }, cancelToken);
+            await EndMultiPacketAsync(new byte[] { 0x01, 0xff }, cancelToken);
+
+
+        }
+
+
+        private async Task StartReadHistoryInfoAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
+        {
             Logger.LogInformation("ReadHistoryInfo");
-            await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(lastReadDateTime), cancelToken);
+            await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(from, to, historytype), cancelToken);
         }
 
         //
@@ -507,38 +558,55 @@ namespace CGM.Communication.MiniMed
             Logger.LogInformation("ReadCarbRatio");
             await StartCommunicationStandardResponse(Session.GetCarbRatio(), cancelToken);
         }
-        private async Task StartReadHistoryAsync(CancellationToken cancelToken)
+
+        private async Task StartReadHistoryAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
-            //for now - Read only one day.....
-            DateTime lastReadDateTime = DateTime.Now;
             Logger.LogInformation("ReadHistory");
+            int expectedSize = this.Session.PumpDataHistory.GetSize(historytype);
 
             CommunicationBlock communicationBlock = new CommunicationBlock();
-            communicationBlock.Request = Session.GetReadHistory(lastReadDateTime);
+            communicationBlock.Request = Session.GetReadHistory(from, to, historytype, expectedSize);
+            communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
+            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+
+
+            await StartCommunication(communicationBlock, cancelToken);
+            //await StartCommunicationStandardResponse(Session.GetReadHistory(from, to, historytype, expectedSize), cancelToken);
+        }
+
+        private async Task StartMultiPacketAsync(byte[] bytes, CancellationToken cancelToken)
+        {
+            CommunicationBlock communicationBlock = new CommunicationBlock();
+            communicationBlock.Request = Session.GetMultiPacket(bytes);
+            communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
+
+            int expectedMessages = Session.PumpDataHistory.CurrentMultiPacketHandler.ExpectedMessages;
+            for (int i = 0; i < expectedMessages; i++)
+            {
+                communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            }
+            Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
+            await StartCommunication(communicationBlock, cancelToken);
+        }
+
+        private async Task EndMultiPacketAsync(byte[] bytes, CancellationToken cancelToken)
+        {
+
+
+            Logger.LogInformation("End MultiPacket");
+
+            CommunicationBlock communicationBlock = new CommunicationBlock();
+            communicationBlock.Request = Session.GetMultiPacket(bytes);
+
+
             communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
             communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
 
 
-            await StartCommunication(communicationBlock, cancelToken);
-        }
-
-        private async Task StartMultiPacketAsync(CancellationToken cancelToken)
-        {
-
-
-            Logger.LogInformation("MultiPacket");
-
-            CommunicationBlock communicationBlock = new CommunicationBlock();
-            communicationBlock.Request = Session.GetMultiPacket();
-            //get the first 30.... 
-            for (int i = 0; i < 30; i++)
-            {
-                communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            }
-
-            //TODO: need to handle x amount of recieved messages.
             await StartCommunication(communicationBlock, cancelToken);
         }
 

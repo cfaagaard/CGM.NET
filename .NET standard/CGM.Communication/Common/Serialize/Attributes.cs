@@ -18,9 +18,14 @@ namespace CGM.Communication.Common.Serialize
         public bool IsEncrypted { get; set; } = false;
 
     }
-
-
     [AttributeUsage(AttributeTargets.Property)]
+    public class BinaryPropertyValueTransfer : System.Attribute
+    {
+        public string ParentPropertyName { get; set; }
+        public string ChildPropertyName { get; set; }
+    }
+
+        [AttributeUsage(AttributeTargets.Property)]
     public class BinaryElement : System.Attribute
     {
         public int FieldOffset { get; set; }
@@ -64,7 +69,7 @@ namespace CGM.Communication.Common.Serialize
         public string  Path { get; set; }
         public object Value { get; set; }
         public Type Type { get; set; }
-
+        public int LengthEquals { get; set; } = 0;
         public IReportPattern ReportPattern { get; set; }
 
         public Evaluate PropertyEval { get; set; }

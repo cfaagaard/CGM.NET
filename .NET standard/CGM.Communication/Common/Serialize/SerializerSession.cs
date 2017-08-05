@@ -20,16 +20,18 @@ namespace CGM.Communication.Common.Serialize
 
         public byte[] EncryptKey
         {
-            get {
-                if (_encryptKey==null)
+            get
+            {
+                if (_encryptKey == null)
                 {
                     if (string.IsNullOrEmpty(this.Device.SerialNumberFull))
                     {
                         throw new ArgumentException("Missing SerialNumberFull to set EncryptKey");
                     }
-                    _encryptKey= GetKey(this.Device.SerialNumberFull);
+                    _encryptKey = GetKey(this.Device.SerialNumberFull);
                 }
-                return _encryptKey; }
+                return _encryptKey;
+            }
             set { _encryptKey = value; }
         }
 
@@ -53,49 +55,7 @@ namespace CGM.Communication.Common.Serialize
 
         public string PumpSerialNumber { get; set; }
 
-        private byte[] _pumpEncryptKey;
-
-        public byte[] PumpEncryptKey
-        {
-            get
-            {
-                if (_pumpEncryptKey == null)
-                {
-                    if (string.IsNullOrEmpty(this.PumpSerialNumber))
-                    {
-                        throw new ArgumentException("Missing SerialNumberFull to set EncryptKey");
-                    }
-                    _pumpEncryptKey = GetKey(this.PumpSerialNumber);
-                    //if (this.PumpMac==null)
-                    //{
-                    //    throw new ArgumentException("Missing PumpMac to set EncryptKey");
-                    //}
-                    //_pumpEncryptKey = SetKey(this.PumpSerialNumber);
-                }
-                return _pumpEncryptKey;
-            }
-            set { _pumpEncryptKey = value; }
-        }
-
-
-
-
-        public byte[] PumpEncryptIV
-        {
-            get
-            {
-                if (this.PumpEncryptKey != null)
-                {
-                    byte[] encryptIV = new byte[PumpEncryptKey.Length];
-                    Array.Copy(PumpEncryptKey, 0, encryptIV, 0, PumpEncryptKey.Length);
-                    encryptIV[0] = RadioChannel;
-                    return encryptIV;
-                }
-                return null;
-            }
-        }
-
-        public byte[] LinkMac { get; set; } 
+        public byte[] LinkMac { get; set; }
         public byte[] PumpMac { get; set; }
 
         public BayerStickInfoResponse Device { get; set; } = new BayerStickInfoResponse();
@@ -108,12 +68,19 @@ namespace CGM.Communication.Common.Serialize
         public int RadioSignalStrength { get; set; }
         public int Battery { get; set; }
 
+        public bool CanSaveSession
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(this.Device.SerialNumber);
+            }
+        }
 
         public Setting Settings { get; set; } = new Setting();
 
         public List<PumpStatusMessage> Status { get; set; } = new List<PumpStatusMessage>();
 
-
+        public List<object> All { get; set; } = new List<object>();
 
         public List<PumpPattern> PumpPatterns { get; set; } = new List<PumpPattern>();
 
@@ -124,7 +91,7 @@ namespace CGM.Communication.Common.Serialize
 
         public PumpDataHistory PumpDataHistory { get; set; }
 
-        
+
 
         public byte[] LinkKey { get; set; }
 
@@ -161,9 +128,9 @@ namespace CGM.Communication.Common.Serialize
             //optimal, in localtime: 22:01:20
             int seconds = 60;
             int minutes = 5;
-            if (status.SgvDateTime.HasValue && this.PumpTime.PumpDateTime.HasValue)
+            if (status.SgvDateTime.DateTime.HasValue && this.PumpTime.PumpDateTime.HasValue)
             {
-                var nextSgvDate = status.SgvDateTime.Value.AddMinutes(minutes);
+                var nextSgvDate = status.SgvDateTime.DateTime.Value.AddMinutes(minutes);
                 var optimalInPumptime = nextSgvDate.AddSeconds(seconds);
                 //difference between local and pumpe time
                 TimeSpan PumpDiffTime = DateTime.Now.Subtract(this.PumpTime.PumpDateTime.Value);
@@ -178,7 +145,7 @@ namespace CGM.Communication.Common.Serialize
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
             parameters.Add(nameof(RadioChannel), BitConverter.ToString(new byte[] { this.RadioChannel }));
-            parameters.Add(nameof(LinkMac), BitConverter.ToString( this.LinkMac));
+            parameters.Add(nameof(LinkMac), BitConverter.ToString(this.LinkMac));
             parameters.Add(nameof(PumpMac), BitConverter.ToString(this.PumpMac));
             parameters.Add(nameof(LinkKey), BitConverter.ToString(this.LinkKey));
             parameters.Add(nameof(EncryptKey), BitConverter.ToString(this.EncryptKey));
@@ -206,7 +173,7 @@ namespace CGM.Communication.Common.Serialize
                     var spl = item.Split(keyvalueDelimeter);
                     parameters.Add(spl[0], spl[1]);
                 }
-         
+
             }
 
             this.RadioChannel = parameters[nameof(RadioChannel)].GetBytes()[0];
@@ -223,12 +190,12 @@ namespace CGM.Communication.Common.Serialize
 
         public byte[] GetKey(string serialnumber)
         {
-            if (this.LinkKey==null || serialnumber == null)
+            if (this.LinkKey == null || serialnumber == null)
             {
                 throw new ArgumentException("Missing Linkkey/number to set EncryptKey");
             }
             byte[] PackedLinkKey = this.LinkKey;
-           
+
             var key = new byte[16];
             int pos = serialnumber[serialnumber.Length - 1] & 7;
             for (int i = 0; i < key.Length; i++)
@@ -312,9 +279,9 @@ namespace CGM.Communication.Common.Serialize
             return GetPumpEnvelope((byte)SessionVariables.GetCryptedSequenceNumber(), type, null);
         }
 
-            public AstmStart GetBeginEHSM()
+        public AstmStart GetBeginEHSM()
         {
-            return GetPumpEnvelope(0x80, AstmSendMessageType.HIGH_SPEED_MODE_COMMAND, new byte[]{ 0x00 });
+            return GetPumpEnvelope(0x80, AstmSendMessageType.HIGH_SPEED_MODE_COMMAND, new byte[] { 0x00 });
         }
 
 
@@ -338,30 +305,39 @@ namespace CGM.Communication.Common.Serialize
 
         public AstmStart GetPumpBasalPattern(int patternNumber)
         {
-            return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST,BitConverter.GetBytes(patternNumber));
+            return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST, BitConverter.GetBytes(patternNumber));
         }
 
-        public AstmStart GetReadHistoryInfo(DateTime lastReadDateTime)
+        public AstmStart GetReadHistoryInfo(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType)
         {
-            AstmStart msg= GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
-            ((PumpMessage)((MedtronicMessage2)msg.Message2).Message).Message = new ReadHistoryInfoRequest(lastReadDateTime);
-            return msg;
+            try
+            {
+                AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
+                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType);
+                return msg;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
         }
 
-        public AstmStart GetReadHistory(DateTime lastReadDateTime)
+        public AstmStart GetReadHistory(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType, int expectedSize)
         {
             AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
-            ((PumpMessage)((MedtronicMessage2)msg.Message2).Message).Message = new ReadHistoryRequest(lastReadDateTime);
+            ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType);
             return msg;
         }
 
-        public AstmStart GetMultiPacket()
+        public AstmStart GetMultiPacket(byte[] bytes)
         {
             AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
             PumpGeneral request = new PumpGeneral();
-            request.Unknown1 = new byte[] {0x00,0xff };
+            request.Unknown1 = bytes;//;
 
-            ((PumpMessage)((MedtronicMessage2)msg.Message2).Message).Message = request;
+            ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = request;
             return msg;
         }
 

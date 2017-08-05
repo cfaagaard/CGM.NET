@@ -862,7 +862,9 @@ namespace CGM.Communication.Data.Nightscout
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl).Append("/treatments?");
-            if (find != null) urlBuilder_.Append("find=").Append(System.Uri.EscapeDataString(System.Convert.ToString(find, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            //manuel edit
+            //if (find != null) urlBuilder_.Append("find=").Append(System.Uri.EscapeDataString(System.Convert.ToString(find, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (find != null) urlBuilder_.Append(find).Append("&");
             if (count != null) urlBuilder_.Append("count=").Append(System.Uri.EscapeDataString(System.Convert.ToString(count.Value, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
 

@@ -69,161 +69,162 @@ namespace CGM.Communication.Common.Serialize
     public static class MiniLZO
     {
 
-        //unsafe static uint lzo1x_1_compress_core(byte* @in, uint in_len, byte* @out, ref uint out_len, uint ti, void* wrkmem)
-        //{
-        //    byte* ip;
-        //    byte* op;
-        //    byte* in_end = @in + in_len;
-        //    byte* ip_end = @in + in_len - 20;
-        //    byte* ii;
-        //    ushort* dict = (ushort*)wrkmem;
-        //    op = @out;
-        //    ip = @in;
-        //    ii = ip;
-        //    ip += ti < 4 ? 4 - ti : 0;
+        unsafe static uint lzo1x_1_compress_core(byte* @in, uint in_len, byte* @out, ref uint out_len, uint ti, void* wrkmem)
+        {
+            byte* ip;
+            byte* op;
+            byte* in_end = @in + in_len;
+            byte* ip_end = @in + in_len - 20;
+            byte* ii;
+            ushort* dict = (ushort*)wrkmem;
+            op = @out;
+            ip = @in;
+            ii = ip;
+            ip += ti < 4 ? 4 - ti : 0;
 
-        //    byte* m_pos;
-        //    uint m_off;
-        //    uint m_len;
+            byte* m_pos;
+            uint m_off;
+            uint m_len;
 
-        //    for (;;)
-        //    {
+            for (;;)
+            {
 
-        //        uint dv;
-        //        uint dindex;
-        //        literal:
-        //        ip += 1 + ((ip - ii) >> 5);
-        //        next:
-        //        if (ip >= ip_end)
-        //            break;
-        //        dv = (*(uint*)(void*)(ip));
-        //        dindex = ((uint)(((((((uint)((0x1824429d) * (dv)))) >> (32 - 14))) & (((1u << (14)) - 1) >> (0))) << (0)));
-        //        m_pos = @in + dict[dindex];
-        //        dict[dindex] = ((ushort)((uint)((ip) - (@in))));
-        //        if (dv != (*(uint*)(void*)(m_pos)))
-        //            goto literal;
+                uint dv;
+                uint dindex;
+                literal:
+                ip += 1 + ((ip - ii) >> 5);
+                next:
+                if (ip >= ip_end)
+                    break;
+                dv = (*(uint*)(void*)(ip));
+                dindex = ((uint)(((((((uint)((0x1824429d) * (dv)))) >> (32 - 14))) & (((1u << (14)) - 1) >> (0))) << (0)));
+                m_pos = @in + dict[dindex];
+                dict[dindex] = ((ushort)((uint)((ip) - (@in))));
+                if (dv != (*(uint*)(void*)(m_pos)))
+                    goto literal;
 
-        //        ii -= ti; ti = 0;
-        //        {
-        //            uint t = ((uint)((ip) - (ii)));
-        //            if (t != 0)
-        //            {
-        //                if (t <= 3)
-        //                {
-        //                    op[-2] |= ((byte)(t));
-        //                    *(uint*)(op) = *(uint*)(ii);
-        //                    op += t;
-        //                }
-        //                else if (t <= 16)
-        //                {
-        //                    *op++ = ((byte)(t - 3));
-        //                    *(uint*)(op) = *(uint*)(ii);
-        //                    *(uint*)(op + 4) = *(uint*)(ii + 4);
-        //                    *(uint*)(op + 8) = *(uint*)(ii + 8);
-        //                    *(uint*)(op + 12) = *(uint*)(ii + 12);
-        //                    op += t;
-        //                }
-        //                else
-        //                {
-        //                    if (t <= 18)
-        //                        *op++ = ((byte)(t - 3));
-        //                    else
-        //                    {
-        //                        uint tt = t - 18;
-        //                        *op++ = 0;
-        //                        while (tt > 255)
-        //                        {
-        //                            tt -= 255;
-        //                            *(byte*)op++ = 0;
-        //                        }
+                ii -= ti; ti = 0;
+                {
+                    uint t = ((uint)((ip) - (ii)));
+                    if (t != 0)
+                    {
+                        if (t <= 3)
+                        {
+                            op[-2] |= ((byte)(t));
+                            *(uint*)(op) = *(uint*)(ii);
+                            op += t;
+                        }
+                        else if (t <= 16)
+                        {
+                            *op++ = ((byte)(t - 3));
+                            *(uint*)(op) = *(uint*)(ii);
+                            *(uint*)(op + 4) = *(uint*)(ii + 4);
+                            *(uint*)(op + 8) = *(uint*)(ii + 8);
+                            *(uint*)(op + 12) = *(uint*)(ii + 12);
+                            op += t;
+                        }
+                        else
+                        {
+                            if (t <= 18)
+                                *op++ = ((byte)(t - 3));
+                            else
+                            {
+                                uint tt = t - 18;
+                                *op++ = 0;
+                                while (tt > 255)
+                                {
+                                    tt -= 255;
+                                    *(byte*)op++ = 0;
+                                }
 
-        //                        *op++ = ((byte)(tt));
-        //                    }
-        //                    do
-        //                    {
-        //                        *(uint*)(op) = *(uint*)(ii);
-        //                        *(uint*)(op + 4) = *(uint*)(ii + 4);
-        //                        *(uint*)(op + 8) = *(uint*)(ii + 8);
-        //                        *(uint*)(op + 12) = *(uint*)(ii + 12);
-        //                        op += 16; ii += 16; t -= 16;
-        //                    } while (t >= 16); if (t > 0) { do *op++ = *ii++; while (--t > 0); }
-        //                }
-        //            }
-        //        }
-        //        m_len = 4;
-        //        {
-        //            uint v;
-        //            v = (*(uint*)(void*)(ip + m_len)) ^ (*(uint*)(void*)(m_pos + m_len));
-        //            if (v == 0)
-        //            {
-        //                do
-        //                {
-        //                    m_len += 4;
-        //                    v = (*(uint*)(void*)(ip + m_len)) ^ (*(uint*)(void*)(m_pos + m_len));
-        //                    if (ip + m_len >= ip_end)
-        //                        goto m_len_done;
-        //                } while (v == 0);
-        //            }
-        //            m_len += (uint)lzo_bitops_ctz32(v) / 8;
-        //        }
-        //        m_len_done:
-        //        m_off = ((uint)((ip) - (m_pos)));
-        //        ip += m_len;
-        //        ii = ip;
-        //        if (m_len <= 8 && m_off <= 0x0800)
-        //        {
-        //            m_off -= 1;
-        //            *op++ = ((byte)(((m_len - 1) << 5) | ((m_off & 7) << 2)));
-        //            *op++ = ((byte)(m_off >> 3));
-        //        }
-        //        else if (m_off <= 0x4000)
-        //        {
-        //            m_off -= 1;
-        //            if (m_len <= 33)
-        //                *op++ = ((byte)(32 | (m_len - 2)));
-        //            else
-        //            {
-        //                m_len -= 33;
-        //                *op++ = 32 | 0;
-        //                while (m_len > 255)
-        //                {
-        //                    m_len -= 255;
-        //                    *(byte*)op++ = 0;
-        //                }
-        //                *op++ = ((byte)(m_len));
-        //            }
-        //            *op++ = ((byte)(m_off << 2));
-        //            *op++ = ((byte)(m_off >> 6));
-        //        }
-        //        else
-        //        {
-        //            m_off -= 0x4000;
-        //            if (m_len <= 9)
-        //                *op++ = ((byte)(16 | ((m_off >> 11) & 8) | (m_len - 2)));
-        //            else
-        //            {
-        //                m_len -= 9;
-        //                *op++ = ((byte)(16 | ((m_off >> 11) & 8)));
-        //                while (m_len > 255)
-        //                {
-        //                    m_len -= 255;
-        //                    *(byte*)op++ = 0;
-        //                }
-        //                *op++ = ((byte)(m_len));
-        //            }
-        //            *op++ = ((byte)(m_off << 2));
-        //            *op++ = ((byte)(m_off >> 6));
-        //        }
-        //        goto next;
-        //    }
-        //    out_len = ((uint)((op) - (@out)));
-        //    return ((uint)((in_end) - (ii - ti)));
-        //}
+                                *op++ = ((byte)(tt));
+                            }
+                            do
+                            {
+                                *(uint*)(op) = *(uint*)(ii);
+                                *(uint*)(op + 4) = *(uint*)(ii + 4);
+                                *(uint*)(op + 8) = *(uint*)(ii + 8);
+                                *(uint*)(op + 12) = *(uint*)(ii + 12);
+                                op += 16; ii += 16; t -= 16;
+                            } while (t >= 16); if (t > 0) { do *op++ = *ii++; while (--t > 0); }
+                        }
+                    }
+                }
+                m_len = 4;
+                {
+                    uint v;
+                    v = (*(uint*)(void*)(ip + m_len)) ^ (*(uint*)(void*)(m_pos + m_len));
+                    if (v == 0)
+                    {
+                        do
+                        {
+                            m_len += 4;
+                            v = (*(uint*)(void*)(ip + m_len)) ^ (*(uint*)(void*)(m_pos + m_len));
+                            if (ip + m_len >= ip_end)
+                                goto m_len_done;
+                        } while (v == 0);
+                    }
+                    m_len += (uint)lzo_bitops_ctz32(v) / 8;
+                }
+                m_len_done:
+                m_off = ((uint)((ip) - (m_pos)));
+                ip += m_len;
+                ii = ip;
+                if (m_len <= 8 && m_off <= 0x0800)
+                {
+                    m_off -= 1;
+                    *op++ = ((byte)(((m_len - 1) << 5) | ((m_off & 7) << 2)));
+                    *op++ = ((byte)(m_off >> 3));
+                }
+                else if (m_off <= 0x4000)
+                {
+                    m_off -= 1;
+                    if (m_len <= 33)
+                        *op++ = ((byte)(32 | (m_len - 2)));
+                    else
+                    {
+                        m_len -= 33;
+                        *op++ = 32 | 0;
+                        while (m_len > 255)
+                        {
+                            m_len -= 255;
+                            *(byte*)op++ = 0;
+                        }
+                        *op++ = ((byte)(m_len));
+                    }
+                    *op++ = ((byte)(m_off << 2));
+                    *op++ = ((byte)(m_off >> 6));
+                }
+                else
+                {
+                    m_off -= 0x4000;
+                    if (m_len <= 9)
+                        *op++ = ((byte)(16 | ((m_off >> 11) & 8) | (m_len - 2)));
+                    else
+                    {
+                        m_len -= 9;
+                        *op++ = ((byte)(16 | ((m_off >> 11) & 8)));
+                        while (m_len > 255)
+                        {
+                            m_len -= 255;
+                            *(byte*)op++ = 0;
+                        }
+                        *op++ = ((byte)(m_len));
+                    }
+                    *op++ = ((byte)(m_off << 2));
+                    *op++ = ((byte)(m_off >> 6));
+                }
+                goto next;
+            }
+            out_len = ((uint)((op) - (@out)));
+            return ((uint)((in_end) - (ii - ti)));
+        }
 
         static int[] MultiplyDeBruijnBitPosition = {
               0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
               31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
             };
+
         private static int lzo_bitops_ctz32(uint v)
         {
             return MultiplyDeBruijnBitPosition[((uint)((v & -v) * 0x077CB531U)) >> 27];
@@ -282,7 +283,7 @@ namespace CGM.Communication.Common.Serialize
             return 0;
         }
 
-        public  static int lzo1x_decompress(byte[] @in, uint in_len, byte[] @out, ref uint out_len, void* wrkmem)
+        public  static unsafe int lzo1x_decompress(byte[] @in, uint in_len, byte[] @out, ref uint out_len, void* wrkmem)
         {
             byte* op;
             byte* ip;
@@ -484,24 +485,24 @@ namespace CGM.Communication.Common.Serialize
             }
         }
 
-        //public static unsafe byte[] Compress(byte[] input)
-        //{
-        //    byte[] @out = new byte[input.Length + (input.Length / 16) + 64 + 3];
-        //    uint out_len = 0;
-        //    fixed (byte* @pIn = input, wrkmem = new byte[IntPtr.Size * 16384], pOut = @out)
-        //    {
-        //        lzo1x_1_compress(pIn, (uint)input.Length, @pOut, ref @out_len, wrkmem);
-        //    }
-        //    Array.Resize(ref @out, (int)out_len);
-        //    return @out;
-        //}
+        public static unsafe byte[] Compress(byte[] input)
+        {
+            byte[] @out = new byte[input.Length + (input.Length / 16) + 64 + 3];
+            uint out_len = 0;
+            fixed (byte* @pIn = input, wrkmem = new byte[IntPtr.Size * 16384], pOut = @out)
+            {
+                lzo1x_1_compress(pIn, (uint)input.Length, @pOut, ref @out_len, wrkmem);
+            }
+            Array.Resize(ref @out, (int)out_len);
+            return @out;
+        }
 
-        //public static unsafe void Compress(byte* r, uint size_in, byte* w, ref uint size_out)
-        //{
-        //    fixed (byte* wrkmem = new byte[IntPtr.Size * 16384])
-        //    {
-        //        lzo1x_1_compress(r, size_in, w, ref size_out, wrkmem);
-        //    }
-        //}
+        public static unsafe void Compress(byte* r, uint size_in, byte* w, ref uint size_out)
+        {
+            fixed (byte* wrkmem = new byte[IntPtr.Size * 16384])
+            {
+                lzo1x_1_compress(r, size_in, w, ref size_out, wrkmem);
+            }
+        }
     }
 }

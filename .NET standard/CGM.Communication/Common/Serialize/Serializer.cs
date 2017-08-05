@@ -125,13 +125,14 @@ namespace CGM.Communication.Common.Serialize
 
         public byte[] Serialize<T>(T bytes) where T : class, new()
         {
+            this._session.All.Add(bytes);
             return SerializeInternal<T>(bytes);
         }
 
 
         private byte[] SerializeInternal<T>(T s) where T : class
         {
-
+         
             var classtype = (BinaryType)typeof(T).GetTypeInfo().GetCustomAttribute(typeof(BinaryType));
             if (classtype != null)
             {
@@ -140,10 +141,12 @@ namespace CGM.Communication.Common.Serialize
                 //var query = dic.Keys.OrderBy(e => e.FieldOffset);
                 List<byte> temp = new List<byte>();
                 SerializeInfo<T> serInfo = new SerializeInfo<T>(s);
-
+                bool IsLittleEndian = BitConverter.IsLittleEndian;
+                IsLittleEndian = classtype.IsLittleEndian;
 
                 foreach (var item in serInfo.InfoElementOrderedList)
                 {
+
 
                     var property = item.Info;// dic[item];
                     byte[] value = null;
@@ -179,33 +182,33 @@ namespace CGM.Communication.Common.Serialize
                             var serializerMethodes = typeof(CGM.Communication.Common.Serialize.Serializer).GetRuntimeMethods();
                             var generic0 = serializerMethodes.FirstOrDefault(e => e.Name == "SerializeInternal");
                             var generic = generic0.MakeGenericMethod(property.PropertyType);
-                            value = (byte[])generic.Invoke(this, new object[] { property.GetValue(s) });
+                            value = (byte[])generic.Invoke(this, new object[] { getvalue });
                         }
 
-                        if (value == null)
+
+                        if (value==null && getvalue!=null)
                         {
-
-                            var testValue = property.GetValue(s);
-                            if (testValue != null)
+                            if (getvalue.GetType().GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinaryType)))
                             {
-
-                                if (testValue.GetType().GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinaryType)))
+                                var serializerMethodes = typeof(CGM.Communication.Common.Serialize.Serializer).GetRuntimeMethods();
+                                var generic0 = serializerMethodes.FirstOrDefault(e => e.Name == "SerializeInternal");
+                                var generic = generic0.MakeGenericMethod(checktype);
+                                var tempValue = (byte[])generic.Invoke(this, new object[] { getvalue });
+                                if (IsLittleEndian == false)
                                 {
-                                    var serializerMethodes = typeof(CGM.Communication.Common.Serialize.Serializer).GetRuntimeMethods();
-                                    var generic0 = serializerMethodes.FirstOrDefault(e => e.Name == "SerializeInternal");
-                                    var generic = generic0.MakeGenericMethod(testValue.GetType());
-                                    value = (byte[])generic.Invoke(this, new object[] { property.GetValue(s) });
+                                    value = tempValue.Reverse().ToArray();
+                                }
+                                else
+                                {
+                                    value = tempValue;
                                 }
                             }
-
-
                         }
+
+
 
                         if (value != null)
                         {
-                            bool IsLittleEndian = BitConverter.IsLittleEndian;
-                            IsLittleEndian = classtype.IsLittleEndian;
-
                             if (IsLittleEndian == false)
                             {
                                 value = value.Reverse().ToArray();
@@ -239,6 +242,13 @@ namespace CGM.Communication.Common.Serialize
                     }
                 }
 
+
+
+                if (typeof(T).GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinarySerializationSetting)))
+                {
+                    ((IBinarySerializationSetting)s).OnSerialization(temp, _session);
+                }
+
                 if (classtype.IsEncrypted)
                 {
                     if (_session.EncryptKey == null || _session.EncryptIV == null)
@@ -246,12 +256,6 @@ namespace CGM.Communication.Common.Serialize
                         throw new Exception("Missing encryptKey/IV in serializationsettings.");
                     }
                     temp = temp.ToArray().Encrypt(_session.EncryptKey, _session.EncryptIV).ToList();
-                    //temp = temp.ToArray().Reverse().ToArray().Encrypt(_settings.EncryptKey, _settings.EncryptIV).ToList();
-                }
-
-                if (typeof(T).GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinarySerializationSetting)))
-                {
-                    ((IBinarySerializationSetting)s).OnSerialization(temp, _session);
                 }
 
                 return temp.ToArray();
@@ -306,7 +310,10 @@ namespace CGM.Communication.Common.Serialize
         public T Deserialize<T>(byte[] bytes) where T : class, new()
         {
             _byteLevels = new List<byte[]>();
-            return DeserializeInternal<T>(bytes);
+
+            T obj= DeserializeInternal<T>(bytes);
+            this._session.All.Add(obj);
+            return obj;
         }
 
         private T DeserializeInternal<T>(byte[] bytes) where T : class, new()
@@ -464,7 +471,9 @@ namespace CGM.Communication.Common.Serialize
 
                                     int listlength = listCount * list.ByteSize;
 
-                                    var listbytes = value.ToList().GetRange(current.Element.FieldOffset, listlength).ToList();
+                                    //var listbytes = value.ToList().GetRange(current.Element.FieldOffset, listlength).ToList();
+
+                                    var listbytes = value;
                                     List<Byte[]> splitBytes = new List<byte[]>();
                                     for (int j = 0; j < listCount; j++)
                                     {
@@ -486,10 +495,12 @@ namespace CGM.Communication.Common.Serialize
                             }
 
                             var attributes = (IEnumerable<MessageType>)property.GetCustomAttributes(typeof(MessageType));
+                            
                             bool containssubtype = property.PropertyType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinaryType));
                             if (containssubtype || attributes.Count() > 0)
                             {
                                 Type SeriType = null;
+                                int lengthEquals = 0;
                                 if (containssubtype)
                                 {
                                     SeriType = property.PropertyType;
@@ -501,9 +512,9 @@ namespace CGM.Communication.Common.Serialize
                                 {
                                     foreach (var item in attributes)
                                     {
+                                        lengthEquals = item.LengthEquals;
                                         if (!string.IsNullOrEmpty(item.Path))
                                         {
-                                            //var prop = serInfo.PropertyInfos.FirstOrDefault(e => e.Name == item.Path);
                                             var prop = serInfo.InfoElements.FirstOrDefault(e => e.Value.Info.Name == item.Path);
 
                                             if (item.Value is IEnumerable<byte>)
@@ -551,12 +562,27 @@ namespace CGM.Communication.Common.Serialize
                                 }
                                 if (SeriType != null)
                                 {
-                                    //Serializer seri = new Serializer();
-
+                                    if (lengthEquals!=0 && lengthEquals!=value.Count)
+                                    {
+                                        throw new Exception($"Expected length {lengthEquals}. Is {value.Count}");
+                                    }
                                     var serializerMethodes = typeof(CGM.Communication.Common.Serialize.Serializer).GetRuntimeMethods();
                                     var generic0 = serializerMethodes.FirstOrDefault(e => e.Name == "DeserializeInternal");
                                     var generic = generic0.MakeGenericMethod(SeriType);
                                     setvalue = generic.Invoke(this, new object[] { value.ToArray() });
+                                    var ctors = (IEnumerable<BinaryPropertyValueTransfer>)property.GetCustomAttributes(typeof(BinaryPropertyValueTransfer));
+                                    if (ctors.Count()>0)
+                                    {
+                                        foreach (var item in ctors)
+                                        {
+                                            var propinfo = serInfo.PropertyInfos.FirstOrDefault(e => e.Name == item.ParentPropertyName);
+                                            var parentvalue = propinfo.GetValue(byteClass);
+
+                                            setvalue.GetType().GetProperty(item.ChildPropertyName).SetValue(setvalue, parentvalue);
+                                        }
+                                        
+                                    }
+
                                 }
 
                             }

@@ -18,6 +18,7 @@ namespace CGM.Communication.Data.Nightscout
         {
             this.ApiKey = apiKey;
         }
+
         partial void PrepareRequest(HttpClient client, HttpRequestMessage request, StringBuilder urlBuilder)
         {
 

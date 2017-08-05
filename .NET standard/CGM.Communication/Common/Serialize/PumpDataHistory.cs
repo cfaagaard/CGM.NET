@@ -1,14 +1,18 @@
 ﻿using CGM.Communication.MiniMed.Responses;
+using CGM.Communication.MiniMed.Responses.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using CGM.Communication.MiniMed.Requests;
+using CGM.Communication.MiniMed.Infrastructur;
 
 namespace CGM.Communication.Common.Serialize
 {
     public class PumpDataHistory
     {
         private SerializerSession _session;
-        public PumpStateHistoryReadInfoResponse ReadInfoResponse { get; set; }
+   
         public MultiPacketHandler CurrentMultiPacketHandler { get; set; }
 
         public List<MultiPacketHandler> MultiPacketHandlers { get; set; } = new List<MultiPacketHandler>();
@@ -18,27 +22,48 @@ namespace CGM.Communication.Common.Serialize
             _session = session;
         }
 
-        public void AddMultiHandler(InitiateMultiPacketTransferResponse response)
+        public void AddMultiHandler(PumpStateHistoryReadInfoResponse response)
         {
             MultiPacketHandler handler = new MultiPacketHandler(_session);
-            handler.Init = response;
+            handler.ReadInfoResponse = response;
             MultiPacketHandlers.Add(handler);
-            CurrentMultiPacketHandler = handler;
+            //CurrentMultiPacketHandler = handler;
         }
 
-
-        public void TestHistory()
+        public int GetSize(HistoryDataTypeEnum historyDataType)
         {
+           var handler= MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)historyDataType);
+            if (handler!=null)
+            {
+                return handler.ReadInfoResponse.HistorySize;
+            }
+            return 0;
+        }
 
+        public void SetCurrentMulitPacket(ReadHistoryRequest request)
+        {
+            this.CurrentMultiPacketHandler = MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType); 
+        }
+
+        public void GetHistoryEvents()
+        {
+            MultiPacketHandlers.ForEach(e => e.GetHistoryEvents());
         }
 
         public override string ToString()
         {
-            if (this.ReadInfoResponse!=null)
+            if (this.CurrentMultiPacketHandler.ReadInfoResponse!=null)
             {
-                return $"{this.ReadInfoResponse.ToString()} ({this.CurrentMultiPacketHandler.PumpStateHistory.Count})";
+                return $"{this.CurrentMultiPacketHandler.ReadInfoResponse.ToString()} ({this.CurrentMultiPacketHandler.PumpStateHistory.Count})";
             }
             return "(No dates)";
+        }
+
+        public List<PumpEvent> JoinAllEvents()
+        {
+            List<PumpEvent> all = new List<PumpEvent>();
+            MultiPacketHandlers.ForEach(e => all.AddRange( e.Events));
+            return all.OrderBy(e => e.Timestamp).ToList(); ;
         }
     }
 }

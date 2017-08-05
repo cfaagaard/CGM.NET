@@ -107,15 +107,18 @@ namespace CGM.Uwp.Models
 
             PumpStatusMessage msg = new PumpStatusMessage();
             msg.Sgv = (short)r.Next(80, 400);
-            msg.SgvDateTimeOffSet = -1665586902;
-            msg.SgvDateTimeRtc = DateTime.Now.GetRtcBytes(msg.SgvDateTimeOffSet).GetInt32BigE(0);// - 2079185194;
+            msg.SgvDateTime = new Communication.MiniMed.DataTypes.DateTimeDataType();
+
+            msg.SgvDateTime.Offset = -1665586902;
+            msg.SgvDateTime.Rtc = DateTime.Now.GetRtcBytes(msg.SgvDateTime.Offset).GetInt32BigE(0);// - 2079185194;
+
             msg.CgmTrend = (byte)randomtrend[random.Next(randomtrend.Count)];
 
             msg.Alert = (short)warns[randomw.Next(warns.Count)];
             if (msg.Alert != 0)
             {
-                msg.AlertRtc = DateTime.Now.GetRtcBytes(msg.SgvDateTimeOffSet).GetInt32BigE(0);
-                msg.AlertOffset = -1665586902;
+                msg.AlertDateTime = new Communication.MiniMed.DataTypes.DateTimeDataType(DateTime.Now.GetRtcBytes(-1665586902).GetInt32BigE(0), -1665586902);
+
             }
 
 

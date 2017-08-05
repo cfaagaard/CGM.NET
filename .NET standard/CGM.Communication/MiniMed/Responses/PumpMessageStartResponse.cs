@@ -25,14 +25,7 @@ namespace CGM.Communication.MiniMed.Responses
         }
 
         [BinaryElement(3)]
-        //[MessageType(typeof(PumpTimeMessage), nameof(MessageType), new byte[] {0x04, 0x07})]
-        //[MessageType(typeof(PumpStatusMessage), nameof(MessageType), new byte[] { 0x01, 0x3c })]
-        //[MessageType(typeof(PumpPattern), nameof(MessageType), new byte[] { 0x01, 0x23 })]
-        //[MessageType(typeof(PumpStateHistory), nameof(MessageType), new byte[] { 0xff, 0x01 })]
-        //[MessageType(typeof(PumpStateHistoryReadInfoResponse), nameof(MessageType), new byte[] { 0x03, 0x0D })]
-
-
-        [MessageType(typeof(PumpTimeMessage), nameof(MessageTypeName), AstmSendMessageType.TIME_RESPONSE)]
+        [MessageType(typeof(PumpTimeMessage), nameof(MessageTypeName), AstmSendMessageType.TIME_RESPONSE,LengthEquals =13)]
         [MessageType(typeof(PumpStatusMessage), nameof(MessageTypeName), AstmSendMessageType.READ_PUMP_STATUS_RESPONSE)]
         [MessageType(typeof(PumpPattern), nameof(MessageTypeName), AstmSendMessageType.READ_BASAL_PATTERN_RESPONSE)]
         [MessageType(typeof(PumpStateHistory), nameof(MessageTypeName), AstmSendMessageType.MULTIPACKET_SEGMENT_TRANSMISSION)]
