@@ -216,6 +216,7 @@ namespace CGM.Communication.MiniMed
                 {
                     await CloseAsync(cancelToken);
                 }
+                
             }
 
             return Session;
@@ -526,11 +527,12 @@ namespace CGM.Communication.MiniMed
         private async Task StartReadHistory(DateTime from, DateTime to, CancellationToken cancelToken)
         {
             await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-            //await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+            await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
             await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-            //await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+            await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
+            Session.PumpDataHistory.GetHistoryEvents();
         }
 
         private async Task StartReadHistoryEvents(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
@@ -569,7 +571,7 @@ namespace CGM.Communication.MiniMed
             communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
             communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
 
 
             await StartCommunication(communicationBlock, cancelToken);
@@ -587,8 +589,16 @@ namespace CGM.Communication.MiniMed
             {
                 communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             }
+            //extra, extra....
+            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            communicationBlock.maxdelay = expectedMessages * 500; //milliseconds.
             Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);
+
+            
         }
 
         private async Task EndMultiPacketAsync(byte[] bytes, CancellationToken cancelToken)

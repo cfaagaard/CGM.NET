@@ -19,7 +19,7 @@ namespace CGM.Communication.Data.Nightscout
         private SerializerSession _session;
         private CGM.Communication.Data.Nightscout.NightscoutClient _client;
         private string dateformat = "yyyy-MM-ddTHH\\:mm\\:sszzz";
-        private string treatmentDateformat = "yyyy-MM-ddTHH\\:mm\\:ss.000Z";
+        //private string treatmentDateformat = "yyyy-MM-ddTHH\\:mm\\:ss.000Z";
 
         public List<Treatment> Treatments { get; set; } = new List<Treatment>();
         public List<Entry> Entries { get; set; } = new List<Entry>();
@@ -76,18 +76,18 @@ namespace CGM.Communication.Data.Nightscout
 
         public async Task Upload(CancellationToken cancelToken)
         {
-            if (Entries.Count>0)
+            if (Entries.Count > 0)
             {
                 await _client.AddEntriesAsync(Entries, cancelToken);
                 Logger.LogInformation($"Entries uploaded to Nightscout.");
             }
 
-            if (Treatments.Count>0)
+            if (Treatments.Count > 0)
             {
                 await _client.AddTreatmentsAsync(this.Treatments, cancelToken);
                 Logger.LogInformation($"Treatments uploaded to Nightscout.");
             }
-            if (this.DeviceStatus!=null)
+            if (this.DeviceStatus != null)
             {
                 await _client.AddDeviceStatusAsync(new List<Nightscout.DeviceStatus>() { this.DeviceStatus }, cancelToken);
                 Logger.LogInformation("DeviceStatus uploaded to Nightscout.");
@@ -118,43 +118,50 @@ namespace CGM.Communication.Data.Nightscout
             int sgvValue = message.Sgv;
             DateTimeDataType date = message.SgvDateTime;
 
+            if (date.DateTime.HasValue)
+            {
+
 
                 if (sgvValue == 769)
-            {
-                //do not upload sgv, but create note.
-                //observed during warmup after changing the pump.
-                CreateErrorNote("Warmup....");
-                return;
-            }
+                {
+                    //do not upload sgv, but create note.
+                    //observed during warmup after changing the pump.
+                    CreateErrorNote("Warmup....");
+                    return;
+                }
 
-            if (sgvValue==770)
-            {
-                //observed during alert "need calibration"
-                CreateErrorNote("Need calibration.....");
-                return;
-            }
-            if (sgvValue > 400)
-            {
-                sgvValue = 400;
-            }
-            Entry entry = new Entry();
-            entry.Date = date.DateTimeEpoch;
-            entry.Direction = message.CgmTrendName.ToString();
-            entry.Sgv = sgvValue;
-            entry.Type = "sgv";
-            entry.DateString = date.DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy");
-            entry.Device = string.Format("medtronic-640g://{0}", serialNum);
+                if (sgvValue == 770)
+                {
+                    //observed during alert "need calibration"
+                    CreateErrorNote("Need calibration.....");
+                    return;
+                }
+                if (sgvValue > 400)
+                {
+                    sgvValue = 400;
+                }
+                Entry entry = new Entry();
+                entry.Date = date.DateTimeEpoch;
+                entry.Direction = message.CgmTrendName.ToString();
+                entry.Sgv = sgvValue;
+                entry.Type = "sgv";
+                entry.DateString = date.DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy");
+                entry.Device = string.Format("medtronic-640g://{0}", serialNum);
 
-            var last = await _client.EntriesAsync(null, 1);
-            if (last.Count == 0 || !entry.DateString.Equals(last[0].DateString))
-            {
-                this.Entries.Add(entry);
+                var last = await _client.EntriesAsync(null, 1);
+                if (last.Count == 0 || !entry.DateString.Equals(last[0].DateString))
+                {
+                    this.Entries.Add(entry);
+                }
+                else
+                {
+                    Logger.LogInformation("Entry not uploaded to Nightscout. Already exists.");
+                }
             }
             else
             {
-                Logger.LogInformation("Entry not uploaded to Nightscout. Already exists.");
+                Logger.LogInformation("No sgv-date.");
             }
-
         }
 
         private void CreateDeviceStatus()
@@ -205,7 +212,7 @@ namespace CGM.Communication.Data.Nightscout
             treatment.Glucose = message.SgvMmol.ToString();
             treatment.EventType = "Correction Bolus";
             treatment.EnteredBy = $"Ref:{message.LastBolusReference}";
-            treatment.Created_at = message.LastBolusDateTime.ToString(treatmentDateformat);
+            treatment.Created_at = message.LastBolusDateTime.ToString(dateformat);
 
             var last = await _client.TreatmentsAsync($"find[eventType]={treatment.EventType.Replace(" ", "+")}&find[enteredBy]={treatment.EnteredBy}", 1);
             if (last.Count == 0)
@@ -218,7 +225,7 @@ namespace CGM.Communication.Data.Nightscout
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Note";
-            treatment.Created_at = _session.PumpTime.PumpDateTime.Value.ToString(treatmentDateformat);
+            treatment.Created_at = _session.PumpTime.PumpDateTime.Value.ToString(dateformat);
             treatment.Notes = note;
             Treatments.Add(treatment);
 

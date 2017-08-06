@@ -77,6 +77,7 @@ namespace CGM.Communication.MiniMed.Requests
         }
         public virtual void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
+
             this.FromDateTime = DateTimeExtension.GetDateTime(FromRtc, settings.PumpTime.OffSet);
             this.ToDateTime = DateTimeExtension.GetDateTime(ToRtc, settings.PumpTime.OffSet);
         }

@@ -333,7 +333,7 @@ namespace CGM.Communication.Common.Serialize
 
         public AstmStart GetMultiPacket(byte[] bytes)
         {
-            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
+            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.ACK_MULTIPACKET_COMMAND);
             PumpGeneral request = new PumpGeneral();
             request.Unknown1 = bytes;//;
 

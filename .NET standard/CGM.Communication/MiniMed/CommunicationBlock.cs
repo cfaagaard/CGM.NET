@@ -26,10 +26,10 @@ namespace CGM.Communication.MiniMed
         private CancellationToken _cancelToken;
         private ILogger Logger = ApplicationLogging.CreateLogger<CommunicationBlock>();
         private int delay = 250;
-        private int maxdelay = 7000;
+        //private int maxdelay = 7000;
         //private int recievedBytesLength = 0;
         //public int MaxRecievedBytesLength { get; set; } = -1;
-        
+        public int maxdelay { get; set; } = 7000;
 
         protected BlockingCollection<AstmStart> ResponsesRecieved { get; set; } = new BlockingCollection<AstmStart>();
 

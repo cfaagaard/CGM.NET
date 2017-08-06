@@ -55,6 +55,7 @@ namespace CGM.Communication.Tasks
             TimeSpan timeToGo = (runTime - current);
             if (timeToGo < TimeSpan.Zero)
             {
+                Logger.LogError($"Time passed....");
                 return;//time already passed
             }
 
@@ -116,9 +117,9 @@ namespace CGM.Communication.Tasks
                         }
                         else
                         {
-                            var timer = DateTime.Now.AddMinutes(5);
-                            session.NextRun = timer;
-                            Logger.LogInformation($"Next session: {timer} (From local datetime. No sgv-time)");
+                            var time = DateTime.Now.AddMinutes(5);
+                            session.NextRun = time;
+                            Logger.LogInformation($"Next session: {time} (From local datetime. No sgv-time)");
                         }
                         SetUpTimer(session.NextRun.Value);
                         session.NewSession();
