@@ -88,8 +88,8 @@ namespace CGM.Communication.Common.Serialize
         /// </summary>
         /// <param name="stream">the compressed stream</param>
         /// <param name="mode">currently only decompression is supported</param>
-        public LzoStream(Stream stream, CompressionMode mode)
-            :this(stream, mode, false) {}
+        public LzoStream(Stream stream, CompressionMode mode,long length)
+            :this(stream, mode, false, length) {}
 
         /// <summary>
         /// creates a new lzo stream for decompression
@@ -97,13 +97,14 @@ namespace CGM.Communication.Common.Serialize
         /// <param name="stream">the compressed stream</param>
         /// <param name="mode">currently only decompression is supported</param>
         /// <param name="leaveOpen">true to leave the stream open after disposing the LzoStream object; otherwise, false</param>
-        public LzoStream(Stream stream, CompressionMode mode, bool leaveOpen)
+        public LzoStream(Stream stream, CompressionMode mode, bool leaveOpen, long length)
         {
             if (mode != CompressionMode.Decompress)
                 throw new NotSupportedException("Compression is not supported");
             if (!stream.CanRead)
                 throw new ArgumentException("write-only stream cannot be used for decompression");
             _base = stream;
+            _length=length;
             _inputLength = _base.Length;
             _leaveOpen = leaveOpen;
             DecodeFirstByte();

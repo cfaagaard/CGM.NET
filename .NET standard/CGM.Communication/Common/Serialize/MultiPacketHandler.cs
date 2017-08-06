@@ -19,13 +19,18 @@ namespace CGM.Communication.Common.Serialize
         public int ReadLength { get; set; } = 0;
         public PumpStateHistoryReadInfoResponse ReadInfoResponse { get; set; }
 
+        public PumpStateHistoryStart HistoryStart { get; set; }
+
         public int ExpectedMessages
         {
             get
             {
                 if (this.Init != null)
                 {
-                    return (this.Init.SegmentSize - this.Init.LastPacketSize) / this.Init.PacketSize;
+                   var expectedMessages =(this.Init.SegmentSize - this.Init.LastPacketSize) / this.Init.PacketSize;
+                    //and the last message.
+                    expectedMessages += 1;
+                    return expectedMessages;
                 }
                 return 0;
             }
@@ -58,13 +63,13 @@ namespace CGM.Communication.Common.Serialize
                 segmentbytes.AddRange(item);
             }
 
-            var message = _seri.Deserialize<PumpStateHistoryStart>(segmentbytes.ToArray());
+            HistoryStart = _seri.Deserialize<PumpStateHistoryStart>(segmentbytes.ToArray());
 
-            if (message.historyCompressed == 0x01)
+            if (HistoryStart.historyCompressed == 0x01)
             {
-                using (Stream stream = new MemoryStream(message.AllBytesNoHeader))
+                using (Stream stream = new MemoryStream(HistoryStart.AllBytesNoHeader))
                 using (var ms = new MemoryStream())
-                using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress))
+                using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress,false,HistoryStart.historySizeUncompressed))
                 {
                     decompressed1.CopyTo(ms);
                     blockpayload =  ms.ToArray();
@@ -72,7 +77,7 @@ namespace CGM.Communication.Common.Serialize
             }
             else
             {
-                blockpayload = message.AllBytesNoHeader;
+                blockpayload = HistoryStart.AllBytesNoHeader;
             }
 
             var length = blockpayload.Length / block_size;

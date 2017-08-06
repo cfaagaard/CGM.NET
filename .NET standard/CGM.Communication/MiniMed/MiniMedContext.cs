@@ -74,7 +74,7 @@ namespace CGM.Communication.MiniMed
 
             //tasks.Add(() => StartBasalPatternAsync(cancelToken));
             //tasks.Add(() => StartGetCarbRatio(cancelToken));
-            //tasks.Add(() => StartReadHistoryToday(cancelToken));
+            tasks.Add(() => StartReadHistoryToday(cancelToken));
 
 
             return await CallPumpWithActions(tasks, cancelToken);
@@ -585,15 +585,16 @@ namespace CGM.Communication.MiniMed
             communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
 
             int expectedMessages = Session.PumpDataHistory.CurrentMultiPacketHandler.ExpectedMessages;
+            
             for (int i = 0; i < expectedMessages; i++)
             {
                 communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             }
             //extra, extra....
-            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             communicationBlock.maxdelay = expectedMessages * 500; //milliseconds.
             Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);

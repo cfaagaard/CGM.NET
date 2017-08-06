@@ -93,6 +93,10 @@ namespace CGM.Communication.Data.Nightscout
                 Logger.LogInformation("DeviceStatus uploaded to Nightscout.");
             }
 
+            if (this.LastStatusMessage.Alert!=0)
+            {
+                CreateAnnouncement($"{this.LastStatusMessage.AlertName.ToString()} - ({this.LastStatusMessage.AlertDateTime})");
+            }
 
         }
 
@@ -126,14 +130,14 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     //do not upload sgv, but create note.
                     //observed during warmup after changing the pump.
-                    CreateErrorNote("Warmup....");
+                    CreateNote("Warmup....");
                     return;
                 }
 
                 if (sgvValue == 770)
                 {
                     //observed during alert "need calibration"
-                    CreateErrorNote("Need calibration.....");
+                    CreateNote("Need calibration.....");
                     return;
                 }
                 if (sgvValue > 400)
@@ -161,6 +165,12 @@ namespace CGM.Communication.Data.Nightscout
             else
             {
                 Logger.LogInformation("No sgv-date.");
+                //sending a note to nightscout, if no alert. If there is a alert another note will be send.
+                if (this.LastStatusMessage.Alert==0)
+                {
+                    CreateNote("No sgv-date.");
+                }
+                
             }
         }
 
@@ -221,7 +231,7 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
-        private void CreateErrorNote(string note)
+        private void CreateNote(string note)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Note";
@@ -230,5 +240,16 @@ namespace CGM.Communication.Data.Nightscout
             Treatments.Add(treatment);
 
         }
+
+        private void CreateAnnouncement(string note)
+        {
+            Treatment treatment = new Treatment();
+            treatment.EventType = "Announcement";
+            treatment.Created_at = _session.PumpTime.PumpDateTime.Value.ToString(dateformat);
+            treatment.Notes = note;
+            Treatments.Add(treatment);
+
+        }
+        
     }
 }
