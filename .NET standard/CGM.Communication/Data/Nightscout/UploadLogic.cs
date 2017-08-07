@@ -2,9 +2,12 @@
 using CGM.Communication.Log;
 using CGM.Communication.MiniMed.DataTypes;
 using CGM.Communication.MiniMed.Responses;
+using CGM.Communication.MiniMed.Responses.Events;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -43,29 +46,45 @@ namespace CGM.Communication.Data.Nightscout
         public UploadLogic(SerializerSession session)
         {
             _session = session;
-
+            if (string.IsNullOrEmpty(_session.Settings.NightscoutApiUrl) || string.IsNullOrEmpty(_session.Settings.NightscoutSecretkey))
+            {
+                throw new ArgumentException("Nightscout url or apikey is null.");
+            }
+            _client = new Data.Nightscout.NightscoutClient(_session.Settings.NightscoutApiUrl, _session.Settings.NightscoutSecretkey);
         }
 
-        public async Task CreateUploads(CancellationToken cancelToken)
+        public async Task Upload(CancellationToken cancelToken)
+        {
+            await CreateUploads(cancelToken);
+            await SyncWithEvents(cancelToken);
+            await UploadElements(cancelToken);
+        }
+
+        private async Task CreateUploads(CancellationToken cancelToken)
         {
             if (LastStatusMessage != null)
             {
-                if (string.IsNullOrEmpty(_session.Settings.NightscoutApiUrl) || string.IsNullOrEmpty(_session.Settings.NightscoutSecretkey))
+
+                if (LastStatusMessage.SgvDateTime.DateTime.HasValue)
                 {
-                    throw new ArgumentException("Nightscout url or apikey is null.");
+
+
+                    await CreateEntrySgv(this.LastStatusMessage.Sgv, this.LastStatusMessage.SgvDateTime.DateTimeString, (long)this.LastStatusMessage.SgvDateTime.DateTimeEpoch, this.LastStatusMessage.CgmTrendName.ToString(), true);
+
+                    if (LastStatusMessage.BolusWizardRecent == 1)
+                    {
+                        CreateEntryMbg();
+                    }
+
+                    CreateDeviceStatus();
                 }
-                _client = new Data.Nightscout.NightscoutClient(_session.Settings.NightscoutApiUrl, _session.Settings.NightscoutSecretkey);
+                //carbs is not in the statusmessage.
+                await CreateCorrectionBolus(this.LastStatusMessage.BolusEstimate, 0, this.LastStatusMessage.SgvDateTime.Rtc.ToString(), this.LastStatusMessage.LastBolusDateTime.ToString(dateformat));
 
-                await CreateEntrySgv();
-
-                if (LastStatusMessage.BolusWizardRecent == 1)
+                if (this.LastStatusMessage.Alert != 0)
                 {
-                    CreateEntryMbg();
+                    CreateAnnouncement($"{this.LastStatusMessage.AlertName.ToString()} - ({this.LastStatusMessage.AlertDateTime})");
                 }
-
-                CreateDeviceStatus();
-
-                await CreateCorrectionBolusTreatment();
             }
             else
             {
@@ -74,18 +93,18 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
-        public async Task Upload(CancellationToken cancelToken)
+        private async Task UploadElements(CancellationToken cancelToken)
         {
             if (Entries.Count > 0)
             {
                 await _client.AddEntriesAsync(Entries, cancelToken);
-                Logger.LogInformation($"Entries uploaded to Nightscout.");
+                Logger.LogInformation($"Entries uploaded to Nightscout. ({Entries.Count})");
             }
 
             if (Treatments.Count > 0)
             {
                 await _client.AddTreatmentsAsync(this.Treatments, cancelToken);
-                Logger.LogInformation($"Treatments uploaded to Nightscout.");
+                Logger.LogInformation($"Treatments uploaded to Nightscout. ({Treatments.Count})");
             }
             if (this.DeviceStatus != null)
             {
@@ -93,11 +112,111 @@ namespace CGM.Communication.Data.Nightscout
                 Logger.LogInformation("DeviceStatus uploaded to Nightscout.");
             }
 
-            if (this.LastStatusMessage.Alert!=0)
-            {
-                CreateAnnouncement($"{this.LastStatusMessage.AlertName.ToString()} - ({this.LastStatusMessage.AlertDateTime})");
-            }
+        }
 
+        private async Task SyncWithEvents(CancellationToken cancelToken)
+        {
+
+            var allEvents = Session.PumpDataHistory.JoinAllEvents();
+            if (allEvents.Count > 0)
+            {
+                await MissingReadings(allEvents);
+                await MissingWizard(allEvents);
+
+            }
+        }
+
+        private async Task MissingWizard(IEnumerable<PumpEvent> allEvents)
+        {
+            //BOLUS_WIZARD_ESTIMATE_Event
+            var wizards = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.BOLUS_WIZARD_ESTIMATE);
+            int count = wizards.Count();
+            if (count > 0)
+            {
+                foreach (var item in wizards)
+                {
+                    var msg = (BOLUS_WIZARD_ESTIMATE_Event)item.Message;
+
+                    await CreateCorrectionBolus(msg.FinalEstimate.INSULIN,msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(dateformat));
+
+                }
+            }
+        }
+
+        private async Task MissingReadings(IEnumerable<PumpEvent> allEvents)
+        {
+            var sensorReadings = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.SENSOR_GLUCOSE_READINGS_EXTENDED);
+            int count = sensorReadings.Count();
+            if (count > 0)
+            {
+                List<CompareEvents> compares = new List<CompareEvents>();
+
+                foreach (var pumpevent in sensorReadings)
+                {
+                    var firstdate = pumpevent.Timestamp.Value;
+                    var reading = (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)pumpevent.Message;
+
+                    {
+
+                    }
+                    for (int i = 0; i < reading.Details.Count; i++)
+                    {
+                        if (reading.Details[i].Amount <= 400)
+                        {
+                            var readDateTime = firstdate.AddMinutes(i * -5);
+                            compares.Add(new CompareEvents(reading.Details[i], readDateTime));
+                        }
+                    }
+                }
+                //todo another query by dates would be better. a between query.... but nightscout restapi do not have this...or it does not work.
+                var from = sensorReadings.First().Timestamp;
+                var to = sensorReadings.Last().Timestamp;
+
+                var numberOfDays = to.Value.Subtract(from.Value).Days;
+                List<Entry> entries = new List<Entry>();
+
+                //for (int i = 0; i <= numberOfDays; i++)
+                //{
+                //    DateTime getdate = from.Value.AddDays(i);
+
+                //    var allTodayEntries = await _client.EntriesAsync($"find[type]=sgv&find[dateString][$gte]={getdate.ToString("yyyy-MM-dd")}", 1000);
+                //    entries.AddRange(allTodayEntries);
+                //}
+
+
+                var allTodayEntries = await _client.EntriesAsync($"find[type]=sgv", 1000);
+                entries.AddRange(allTodayEntries);
+
+                var query =
+                   from comp in compares
+                   join entry in entries on comp.DateString equals entry.DateString
+                   select comp;
+
+                var missingReadings = compares.Except(query.ToList()).ToList();
+
+                foreach (var reading in missingReadings.OrderBy(e => e.ReadingTime))
+                {
+                    //TODO need to find direction in the history, maybe rate of change....
+                    await CreateEntrySgv(reading.Detail.Amount, reading.DateString, reading.Epoch, reading.Detail.Trend.ToString(), false);
+                }
+
+            }
+        }
+
+        class CompareEvents
+        {
+            public string DateString { get; set; }
+            public DateTime ReadingTime { get; set; }
+            public long Epoch { get; set; }
+            public SENSOR_GLUCOSE_READINGS_EXTENDED_Detail Detail { get; set; }
+            public CompareEvents(SENSOR_GLUCOSE_READINGS_EXTENDED_Detail detail, DateTime readingTime)
+            {
+                this.Detail = detail;
+                this.ReadingTime = readingTime;
+                DateTimeOffset utcTime2 = this.ReadingTime;
+                Epoch = utcTime2.ToUnixTimeMilliseconds();
+                DateString = readingTime.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture);
+            }
         }
 
         protected void CreateEntryMbg()
@@ -114,44 +233,41 @@ namespace CGM.Communication.Data.Nightscout
             this.Entries.Add(entry);
         }
 
-        protected async Task CreateEntrySgv()
+        protected async Task CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists)
         {
 
             string serialNum = _session.Device.SerialNumberFull;
-            PumpStatusMessage message = this.LastStatusMessage;
-            int sgvValue = message.Sgv;
-            DateTimeDataType date = message.SgvDateTime;
 
-            if (date.DateTime.HasValue)
+            if (sgvValue == 769)
             {
+                //do not upload sgv, but create note.
+                //observed during warmup after changing the pump.
+                //CreateNote("Warmup....");
+                return;
+            }
+
+            if (sgvValue == 770)
+            {
+                //observed during alert "need calibration"
+                //CreateNote("Need calibration.....", dateString);
+                return;
+            }
 
 
-                if (sgvValue == 769)
-                {
-                    //do not upload sgv, but create note.
-                    //observed during warmup after changing the pump.
-                    CreateNote("Warmup....");
-                    return;
-                }
+            if (sgvValue > 400)
+            {
+                sgvValue = 400;
+            }
+            Entry entry = new Entry();
+            entry.Date = epoch;// date.DateTimeEpoch;
+            entry.Direction = direction;// message.CgmTrendName.ToString();
+            entry.Sgv = sgvValue;
+            entry.Type = "sgv";
+            entry.DateString = dateString;// date.DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture);
+            entry.Device = string.Format("medtronic-640g://{0}", serialNum);
 
-                if (sgvValue == 770)
-                {
-                    //observed during alert "need calibration"
-                    CreateNote("Need calibration.....");
-                    return;
-                }
-                if (sgvValue > 400)
-                {
-                    sgvValue = 400;
-                }
-                Entry entry = new Entry();
-                entry.Date = date.DateTimeEpoch;
-                entry.Direction = message.CgmTrendName.ToString();
-                entry.Sgv = sgvValue;
-                entry.Type = "sgv";
-                entry.DateString = date.DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy");
-                entry.Device = string.Format("medtronic-640g://{0}", serialNum);
-
+            if (checkIfExists)
+            {
                 var last = await _client.EntriesAsync(null, 1);
                 if (last.Count == 0 || !entry.DateString.Equals(last[0].DateString))
                 {
@@ -164,14 +280,10 @@ namespace CGM.Communication.Data.Nightscout
             }
             else
             {
-                Logger.LogInformation("No sgv-date.");
-                //sending a note to nightscout, if no alert. If there is a alert another note will be send.
-                if (this.LastStatusMessage.Alert==0)
-                {
-                    CreateNote("No sgv-date.");
-                }
-                
+                this.Entries.Add(entry);
             }
+
+
         }
 
         private void CreateDeviceStatus()
@@ -211,18 +323,14 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
-        private async Task CreateCorrectionBolusTreatment()
+        private async Task CreateCorrectionBolus(double insulin, double carbs, string reference, string dateTime)
         {
-
-
-            PumpStatusMessage message = this.LastStatusMessage;
             Treatment treatment = new Treatment();
-            treatment.Insulin = message.BolusEstimate;
-            //need to be in the same measurement as nightscout...... set to mmol for now.
-            treatment.Glucose = message.SgvMmol.ToString();
+            treatment.Insulin = insulin;// message.BolusEstimate;
+            treatment.Carbs = carbs;
             treatment.EventType = "Correction Bolus";
-            treatment.EnteredBy = $"Ref:{message.LastBolusReference}";
-            treatment.Created_at = message.LastBolusDateTime.ToString(dateformat);
+            treatment.EnteredBy = $"Ref:{reference}";// $"Ref:{message.LastBolusReference}";
+            treatment.Created_at = dateTime;// message.LastBolusDateTime.ToString(dateformat);
 
             var last = await _client.TreatmentsAsync($"find[eventType]={treatment.EventType.Replace(" ", "+")}&find[enteredBy]={treatment.EnteredBy}", 1);
             if (last.Count == 0)
@@ -231,11 +339,11 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
-        private void CreateNote(string note)
+        private void CreateNote(string note, string datestring)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Note";
-            treatment.Created_at = _session.PumpTime.PumpDateTime.Value.ToString(dateformat);
+            treatment.Created_at = datestring;//_session.PumpTime.PumpDateTime.Value.ToString(dateformat);
             treatment.Notes = note;
             Treatments.Add(treatment);
 
@@ -250,6 +358,6 @@ namespace CGM.Communication.Data.Nightscout
             Treatments.Add(treatment);
 
         }
-        
+
     }
 }

@@ -33,8 +33,8 @@ namespace CGM.Communication.Data.Repository
         public async Task UploadToNightScout(SerializerSession session, CancellationToken cancelToken)
         {
             UploadLogic upLogic = new UploadLogic(session);
-            await upLogic.CreateUploads(cancelToken);
-            await upLogic.Upload(cancelToken);
+          await  upLogic.Upload(cancelToken);
+           
 
         }
 

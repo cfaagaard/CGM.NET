@@ -17,9 +17,16 @@ namespace CGM.Communication.Common.Serialize
 
         public List<MultiPacketHandler> MultiPacketHandlers { get; set; } = new List<MultiPacketHandler>();
 
+        public DateTime? From { get; set; }
+        public DateTime? To { get; set; }
+
         public PumpDataHistory(SerializerSession session)
         {
             _session = session;
+            DateTime from = DateTime.Now.AddDays(-1);
+            //default yesterday
+            this.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+            this.To= DateTime.Now;
         }
 
         public void AddMultiHandler(PumpStateHistoryReadInfoResponse response)

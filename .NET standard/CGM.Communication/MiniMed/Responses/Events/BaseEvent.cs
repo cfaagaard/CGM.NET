@@ -31,6 +31,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [MessageType(typeof(CANNULA_FILL_DELIVERED_Event), nameof(EventType), EventTypeEnum.CANNULA_FILL_DELIVERED)]
         [MessageType(typeof(ALARM_NOTIFICATION_Event), nameof(EventType), EventTypeEnum.ALARM_NOTIFICATION)]
         [MessageType(typeof(BaseEvent))]
+        [BinaryPropertyValueTransfer(ChildPropertyName = nameof(Timestamp),ParentPropertyName = nameof(Timestamp))]
         public BaseEvent Message { get; set; }
         
         public byte[] AllBytes { get; set; }
@@ -52,6 +53,8 @@ namespace CGM.Communication.MiniMed.Responses.Events
     [BinaryType(IsLittleEndian = false)]
     public class BaseEvent : IBinaryType, IBinaryDeserializationSetting
     {
+
+        public DateTime? Timestamp { get; set; }
 
         public byte[] AllBytes { get; set; }
         public byte[] AllBytesE { get; set; }

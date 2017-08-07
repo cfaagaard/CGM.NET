@@ -68,8 +68,8 @@ namespace CGM.Communication.MiniMed.Requests
             this.FromRtc = fromDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
             //this.FromRtc = new byte[] { 0xea, 0x4e, 0x13, 0x84 };
             
-            //this.ToRtc = toDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
-            this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
+            this.ToRtc = toDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
+            //this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
             this.HistoryDataType = (byte)historyDataType; // PUMP_DATA: 2,SENSOR_DATA: 3,
             this.Unknown = 0x04;
             this.Unknown3 = new byte[] { 0x00, 0x00 };

@@ -2,6 +2,7 @@
 using CGM.Communication.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace CGM.Communication.MiniMed.DataTypes
@@ -13,6 +14,9 @@ namespace CGM.Communication.MiniMed.DataTypes
 
         [BinaryElement(4, Length = 4)]
         public Int32 Offset { get; set; }
+
+
+        public string DateTimeString { get { return DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture); } }
 
         public DateTime? DateTime
         {
@@ -44,6 +48,8 @@ namespace CGM.Communication.MiniMed.DataTypes
             this.Rtc = rtc;
             this.Offset = offset;
         }
+
+
         public DateTimeDataType()
         {
 

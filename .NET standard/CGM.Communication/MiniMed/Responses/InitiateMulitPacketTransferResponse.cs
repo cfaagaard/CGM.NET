@@ -22,7 +22,11 @@ namespace CGM.Communication.MiniMed.Responses
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            settings.PumpDataHistory.CurrentMultiPacketHandler.Init=this; 
+            if (settings.PumpDataHistory.CurrentMultiPacketHandler!=null)
+            {
+                settings.PumpDataHistory.CurrentMultiPacketHandler.Init = this;
+            }
+            
         }
     }
 }

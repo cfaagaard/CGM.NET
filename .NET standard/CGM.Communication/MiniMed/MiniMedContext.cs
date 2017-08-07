@@ -74,25 +74,12 @@ namespace CGM.Communication.MiniMed
 
             //tasks.Add(() => StartBasalPatternAsync(cancelToken));
             //tasks.Add(() => StartGetCarbRatio(cancelToken));
-            tasks.Add(() => StartReadHistoryToday(cancelToken));
+            tasks.Add(() => StartReadHistory(cancelToken));
 
 
             return await CallPumpWithActions(tasks, cancelToken);
         }
 
-        public async Task<SerializerSession> GetPumpSessionAsync(DateTime from, DateTime to, CancellationToken cancelToken)
-        {
-            List<Func<Task>> tasks = new List<Func<Task>>();
-
-            tasks.Add(() => StartPumpTimeAsync(cancelToken));
-            tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
-            //tasks.Add(() => StartBasalPatternAsync(cancelToken));
-            //tasks.Add(() => StartGetCarbRatio(cancelToken));
-            //tasks.Add(() => StartReadHistory(from, to, cancelToken));
-
-
-            return await CallPumpWithActions(tasks, cancelToken);
-        }
 
         public async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
         {
@@ -372,7 +359,12 @@ namespace CGM.Communication.MiniMed
             //channel 23: observed loosing connection between sensor and¨pump when on channel 23. NOT GOOD.
             //channel 26: never seen a connection on this channel. remove to save loop-time.
             //the above channels removed from list to save loop-time and increase stability.
-            //List<byte> channels = new List<byte>() {  0x14, 0x0e, 0x11 };
+
+            //if (this.Session.RadioChannel==0x17)
+            //{
+            //    this.Session.RadioChannel = 0x00;
+            //}
+            //List<byte> channels = new List<byte>() { 0x1a,  0x14, 0x0e, 0x11 };
             byte lastChannel = this.Session.RadioChannel;
 
 
@@ -509,30 +501,26 @@ namespace CGM.Communication.MiniMed
             }
         }
 
-        private async Task StartReadHistoryToday(CancellationToken cancelToken)
+
+
+        private async Task StartReadHistory( CancellationToken cancelToken)
         {
-            DateTime from = DateTime.Now.AddDays(-1);
-            from = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
-            DateTime to = DateTime.Now;
+            if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.From.HasValue)
+            {
+                DateTime from = Session.PumpDataHistory.From.Value;
+                DateTime to = Session.PumpDataHistory.To.Value;
 
-            await StartReadHistory(from, to, cancelToken);
+                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
-        }
+                await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+                await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
-        private async Task StartReadHistorySinceLastRead(CancellationToken cancelToken)
-        {
-            throw new NotImplementedException();
-        }
+                Session.PumpDataHistory.GetHistoryEvents();
+            }
+            
 
-        private async Task StartReadHistory(DateTime from, DateTime to, CancellationToken cancelToken)
-        {
-            await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-            await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
-            await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-            await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-
-            Session.PumpDataHistory.GetHistoryEvents();
         }
 
         private async Task StartReadHistoryEvents(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
