@@ -15,12 +15,14 @@ using CGM.Communication.Common.Serialize;
 using CGM.Communication.MiniMed.Responses;
 using CGM.Communication.Interfaces;
 using CGM.Communication.MiniMed.DataTypes;
+using CGM.Communication.Log;
+using Microsoft.Extensions.Logging;
 
 namespace CGM.Communication.Data.Repository
 {
     public class PumpRepository
     {
-
+        protected ILogger Logger = ApplicationLogging.CreateLogger<PumpRepository>();
         private CgmUnitOfWork _uow;
         public PumpRepository(CgmUnitOfWork uow)
         {
@@ -53,7 +55,17 @@ namespace CGM.Communication.Data.Repository
 
                         if (session.RadioChannel != 0x00)
                         {
-                            await _uow.Nightscout.UploadToNightScout(session, cancelToken).TimeoutAfter(5000);
+                            try
+                            {
+                                await _uow.Nightscout.UploadToNightScout(session, cancelToken).TimeoutAfter(5000);
+                            }
+                            catch (Exception ex)
+                            {
+                                //no local internet connection
+                                //no connection to azure website
+                                Logger.LogError($"Error in upload: {ex.Message}");
+                            }
+                            
                         }
                     }
                 }

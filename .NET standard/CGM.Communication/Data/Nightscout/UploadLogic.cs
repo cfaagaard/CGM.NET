@@ -68,18 +68,22 @@ namespace CGM.Communication.Data.Nightscout
                 if (LastStatusMessage.SgvDateTime.DateTime.HasValue)
                 {
 
+                    //getting sgv reading from history now.... hurraaaa
+                    // await CreateEntrySgv(this.LastStatusMessage.Sgv, this.LastStatusMessage.SgvDateTime.DateTimeString, (long)this.LastStatusMessage.SgvDateTime.DateTimeEpoch, this.LastStatusMessage.CgmTrendName.ToString(), true);
 
-                    await CreateEntrySgv(this.LastStatusMessage.Sgv, this.LastStatusMessage.SgvDateTime.DateTimeString, (long)this.LastStatusMessage.SgvDateTime.DateTimeEpoch, this.LastStatusMessage.CgmTrendName.ToString(), true);
 
-                    if (LastStatusMessage.BolusWizardRecent == 1)
-                    {
-                        CreateEntryMbg();
-                    }
+                    //and now... the wizard is not needed
+                    //if (LastStatusMessage.BolusWizardRecent == 1)
+                    //{
+                    //    CreateEntryMbg();
+                    //}
 
                     CreateDeviceStatus();
                 }
+
+                //getting it from history....
                 //carbs is not in the statusmessage.
-                await CreateCorrectionBolus(this.LastStatusMessage.BolusEstimate, 0, this.LastStatusMessage.SgvDateTime.Rtc.ToString(), this.LastStatusMessage.LastBolusDateTime.ToString(dateformat));
+                //await CreateCorrectionBolus(this.LastStatusMessage.BolusEstimate, 0, this.LastStatusMessage.SgvDateTime.Rtc.ToString(), this.LastStatusMessage.LastBolusDateTime.ToString(dateformat));
 
                 if (this.LastStatusMessage.Alert != 0)
                 {
@@ -123,6 +127,11 @@ namespace CGM.Communication.Data.Nightscout
                 await MissingReadings(allEvents);
                 await MissingWizard(allEvents);
 
+                //Get cannula fill -> microsoft flow
+
+                //Alarm -> microsoft flow
+
+
             }
         }
 
@@ -137,7 +146,7 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     var msg = (BOLUS_WIZARD_ESTIMATE_Event)item.Message;
 
-                    await CreateCorrectionBolus(msg.FinalEstimate.INSULIN,msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(dateformat));
+                    await CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(dateformat));
 
                 }
             }
@@ -354,6 +363,9 @@ namespace CGM.Communication.Data.Nightscout
             Treatment treatment = new Treatment();
             treatment.EventType = "Announcement";
             treatment.Created_at = _session.PumpTime.PumpDateTime.Value.ToString(dateformat);
+            //treatment.Glucose = glucose;
+            //treatment.GlucoseType = "Sensor";
+            //treatment.Insulin=insulin;
             treatment.Notes = note;
             Treatments.Add(treatment);
 

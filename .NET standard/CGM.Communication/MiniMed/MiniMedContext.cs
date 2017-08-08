@@ -535,7 +535,7 @@ namespace CGM.Communication.MiniMed
 
         private async Task StartReadHistoryInfoAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
-            Logger.LogInformation("ReadHistoryInfo");
+            Logger.LogInformation($"ReadHistoryInfo: {historytype.ToString()}");
             await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(from, to, historytype), cancelToken);
         }
 
@@ -551,7 +551,7 @@ namespace CGM.Communication.MiniMed
 
         private async Task StartReadHistoryAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
-            Logger.LogInformation("ReadHistory");
+            Logger.LogInformation($"ReadHistory: {historytype.ToString()}");
             int expectedSize = this.Session.PumpDataHistory.GetSize(historytype);
 
             CommunicationBlock communicationBlock = new CommunicationBlock();
@@ -627,7 +627,8 @@ namespace CGM.Communication.MiniMed
         private async Task CloseAsync(CancellationToken cancelToken)
         {
             Logger.LogInformation("Close CNL");
-            await StartCommunication(new EOTMessage(), cancelToken);
+            //sometimes we get a enq and sometimes not......
+            await StartCommunication(new EOTMessage(), new ReportPattern(new byte[] { 001, ASCII.ENQ }, 4), cancelToken);
         }
 
     }

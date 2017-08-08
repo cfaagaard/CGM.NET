@@ -18,7 +18,7 @@ namespace CGM.Communication.Data.Repository
         {
             _uow = uow;
         }
-  
+
         public async Task<Profile> GetProfil(string url, string apiKey)
         {
             CGM.Communication.Data.Nightscout.NightscoutClient client = new Data.Nightscout.NightscoutClient(url, apiKey);
@@ -33,12 +33,11 @@ namespace CGM.Communication.Data.Repository
         public async Task UploadToNightScout(SerializerSession session, CancellationToken cancelToken)
         {
             UploadLogic upLogic = new UploadLogic(session);
-          await  upLogic.Upload(cancelToken);
-           
+            await upLogic.Upload(cancelToken);
 
         }
 
-     
+
 
     }
 }

@@ -113,7 +113,7 @@ namespace CGM.Communication.Tasks
                         if (session.OptimalNextRead.HasValue)
                         {
                             session.NextRun = session.OptimalNextRead.Value;
-                            Logger.LogInformation($"Next session: {session.OptimalNextRead.Value} (PumpTime:{session.OptimalNextReadInPumpTime.Value})");
+                            Logger.LogInformation($"Next session: {session.OptimalNextRead.Value} (PumpTime: {session.OptimalNextReadInPumpTime.Value})");
                         }
                         else
                         {
