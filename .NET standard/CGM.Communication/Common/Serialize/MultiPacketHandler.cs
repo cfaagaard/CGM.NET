@@ -90,8 +90,8 @@ namespace CGM.Communication.Common.Serialize
 
             if ((blockpayload.Length % block_size) != 0)
             {
-
-                Logger.LogError("Block payload size is not a multiple of 2048");
+                double remainder = Math.IEEERemainder(blockpayload.Length,block_size);
+                Logger.LogError($"Block payload size is not a multiple of 2048 ({blockpayload.Length.ToString()} -> {remainder.ToString()})");
                 return;
 
             }

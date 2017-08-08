@@ -23,9 +23,10 @@ namespace CGM.Communication.Common.Serialize
         public PumpDataHistory(SerializerSession session)
         {
             _session = session;
-            DateTime from = DateTime.Now.AddDays(-1);
+            DateTime from = DateTime.Now.AddHours(-24);
             //default yesterday
-            this.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+            //this.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+            this.From = from;
             this.To= DateTime.Now;
         }
 
