@@ -30,6 +30,7 @@ namespace CGM.Communication.Data.Nightscout
 
         public SerializerSession Session { get { return _session; } }
 
+        private bool gotReadingFromEvent = false;
         private PumpStatusMessage _lastStatusMessage;
         public PumpStatusMessage LastStatusMessage
         {
@@ -55,8 +56,11 @@ namespace CGM.Communication.Data.Nightscout
 
         public async Task Upload(CancellationToken cancelToken)
         {
-            await CreateUploads(cancelToken);
+            //testing events
             await SyncWithEvents(cancelToken);
+
+            await CreateUploads(cancelToken);
+
             await UploadElements(cancelToken);
         }
 
@@ -69,21 +73,24 @@ namespace CGM.Communication.Data.Nightscout
                 {
 
                     //getting sgv reading from history now.... hurraaaa
-                    // await CreateEntrySgv(this.LastStatusMessage.Sgv, this.LastStatusMessage.SgvDateTime.DateTimeString, (long)this.LastStatusMessage.SgvDateTime.DateTimeEpoch, this.LastStatusMessage.CgmTrendName.ToString(), true);
+                    //but during testing and harding of the event/history usage, I will do this also
+                    if (!gotReadingFromEvent)
+                    {
+                        await CreateEntrySgv(this.LastStatusMessage.Sgv, this.LastStatusMessage.SgvDateTime.DateTimeString, (long)this.LastStatusMessage.SgvDateTime.DateTimeEpoch, this.LastStatusMessage.CgmTrendName.ToString(), true);
 
+                        if (LastStatusMessage.BolusWizardRecent == 1)
+                        {
+                            CreateEntryMbg();
+                        }
+                        //getting it from history....
+                        //carbs is not in the statusmessage.
+                        await CreateCorrectionBolus(this.LastStatusMessage.BolusEstimate, 0, this.LastStatusMessage.SgvDateTime.Rtc.ToString(), this.LastStatusMessage.LastBolusDateTime.ToString(dateformat));
 
-                    //and now... the wizard is not needed
-                    //if (LastStatusMessage.BolusWizardRecent == 1)
-                    //{
-                    //    CreateEntryMbg();
-                    //}
+                    }
 
                     CreateDeviceStatus();
                 }
 
-                //getting it from history....
-                //carbs is not in the statusmessage.
-                //await CreateCorrectionBolus(this.LastStatusMessage.BolusEstimate, 0, this.LastStatusMessage.SgvDateTime.Rtc.ToString(), this.LastStatusMessage.LastBolusDateTime.ToString(dateformat));
 
                 if (this.LastStatusMessage.Alert != 0)
                 {
@@ -128,11 +135,9 @@ namespace CGM.Communication.Data.Nightscout
                 await MissingWizard(allEvents);
 
                 //Get cannula fill -> microsoft flow
-
                 //Alarm -> microsoft flow
-
-
             }
+
         }
 
         private async Task MissingWizard(IEnumerable<PumpEvent> allEvents)
@@ -158,6 +163,7 @@ namespace CGM.Communication.Data.Nightscout
             int count = sensorReadings.Count();
             if (count > 0)
             {
+                gotReadingFromEvent = true;
                 List<CompareEvents> compares = new List<CompareEvents>();
 
                 foreach (var pumpevent in sensorReadings)
@@ -261,7 +267,11 @@ namespace CGM.Communication.Data.Nightscout
                 //CreateNote("Need calibration.....", dateString);
                 return;
             }
-
+            if (sgvValue == 776)
+            {
+                //observed during "calibratering"
+                return;
+            }
 
             if (sgvValue > 400)
             {

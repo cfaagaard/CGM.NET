@@ -101,7 +101,8 @@ namespace CGM.Communication.MiniMed.Infrastructur
         SENSOR_GLUCOSE_READINGS_EXTENDED = 0xD6,
         NORMAL_BOLUS_DELIVERED = 0xDC,
         SQUARE_BOLUS_DELIVERED = 0xDD,
-        DUAL_BOLUS_PART_DELIVERED = 0xDE
+        DUAL_BOLUS_PART_DELIVERED = 0xDE,
+            CLOSED_LOOP_TRANSITION= 0xDF
 
     }
 }

@@ -87,41 +87,96 @@ namespace CGM.Communication.Common.Serialize
             {
                 blockpayload = HistoryStart.AllBytesNoHeader;
             }
+            int remainder = (int)Math.IEEERemainder(blockpayload.Length, block_size);
 
-            if ((blockpayload.Length % block_size) != 0)
-            {
-                double remainder = Math.IEEERemainder(blockpayload.Length,block_size);
-                Logger.LogError($"Block payload size is not a multiple of 2048 ({blockpayload.Length.ToString()} -> {remainder.ToString()})");
-                return;
+            //List<int> lengths = new List<int>();
 
-            }
+            //var length = Math.Ceiling((double)blockpayload.Length / block_size);
 
-            //var length = Math.Ceiling((double)blockpayload.Length / block_size);// blockpayload.Length / block_size;
+            //lengths.AddRange(Enumerable.Repeat(block_size, (int)length));
+
+
+
+            //if (remainder < 0)
+            //{
+            //    lengths[lengths.Count - 1] = block_size + remainder;
+            //}
+
+            //if (remainder > 0)
+            //{
+            //    lengths.Add(remainder);
+            //}
+
+            //int blockStart = 0;
+            //int blockEnd = 0;
+            //foreach (var size in lengths)
+            //{
+            //    blockEnd = blockStart + size;
+            //    var blockSize = blockpayload.GetUInt16BigE(blockEnd - 4);
+
+            //    if (blockSize == size)
+            //    {
+            //        blockEnd += size;
+            //        blockSize = blockpayload.GetUInt16BigE(blockEnd - 4);
+            //        //blockSize += (ushort)size;
+
+            //    }
+
+
+            //    var blockChecksum = blockpayload.GetUInt16BigE(blockEnd - 2);
+
+
+            //    //if (blockSize <= block_size)
+            //    //{
+            //    var blockData = blockpayload.ToList().GetRange(blockStart, blockSize);
+            //    var calculatedChecksum2 = Crc16Ccitt.CRC16CCITT(blockData.ToArray(), 0xFFFF, 0x1021, blockSize);
+
+            //    if (blockChecksum != calculatedChecksum2)
+            //    {
+
+            //    }
+            //    else
+            //    {
+            //        GetEvents(blockData, 0);
+            //    }
+            //    blockStart += size;
+            //    //}
+            //    //else
+            //    //{
+
+            //    //}
+            //}
+
+
+            //ignorering this and check the checksum, then we get some of the events...... but is it save to this.
+            //if ((blockpayload.Length % block_size) != 0)
+            //{
+            //    Logger.LogError($"{this.ReadInfoResponse.HistoryDataType.ToString()}: Block payload size is not a multiple of 2048 ({blockpayload.Length.ToString()} -> {remainder.ToString()})");
+            //    return;
+            //}
+
             var length = blockpayload.Length / block_size;
             for (int i = 0; i < length; i++)
             {
                 var blockStart = i * block_size;
                 var blockSize = blockpayload.GetUInt16BigE(((i + 1) * block_size) - 4);
                 var blockChecksum = blockpayload.GetUInt16BigE(((i + 1) * block_size) - 2);
-
-                //if (blockSize <= block_size)
-                //{
-                var blockData = blockpayload.ToList().GetRange(blockStart, blockSize);
-                var calculatedChecksum2 = Crc16Ccitt.CRC16CCITT(blockData.ToArray(), 0xFFFF, 0x1021, blockSize);
-
-                if (blockChecksum != calculatedChecksum2)
+                if ((blockStart + blockSize)<= blockpayload.Length)
                 {
+                    var blockData = blockpayload.ToList().GetRange(blockStart, blockSize);
+                    var calculatedChecksum2 = Crc16Ccitt.CRC16CCITT(blockData.ToArray(), 0xFFFF, 0x1021, blockSize);
 
+                    if (blockChecksum == calculatedChecksum2)
+                    {
+                        GetEvents(blockData, 0);
+                    }
+                    else
+                    {
+                        Logger.LogError($"CRC16CCITT does not match.");
+                        return;
+                    }
                 }
-                else
-                {
-                    GetEvents(blockData, 0);
-                }
-                //}
-                //else
-                //{
 
-                //}
             }
         }
 

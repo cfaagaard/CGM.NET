@@ -563,7 +563,7 @@ namespace CGM.Communication.MiniMed
 
 
             await StartCommunication(communicationBlock, cancelToken);
-            //await StartCommunicationStandardResponse(Session.GetReadHistory(from, to, historytype, expectedSize), cancelToken);
+
         }
 
         private async Task StartMultiPacketAsync(byte[] bytes, CancellationToken cancelToken)
@@ -572,17 +572,17 @@ namespace CGM.Communication.MiniMed
             communicationBlock.Request = Session.GetMultiPacket(bytes);
             communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
 
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler!=null)
+            {
+                throw new Exception($"Error in getting InitiateMultiPacketTransferResponse. Init is not set.");
+              
+            }
             int expectedMessages = Session.PumpDataHistory.CurrentMultiPacketHandler.ExpectedMessages;
             
             for (int i = 0; i < expectedMessages; i++)
             {
                 communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             }
-            //extra, extra....
-            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
-            //communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             communicationBlock.maxdelay = expectedMessages * 500; //milliseconds.
             Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);
