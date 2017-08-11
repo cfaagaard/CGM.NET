@@ -49,6 +49,11 @@ namespace CGM.Communication.MiniMed.DataTypes
             this.Offset = offset;
         }
 
+        public DateTimeDataType(byte[] rtc, byte[] offset)
+        {
+            this.Rtc = rtc.GetInt32BigE(0);
+            this.Offset = offset.GetInt32BigE(0);
+        }
 
         public DateTimeDataType()
         {

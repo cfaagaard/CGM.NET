@@ -6,13 +6,14 @@ using System.Text;
 using System.Linq;
 using CGM.Communication.MiniMed.Requests;
 using CGM.Communication.MiniMed.Infrastructur;
+using System.Threading.Tasks;
 
 namespace CGM.Communication.Common.Serialize
 {
     public class PumpDataHistory
     {
         private SerializerSession _session;
-   
+
         public MultiPacketHandler CurrentMultiPacketHandler { get; set; }
 
         public List<MultiPacketHandler> MultiPacketHandlers { get; set; } = new List<MultiPacketHandler>();
@@ -23,12 +24,10 @@ namespace CGM.Communication.Common.Serialize
         public PumpDataHistory(SerializerSession session)
         {
             _session = session;
-            DateTime from = DateTime.Now.AddHours(-24);
-            //default yesterday
-            //this.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
-            this.From = from;
-            this.To= DateTime.Now;
+          
         }
+
+     
 
         public void AddMultiHandler(PumpStateHistoryReadInfoResponse response)
         {
@@ -40,8 +39,8 @@ namespace CGM.Communication.Common.Serialize
 
         public int GetSize(HistoryDataTypeEnum historyDataType)
         {
-           var handler= MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)historyDataType);
-            if (handler!=null)
+            var handler = MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)historyDataType);
+            if (handler != null)
             {
                 return handler.ReadInfoResponse.HistorySize;
             }
@@ -50,7 +49,7 @@ namespace CGM.Communication.Common.Serialize
 
         public void SetCurrentMulitPacket(ReadHistoryRequest request)
         {
-            this.CurrentMultiPacketHandler = MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType); 
+            this.CurrentMultiPacketHandler = MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType);
         }
 
         public void GetHistoryEvents()
@@ -60,9 +59,9 @@ namespace CGM.Communication.Common.Serialize
 
         public override string ToString()
         {
-            if (this.CurrentMultiPacketHandler.ReadInfoResponse!=null)
+            if (this.CurrentMultiPacketHandler.ReadInfoResponse != null)
             {
-                return $"{this.CurrentMultiPacketHandler.ReadInfoResponse.ToString()} ({this.CurrentMultiPacketHandler.PumpStateHistory.Count})";
+                return $"{this.CurrentMultiPacketHandler.ReadInfoResponse.ToString()} ()"; //{this.CurrentMultiPacketHandler.PumpStateHistory.Count}
             }
             return "(No dates)";
         }
@@ -70,7 +69,7 @@ namespace CGM.Communication.Common.Serialize
         public List<PumpEvent> JoinAllEvents()
         {
             List<PumpEvent> all = new List<PumpEvent>();
-            MultiPacketHandlers.ForEach(e => all.AddRange( e.Events));
+            MultiPacketHandlers.ForEach(e => e.Segments.ForEach(f => all.AddRange(f.Events)));
             return all.OrderBy(e => e.Timestamp).ToList(); ;
         }
     }

@@ -28,7 +28,7 @@ namespace CGM.Communication.MiniMed.Responses
         {
             if (Unknown1!=null)
             {
-                return $"GeneralPumpMessage - {BitConverter.ToString(Unknown1)}";
+                return $"GeneralPumpMessage - {BytesAsString}";
             }
             return $"GeneralPumpMessage";
 

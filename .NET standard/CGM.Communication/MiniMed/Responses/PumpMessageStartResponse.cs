@@ -32,6 +32,8 @@ namespace CGM.Communication.MiniMed.Responses
         [MessageType(typeof(InitiateMultiPacketTransferResponse), nameof(MessageTypeName), AstmSendMessageType.INITIATE_MULTIPACKET_TRANSFER)]
         [MessageType(typeof(PumpStateHistoryReadInfoResponse), nameof(MessageTypeName), AstmSendMessageType.READ_HISTORY_INFO_RESPONSE)]
         [MessageType(typeof(PumpCarbRatioResponse), nameof(MessageTypeName), AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_RESPONSE)]
+        [MessageType(typeof(EndHistoryTransmissionResponse), nameof(MessageTypeName), AstmSendMessageType.END_HISTORY_TRANSMISSION)]
+        [MessageType(typeof(HighSpeedModeResponse), nameof(MessageTypeName), AstmSendMessageType.HIGH_SPEED_MODE_COMMAND)]
         [MessageType(typeof(PumpGeneral))]
         public object Message { get; set; }
 

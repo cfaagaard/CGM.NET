@@ -38,12 +38,17 @@ namespace CGM.Communication.MiniMed.Responses
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            //throw new NotImplementedException();
             List<byte> list = bytes.ToList();//.GetRange(11,bytes.Length-11);
 
-            this.AllBytes = list.ToArray() ;
+            this.AllBytes = list.ToArray();
             this.AllBytesE = list.ToArray().Reverse().ToArray();
-            this.AllBytesNoHeader = bytes.ToList().GetRange(12,bytes.Length-12).ToArray();
+            //throw new NotImplementedException();
+            if (bytes.Length>=12)
+            {
+                this.AllBytesNoHeader = bytes.ToList().GetRange(12, bytes.Length - 12).ToArray();
+            }
+
+       
         }
     }
 }

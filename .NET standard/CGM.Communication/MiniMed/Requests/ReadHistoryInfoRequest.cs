@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using CGM.Communication.MiniMed.DataTypes;
 
 namespace CGM.Communication.MiniMed.Requests
 {
@@ -55,6 +56,9 @@ namespace CGM.Communication.MiniMed.Requests
         public DateTime? ToDateTime { get; set; }
 
 
+        //public DateTimeDataType From { get; set; }
+        //public DateTimeDataType To { get; set; }
+
         public ReadHistoryInfoRequest()
         {
 
@@ -68,16 +72,18 @@ namespace CGM.Communication.MiniMed.Requests
             this.FromRtc = fromDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
             //this.FromRtc = new byte[] { 0xea, 0x4e, 0x13, 0x84 };
             
-            this.ToRtc = toDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
-            //this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
+            //this.ToRtc = toDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
+            //does this means "read to the last record on the pump"......?
+            this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
             this.HistoryDataType = (byte)historyDataType; // PUMP_DATA: 2,SENSOR_DATA: 3,
             this.Unknown = 0x04;
             this.Unknown3 = new byte[] { 0x00, 0x00 };
             //this.Unknown2 = (new byte[] { 0xff, 0xff, 0xff, 0xff }).GetInt32(0);
         }
+
         public virtual void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-
+            //this.From=new DateTimeDataType(FromRtc, settings.PumpTime.OffSet)
             this.FromDateTime = DateTimeExtension.GetDateTime(FromRtc, settings.PumpTime.OffSet);
             this.ToDateTime = DateTimeExtension.GetDateTime(ToRtc, settings.PumpTime.OffSet);
         }

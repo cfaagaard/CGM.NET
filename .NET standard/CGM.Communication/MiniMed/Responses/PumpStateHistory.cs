@@ -39,7 +39,7 @@ namespace CGM.Communication.MiniMed.Responses
             this.AllBytesE = bytes.Reverse().ToArray();
             this.BytesAsString = BitConverter.ToString(AllBytes);
 
-            settings.PumpDataHistory.CurrentMultiPacketHandler.AddHistory(this);//.PumpStateHistory.Add(this);
+            settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.AddHistory(this);//.PumpStateHistory.Add(this);
         }
 
         public override string ToString()

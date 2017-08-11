@@ -25,12 +25,7 @@ namespace CGM.Communication.MiniMed
         private IDevice _device;
         private CancellationToken _cancelToken;
         private ILogger Logger = ApplicationLogging.CreateLogger<CommunicationBlock>();
-        private int delay = 250;
-        //private int maxdelay = 7000;
-        //private int recievedBytesLength = 0;
-        //public int MaxRecievedBytesLength { get; set; } = -1;
-        public int maxdelay { get; set; } = 7000;
-
+        private int delay = 100;
         protected BlockingCollection<AstmStart> ResponsesRecieved { get; set; } = new BlockingCollection<AstmStart>();
 
         public SerializerSession Session { get; set; } = new SerializerSession();
@@ -94,7 +89,7 @@ namespace CGM.Communication.MiniMed
                     {
                         periode += delay;
                         Task.Delay(delay).Wait();
-                        if (maxdelay <= periode)
+                        if ((TimeoutSeconds*1000) <= periode)
                         {
                             CommunicationError("Error: timeout");
                             return;
@@ -213,6 +208,7 @@ namespace CGM.Communication.MiniMed
             _timer = new Timer(TimeIsUp, autoEvent, TimeoutSeconds * 1000, TimeoutSeconds * 1000);
 
         }
+
         private void TimeIsUp(Object stateInfo)
         {
             string timeout = $"Error: timeout - ({this.GetType().Name})";

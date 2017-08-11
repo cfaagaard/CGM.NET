@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CGM.Communication.Extensions;
 
 namespace CGM.Communication.Data.Repository
 {
@@ -37,6 +38,25 @@ namespace CGM.Communication.Data.Repository
 
         }
 
+        public async Task<DateTime?> LastSvgUpload(string url, string apiKey)
+        {
+            CGM.Communication.Data.Nightscout.NightscoutClient client = new Data.Nightscout.NightscoutClient(url, apiKey);
+            var entry= await client.EntriesAsync($"find[type]=sgv", 1);
+
+            if (entry!=null && entry.Count==1)
+            {
+                var epoch= entry[0].Date;
+                if (epoch.HasValue)
+                {
+                    //DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0).AddMilliseconds(Convert.ToDouble(epoch.Value));
+                    return epoch.Value.GetDateTime();
+                }
+              
+
+                
+            }
+            return null;
+        }
 
 
     }

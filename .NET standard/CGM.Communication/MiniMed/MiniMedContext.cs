@@ -66,6 +66,7 @@ namespace CGM.Communication.MiniMed
 
         public async Task<SerializerSession> GetPumpSessionAsync(CancellationToken cancelToken)
         {
+
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartPumpTimeAsync(cancelToken));
             tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
@@ -251,18 +252,12 @@ namespace CGM.Communication.MiniMed
         {
             Logger.LogInformation("Enter ControlMode");
             await StartCommunication(new NAKMessage(), new EnqOREotkPattern(), cancelToken);
-
             await StartCommunication(new ENQMessage(), new EnqORAckkPattern(), cancelToken);
-
 
             Logger.LogInformation("Enter PassthroughMode");
             await StartCommunication(new AstmStart("W|"), new ACKPattern(), cancelToken);
-
             await StartCommunication(new AstmStart("Q|"), new ACKPattern(), cancelToken);
-
             await StartCommunication(new AstmStart("1|"), new ACKPattern(), cancelToken);
-
-
         }
 
         private async Task OpenConnectionAsync(CancellationToken cancelToken)
@@ -502,18 +497,70 @@ namespace CGM.Communication.MiniMed
         }
 
 
-
-        private async Task StartReadHistory( CancellationToken cancelToken)
+        private async Task SetDates()
         {
-            if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.From.HasValue)
+            //last upload to nightscout
+            //should be an option
+            DateTime? lastSvgUploadDateTime = null;
+            double hours = 0;
+            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+            {
+                lastSvgUploadDateTime = await uow.Nightscout.LastSvgUpload(this.Session.Settings.NightscoutApiUrl, this.Session.Settings.NightscoutSecretkey);
+            }
+
+            if (lastSvgUploadDateTime.HasValue)
+            {
+                hours = lastSvgUploadDateTime.Value.Subtract(DateTime.Now).TotalHours;
+
+            }
+            else
+            {
+                hours = -24;
+            }
+
+            DateTime from = DateTime.Now.AddHours(hours);
+
+            //in carelink upload (from wireshark dumps) it looks like it always defaults to midnight before the date set in readinfo
+            //maybe we do not need this. Test it.
+            from = from.AddDays(-1);
+            this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+
+            //this is not used yet. Defaults to 4*255 later in the code.
+            this.Session.PumpDataHistory.To = DateTime.Now;
+
+        }
+
+        private void SetDatesDays(int days)
+        {
+            var from = DateTime.Now.AddDays(-1*days);
+
+            from = from.AddDays(-1);
+            this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+
+            //this is not used yet. Defaults to 4*255 later in the code.
+            this.Session.PumpDataHistory.To = DateTime.Now;
+        }
+
+            private async Task StartReadHistory( CancellationToken cancelToken)
+        {
+            //await SetDates();
+            SetDatesDays(2);
+
+            if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
             {
                 DateTime from = Session.PumpDataHistory.From.Value;
                 DateTime to = Session.PumpDataHistory.To.Value;
 
-                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+                Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
 
+                //await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.UNKNOWN, cancelToken);
+                //await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.UNKNOWN, cancelToken);
+
+                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+
+
+                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
                 Session.PumpDataHistory.GetHistoryEvents();
@@ -572,18 +619,27 @@ namespace CGM.Communication.MiniMed
             communicationBlock.Request = Session.GetMultiPacket(bytes);
             communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
 
-            if (Session.PumpDataHistory.CurrentMultiPacketHandler!=null)
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler==null)
             {
-                throw new Exception($"Error in getting InitiateMultiPacketTransferResponse. Init is not set.");
+                throw new Exception($"Error in getting InitiateMultiPacketTransferResponse. CurrentMultiPacketHandler is not set.");
               
             }
-            int expectedMessages = Session.PumpDataHistory.CurrentMultiPacketHandler.ExpectedMessages;
+
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment == null)
+            {
+                throw new Exception($"Error in getting InitiateMultiPacketTransferResponse. CurrentSegment is not set.");
+
+            }
+
+            int expectedMessages = Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketsToFetch;
             
             for (int i = 0; i < expectedMessages; i++)
             {
                 communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             }
-            communicationBlock.maxdelay = expectedMessages * 500; //milliseconds.
+
+            communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages /2)); 
+
             Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CGM.Communication.MiniMed.Infrastructur
 {
-    public enum EventTypeEnum:byte
+    public enum EventTypeEnum : byte
     {
         TIME_RESET = 0x02,
         USER_TIME_DATE_CHANGE = 0x03,
@@ -102,7 +102,7 @@ namespace CGM.Communication.MiniMed.Infrastructur
         NORMAL_BOLUS_DELIVERED = 0xDC,
         SQUARE_BOLUS_DELIVERED = 0xDD,
         DUAL_BOLUS_PART_DELIVERED = 0xDE,
-            CLOSED_LOOP_TRANSITION= 0xDF
+        CLOSED_LOOP_TRANSITION = 0xDF
 
     }
 }

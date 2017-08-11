@@ -45,7 +45,15 @@ namespace CGM.Communication.MiniMed.Responses.Events
 
         public override string ToString()
         {
-            return $"{Timestamp.Value} - {EventType.ToString()} - {this.Message.ToString()}";
+            if (this.Message!=null)
+            {
+                return $"{Timestamp.Value} - {EventType.ToString()} - {this.Message.ToString()}";
+            }
+            else
+            {
+                return $"{Timestamp.Value} - {EventType.ToString()}";
+            }
+        
         }
 
     }

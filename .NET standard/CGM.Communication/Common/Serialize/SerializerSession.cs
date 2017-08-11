@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using CGM.Communication.Data;
 using CGM.Communication.Extensions;
+using System.Threading.Tasks;
 
 namespace CGM.Communication.Common.Serialize
 {
@@ -100,9 +101,17 @@ namespace CGM.Communication.Common.Serialize
         public DateTime? OptimalNextRead { get; set; }
         public DateTime? OptimalNextReadInPumpTime { get; set; }
 
+        public SessionOptions Options { get; set; } = new SessionOptions();
+
         public SerializerSession()
         {
             NewSession();
+           
+        }
+
+        public SerializerSession(SessionOptions options):this()
+        {
+            this.Options = options;
         }
 
         internal void NewSession()
@@ -310,6 +319,9 @@ namespace CGM.Communication.Common.Serialize
 
         public AstmStart GetReadHistoryInfo(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType)
         {
+
+            
+
             try
             {
                 AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
@@ -323,6 +335,7 @@ namespace CGM.Communication.Common.Serialize
             }
 
         }
+    
 
         public AstmStart GetReadHistory(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType, int expectedSize)
         {

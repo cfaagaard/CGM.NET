@@ -17,14 +17,24 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(6)]
         public UInt16 LastPacketSize { get; set; }
 
-        [BinaryElement(8)]
+        [BinaryElement(8,Length =2)]
         public UInt16 PacketsToFetch { get; set; }
+
+
+        //[BinaryElement(10,Length =2)]
+        //public UInt16 Uknown1 { get; set; }
+
+        //[BinaryElement(12, Length = 2)]
+        //public UInt16 Uknown2 { get; set; }
+
+        //[BinaryElement(10,Length =4)]
+        //public int Uknown3 { get; set; }
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             if (settings.PumpDataHistory.CurrentMultiPacketHandler!=null)
             {
-                settings.PumpDataHistory.CurrentMultiPacketHandler.Init = this;
+                settings.PumpDataHistory.CurrentMultiPacketHandler.AddSegmentHandler(this);
             }
             
         }

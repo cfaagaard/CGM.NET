@@ -37,7 +37,14 @@ namespace CGM.Communication.MiniMed.Model
         Basal_Delivery_Resumed_Alert_quiet_806 = 806,
         Suspend_Before_Low_Alarm_patient_unresponsive_medical_device_emergency_812 = 812,
         Basal_Delivery_Resumed_Alert_maximum_suspend_reached_808 = 808,
-        Basal_Delivery_Resumed_Alert_glucose_still_low_maximum_suspend_reached_814 = 814
+        Basal_Delivery_Resumed_Alert_glucose_still_low_maximum_suspend_reached_814 = 814,
+
+        //sgv-alerts.... need to be verified. These values are placed at the sgv-value in the response.
+        Warmup_769 = 769,
+        Need_Calibration_770 = 770,
+        Sensor_Alert_Change_774 = 774,
+        ShallWarmup_780=780
+
 
     }
 }
