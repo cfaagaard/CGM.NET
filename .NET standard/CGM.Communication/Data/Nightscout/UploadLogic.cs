@@ -149,11 +149,26 @@ namespace CGM.Communication.Data.Nightscout
                 await MissingReadings(allEvents);
                 await MissingWizard(allEvents);
                 MissingAlerts(allEvents);
-                //gotReadingFromEvent = true;
+                SensorChange(allEvents);
+           
                 //Get cannula fill -> microsoft flow
+
                 //Alarm -> microsoft flow
             }
 
+        }
+
+        private void SensorChange(IEnumerable<PumpEvent> allEvents)
+        {
+            var events = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.GLUCOSE_SENSOR_CHANGE);
+            int count = events.Count();
+            if (count > 0)
+            {
+                foreach (var item in events)
+                {
+                    CgmSensorChanged(item.Timestamp.Value);
+                }
+            }
         }
 
         private void MissingAlerts(IEnumerable<PumpEvent> allEvents)
