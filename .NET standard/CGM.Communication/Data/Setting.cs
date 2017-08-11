@@ -19,6 +19,9 @@ namespace CGM.Communication.Data
         [SQLite.MaxLength(50)]
         public string NightscoutSecretkey { get; set; }
 
+        [SQLite.MaxLength(3000)]
+        public string NotificationUrl { get; set; }
+
         public int DatabaseVersion { get; set; } = 0;
 
         public string ApiKeyHashed

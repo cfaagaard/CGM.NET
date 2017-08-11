@@ -164,6 +164,11 @@ namespace CGM.Communication.Data.Nightscout
 
 
     }
+
+    public partial class Treatment
+    {
+        public Notification Notification { get; set; } = new Notification();
+    }
 }
 
 

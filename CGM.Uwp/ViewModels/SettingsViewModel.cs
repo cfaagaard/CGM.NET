@@ -44,6 +44,16 @@ namespace CGM.Uwp.ViewModels
             }
         }
 
+        public string NotificationUrl
+        {
+            get { return _setting.NotificationUrl; }
+            set
+            {
+                _setting.NotificationUrl = value;
+                SaveSetting();
+            }
+        }
+
         public string NightscoutApiKey
         {
             get { return _setting.NightscoutSecretkey; }

@@ -30,6 +30,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"></ColumnDefinition>
@@ -62,12 +63,16 @@
             <TextBlock Grid.Row="3" Grid.Column="0"  x:Uid="Settings_key" Text="NightscoutApiKey" Style="{StaticResource BodyTextStyle}"/>
             <TextBox Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKey, Mode=TwoWay}"></TextBox>
 
+
+            <TextBlock Grid.Row="4" Grid.Column="0"  x:Uid="Settings_notification" Text="NotificationUrl" Style="{StaticResource BodyTextStyle}"/>
+            <TextBox Grid.Row="4" Grid.Column="1" Text="{x:Bind ViewModel.NotificationUrl, Mode=TwoWay}"></TextBox>
+
             <TextBlock
-                Grid.Row="4" Grid.ColumnSpan="2"
+                Grid.Row="5" Grid.ColumnSpan="2"
                 Style="{StaticResource PageTitleStyle}" >Developer information</TextBlock>
 
 
-            <Grid  Grid.Row="5" Grid.Column="0" >
+            <Grid  Grid.Row="6" Grid.Column="0" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
@@ -92,7 +97,7 @@
            
             </Grid>
 
-            <ListBox Grid.Row="6" Grid.Column="0" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{Binding SelectedDevice,Mode=TwoWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="DevicesList">
+            <ListBox Grid.Row="7" Grid.Column="0" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{Binding SelectedDevice,Mode=TwoWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="DevicesList">
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="viewmodels:DeviceItemViewModel">
                         <StackPanel Orientation="Horizontal">
@@ -120,7 +125,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
-            <ItemsControl Grid.Row="6" Grid.Column="1"  ItemsSource="{Binding SelectedDevice.DeviceInformation}"  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10" >
+            <ItemsControl Grid.Row="7" Grid.Column="1"  ItemsSource="{Binding SelectedDevice.DeviceInformation}"  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10" >
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -135,14 +140,14 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <TextBlock Grid.Row="8" Grid.Column="0"  x:Uid="Settings_keyhashed" Text="Hashed NightscoutApiKey (Readonly)" Style="{StaticResource BodyTextStyle}"/>
-            <TextBox Grid.Row="8" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKeyHashed, Mode=OneWay}" IsReadOnly="True"></TextBox>
+            <TextBlock Grid.Row="9" Grid.Column="0"  x:Uid="Settings_keyhashed" Text="Hashed NightscoutApiKey (Readonly)" Style="{StaticResource BodyTextStyle}"/>
+            <TextBox Grid.Row="9" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKeyHashed, Mode=OneWay}" IsReadOnly="True"></TextBox>
 
 
-            <TextBlock Grid.Row="9" Grid.Column="0"  x:Uid="Filepath" Text="Local path to logs" Style="{StaticResource BodyTextStyle}"/>
-            <TextBox Grid.Row="9" Grid.Column="1" Text="{x:Bind ViewModel.LocalPath, Mode=OneWay}" IsReadOnly="True"></TextBox>
+            <TextBlock Grid.Row="10" Grid.Column="0"  x:Uid="Filepath" Text="Local path to logs" Style="{StaticResource BodyTextStyle}"/>
+            <TextBox Grid.Row="10" Grid.Column="1" Text="{x:Bind ViewModel.LocalPath, Mode=OneWay}" IsReadOnly="True"></TextBox>
 
-            <StackPanel Grid.Row="10" Grid.ColumnSpan="2" Margin="0,16,0,0">
+            <StackPanel Grid.Row="11" Grid.ColumnSpan="2" Margin="0,16,0,0">
                 <TextBlock
                     x:Uid="Settings_About"
                     Style="{StaticResource BodyTextStyle}"/>

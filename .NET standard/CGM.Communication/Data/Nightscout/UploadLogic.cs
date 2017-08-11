@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CGM.Communication.Extensions;
+using CGM.Communication.MiniMed.Infrastructur;
 
 namespace CGM.Communication.Data.Nightscout
 {
@@ -119,20 +120,37 @@ namespace CGM.Communication.Data.Nightscout
                 var all = await _client.TreatmentsAsync(null, getCount);
                 //remove treatments that are uploaded.
 
-                 var query =
-                   from comp in this.Treatments
-                   join entry in all on comp.EnteredBy equals entry.EnteredBy
-                   select comp;
+                var query =
+                  from comp in this.Treatments
+                  join entry in all on comp.EnteredBy equals entry.EnteredBy
+                  select comp;
                 query.ToList().ForEach(e => this.Treatments.Remove(e));
 
-                if (this.Treatments.Count>0)
+                if (this.Treatments.Count > 0)
                 {
                     await _client.AddTreatmentsAsync(this.Treatments, cancelToken);
                     Logger.LogInformation($"Treatments uploaded to Nightscout. ({Treatments.Count})");
+
+                    if (!string.IsNullOrEmpty(Session.Settings.NotificationUrl))
+                    {
+                        var notif = this.Treatments.Where(e => !string.IsNullOrEmpty(e.Notification.Type)).Select(e => e.Notification);
+                        if (notif.Count() > 0)
+                        {
+                            NotificationClient client = new NotificationClient(Session.Settings.NotificationUrl);
+                            foreach (var item in notif)
+                            {
+                                await client.AddNotificationAsync(item, cancelToken);
+                            }
+                            Logger.LogInformation($"Notifications sent. ({notif.Count()})");
+                        }
+
+                    }
+
+
                 }
-              
+
             }
-            if (this.DeviceStatus != null &&  !string.IsNullOrEmpty(this.DeviceStatus.Device))
+            if (this.DeviceStatus != null && !string.IsNullOrEmpty(this.DeviceStatus.Device))
             {
                 await _client.AddDeviceStatusAsync(new List<Nightscout.DeviceStatus>() { this.DeviceStatus }, cancelToken);
                 Logger.LogInformation("DeviceStatus uploaded to Nightscout.");
@@ -150,7 +168,7 @@ namespace CGM.Communication.Data.Nightscout
                 await MissingWizard(allEvents);
                 MissingAlerts(allEvents);
                 SensorChange(allEvents);
-           
+
                 //Get cannula fill -> microsoft flow
 
                 //Alarm -> microsoft flow
@@ -166,7 +184,24 @@ namespace CGM.Communication.Data.Nightscout
             {
                 foreach (var item in events)
                 {
-                    CgmSensorChanged(item.Timestamp.Value);
+                    var treatment = CreateCgmSensorChanged(item.Timestamp.Value);
+                    treatment.Notification.Date = item.Timestamp.Value.ToString();
+                    treatment.Notification.Type = EventTypeEnum.GLUCOSE_SENSOR_CHANGE.ToString();
+                    treatment.Notification.Text = EventTypeEnum.GLUCOSE_SENSOR_CHANGE.ToString();
+                }
+            }
+        }
+
+        private void CannulaChanged(IEnumerable<PumpEvent> allEvents)
+        {
+            //is this correct?
+            var events = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.CANNULA_FILL_DELIVERED);
+            int count = events.Count();
+            if (count > 0)
+            {
+                foreach (var item in events)
+                {
+                    //CreateCannulaChanged(item.Timestamp.Value);
                 }
             }
         }
@@ -181,7 +216,11 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     var msg = (ALARM_NOTIFICATION_Event)item.Message;
 
-                    CreateAnnouncement($"{msg.AlarmTypeName.ToString()} - ({msg.Timestamp.Value.ToString()})", msg.Timestamp.Value,"Alert");
+                    var announcement = CreateAnnouncement($"{msg.AlarmTypeName.ToString()} - ({msg.Timestamp.Value.ToString()})", msg.Timestamp.Value, "Alert");
+                    announcement.Notification.Date = msg.Timestamp.Value.ToString();
+                    announcement.Notification.Type = EventTypeEnum.ALARM_NOTIFICATION.ToString();
+                    announcement.Notification.Text = msg.AlarmTypeName.ToString();
+
 
                 }
             }
@@ -382,7 +421,7 @@ namespace CGM.Communication.Data.Nightscout
             //var last = await _client.TreatmentsAsync($"find[eventType]={treatment.EventType.Replace(" ", "+")}&find[enteredBy]={treatment.EnteredBy}", 1);
             //if (last.Count == 0)
             //{
-                
+
             //}
         }
 
@@ -411,7 +450,7 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
-        private void CreateAnnouncement(string note, DateTime createdAt, string reference)
+        private Treatment CreateAnnouncement(string note, DateTime createdAt, string reference)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Announcement";
@@ -419,10 +458,11 @@ namespace CGM.Communication.Data.Nightscout
             treatment.Notes = note;
             treatment.EnteredBy = $"ref:${reference} - {treatment.Created_at}";
             Treatments.Add(treatment);
+            return treatment;
 
         }
 
-        private void CgmSensorChanged(DateTime createdAt)
+        private Treatment CreateCgmSensorChanged(DateTime createdAt)
         {
 
             Treatment treatment = new Treatment();
@@ -432,16 +472,18 @@ namespace CGM.Communication.Data.Nightscout
             Treatments.Add(treatment);
 
 
+
             Treatment treatment2 = new Treatment();
             treatment2.EventType = "Sensor Start";
             treatment2.Created_at = createdAt.ToString(dateformat);
             treatment2.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
             Treatments.Add(treatment2);
 
+            return treatment;
 
         }
 
-        private void InsulinChanged(DateTime createdAt)
+        private void CreateInsulinChanged(DateTime createdAt)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Insulin Change";
@@ -450,7 +492,7 @@ namespace CGM.Communication.Data.Nightscout
             Treatments.Add(treatment);
         }
 
-        private void CannulaChanged(DateTime createdAt)
+        private void CreateCannulaChanged(DateTime createdAt)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Site Change";
