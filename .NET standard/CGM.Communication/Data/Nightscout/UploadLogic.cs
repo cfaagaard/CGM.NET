@@ -392,19 +392,47 @@ namespace CGM.Communication.Data.Nightscout
             this.DeviceStatus.PumpInfo.Clock = create.ToString(dateformat);
             this.DeviceStatus.PumpInfo.Battery.Percent = message.BatteryPercentage;
 
+            //if (message.Status.Suspended)
+            //{
+            //    this.DeviceStatus.PumpInfo.Status.Add("supended", true);
+            //}
+            //if (message.Status.Bolusing)
+            //{
+            //    this.DeviceStatus.PumpInfo.Status.Add("bolusing", true);
+            //}
+
+            //if (!message.Status.Suspended && !message.Status.Bolusing)
+            //{
+            //    this.DeviceStatus.PumpInfo.Status.Add("status", "normal");
+            //}
+
+            this.DeviceStatus.PumpInfo.Status.Add("supended", false);
+            this.DeviceStatus.PumpInfo.Status.Add("bolusing", false);
+
+            //build status message
+            string statusMessage = "";
+
             if (message.Status.Suspended)
             {
-                this.DeviceStatus.PumpInfo.Status.Add("supended", true);
+                statusMessage = "suspended";
             }
             if (message.Status.Bolusing)
             {
-                this.DeviceStatus.PumpInfo.Status.Add("bolusing", true);
+                statusMessage = "bolusing";
             }
 
             if (!message.Status.Suspended && !message.Status.Bolusing)
             {
-                this.DeviceStatus.PumpInfo.Status.Add("status", "normal");
+                statusMessage =  "normal";
             }
+            if (message.SensorCalibrationDateTime.HasValue)
+            {
+                statusMessage += $" - Cal. {message.SensorCalibrationDateTime.Value.ToString()}";
+            }
+        
+
+
+            this.DeviceStatus.PumpInfo.Status.Add("status", statusMessage);
 
         }
 

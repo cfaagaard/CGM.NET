@@ -39,12 +39,33 @@ namespace CGM.Communication.MiniMed.Model
         Basal_Delivery_Resumed_Alert_maximum_suspend_reached_808 = 808,
         Basal_Delivery_Resumed_Alert_glucose_still_low_maximum_suspend_reached_814 = 814,
 
-        //sgv-alerts.... need to be verified. These values are placed at the sgv-value in the response.
-        Warmup_769 = 769,
-        Need_Calibration_770 = 770,
-        Sensor_Alert_Change_774 = 774,
-        ShallWarmup_780=780
+        //sgv-alerts... These values are placed at the sgv-value in the response.
+        Sensor_Init_769 = 769,
+        Sensor_Cal_Needed_770 = 770,
+        Sensor_Error_771=771,
+        Sensor_Change_Sensor_Error_773=773,
+        Sensor_End_Of_Life_774=774,
+        Sensor_Not_Ready_775=775,
+        Sensor_Reading_High_776=776,
+        Sensor_Reading_Low_777=777,
+        Sensor_Cal_Pending_778=778,
+        Sensor_Change_Cal_Error_779=779,
+        Sensor_Time_Unknown_780=780
+        //Sensor_Alert_Change_774 = 774,
+        //ShallWarmup_780= 780
 
+//769: SENSOR_INIT;
+//770: SENSOR_CAL_NEEDED;
+//771: SENSOR_ERROR;
+//772: SENSOR_CAL_ERROR;
+//773: SENSOR_CHANGE_SENSOR_ERROR;
+//774: SENSOR_END_OF_LIFE;
+//775: SENSOR_NOT_READY;
+//776: SENSOR_READING_HIGH;
+//777: SENSOR_READING_LOW;
+//778: SENSOR_CAL_PENDING;
+//779: SENSOR_CHANGE_CAL_ERROR;
+//780: SENSOR_TIME_UNKNOWN;
 
     }
 }
