@@ -427,7 +427,9 @@ namespace CGM.Communication.Data.Nightscout
             }
             if (message.SensorCalibrationDateTime.HasValue)
             {
-                statusMessage += $" - Cal. {message.SensorCalibrationDateTime.Value.ToString()}";
+                var diff = message.SensorCalibrationDateTime.Value.Subtract(DateTime.Now);
+                statusMessage += $" - Cal.{diff.Hours}h{diff.Minutes}m";
+                //statusMessage += $" - Cal. {message.SensorCalibrationDateTime.Value.ToString()}";
             }
         
 
