@@ -12,7 +12,7 @@ namespace CGM.Communication.Data.Repository
     public class CgmUnitOfWork : IDisposable
     {
         protected ILogger Logger = ApplicationLogging.CreateLogger<BaseRepository<CgmUnitOfWork>>();
-        private int _currentDBVersion = 8;
+        private int _currentDBVersion = 9;
         public static string DatabaseName { get { return @"CgmData.db"; } }
 
         private SQLiteConnection _connection;
@@ -23,7 +23,7 @@ namespace CGM.Communication.Data.Repository
         public SettingRepository Setting { get; set; }
         public NightscoutRepository Nightscout { get; set; }
         public PumpRepository Pump { get; set; }
-
+        public CommunicationMessageRepository CommunicationMessage { get; set; }
         public CgmUnitOfWork(string databasePath)
         {
            string path= Path.Combine(databasePath, DatabaseName);
@@ -33,6 +33,7 @@ namespace CGM.Communication.Data.Repository
             Setting = new SettingRepository(this);
             Nightscout = new NightscoutRepository(this);
             Pump = new PumpRepository(this);
+            CommunicationMessage = new CommunicationMessageRepository(this);
         }
 
         public CgmUnitOfWork():this("")
@@ -45,7 +46,8 @@ namespace CGM.Communication.Data.Repository
 
             _connection.CreateTable<Device>();
             _connection.CreateTable<Setting>();
-
+            //_connection.CreateTable<CommunicationMessage>();
+            //_connection.CreateTable<CommunicationMessageTemp>();
 
             string sql = "INSERT INTO Setting(SettingId,DatabaseVersion) VALUES(1,0);";
 
@@ -58,6 +60,11 @@ namespace CGM.Communication.Data.Repository
         {
             this.Device.ReCreateTable(exportPath);
             this.Setting.ReCreateTable(exportPath);
+            //this.CommunicationMessage.ReCreateTable(exportPath);
+
+            //this.Connection.DropTable<CommunicationMessageTemp>();
+            //this.Connection.CreateTable<CommunicationMessageTemp>();
+
         }
 
         public void CheckDatabaseVersion(string exportPath)

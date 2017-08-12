@@ -59,6 +59,12 @@ namespace CGM.Communication.Data.Nightscout
 
         public async Task Upload(CancellationToken cancelToken)
         {
+            //save to sqlite
+            //using (Data.Repository.CgmUnitOfWork uow=new Repository.CgmUnitOfWork())
+            //{
+            //    uow.CommunicationMessage.SaveSession(Session);
+            //}
+
             //testing events
             await SyncWithEvents(cancelToken);
 
@@ -93,7 +99,7 @@ namespace CGM.Communication.Data.Nightscout
 
                 if (this.LastStatusMessage.Alert != 0 && _session.PumpTime.PumpDateTime.HasValue)
                 {
-                    CreateAnnouncement($"{this.LastStatusMessage.AlertName.ToString()} - ({this.LastStatusMessage.AlertDateTime})", _session.PumpTime.PumpDateTime.Value, "Alert");
+                    CreateAnnouncement($"{this.LastStatusMessage.AlertName.ToString()} - ({this.LastStatusMessage.AlertDateTime})", this.LastStatusMessage.AlertDateTime.DateTime.Value, "Alert");
                 }
             }
             else
@@ -168,7 +174,7 @@ namespace CGM.Communication.Data.Nightscout
                 await MissingWizard(allEvents);
                 MissingAlerts(allEvents);
                 SensorChange(allEvents);
-
+                CannulaChanged(allEvents);
                 //Get cannula fill -> microsoft flow
 
                 //Alarm -> microsoft flow
@@ -195,13 +201,16 @@ namespace CGM.Communication.Data.Nightscout
         private void CannulaChanged(IEnumerable<PumpEvent> allEvents)
         {
             //is this correct?
-            var events = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.CANNULA_FILL_DELIVERED);
+            var events = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.CANNULA_FILL_DELIVERED && ((CANNULA_FILL_DELIVERED_Event)e.Message).PRIME_TYPE_NAME==PrimeTypeEnum.canulla_fill);
             int count = events.Count();
             if (count > 0)
             {
                 foreach (var item in events)
                 {
-                    //CreateCannulaChanged(item.Timestamp.Value);
+                   var treatment= CreateCannulaChanged(item.Timestamp.Value);
+                    treatment.Notification.Date = item.Timestamp.Value.ToString();
+                    treatment.Notification.Type = EventTypeEnum.CANNULA_FILL_DELIVERED.ToString();
+                    treatment.Notification.Text = EventTypeEnum.CANNULA_FILL_DELIVERED.ToString();
                 }
             }
         }
@@ -217,9 +226,9 @@ namespace CGM.Communication.Data.Nightscout
                     var msg = (ALARM_NOTIFICATION_Event)item.Message;
 
                     var announcement = CreateAnnouncement($"{msg.AlarmTypeName.ToString()} - ({msg.Timestamp.Value.ToString()})", msg.Timestamp.Value, "Alert");
-                    announcement.Notification.Date = msg.Timestamp.Value.ToString();
-                    announcement.Notification.Type = EventTypeEnum.ALARM_NOTIFICATION.ToString();
-                    announcement.Notification.Text = msg.AlarmTypeName.ToString();
+                    //announcement.Notification.Date = msg.Timestamp.Value.ToString();
+                    //announcement.Notification.Type = EventTypeEnum.ALARM_NOTIFICATION.ToString();
+                    //announcement.Notification.Text = msg.AlarmTypeName.ToString();
 
 
                 }
@@ -474,7 +483,7 @@ namespace CGM.Communication.Data.Nightscout
                 var date = entry.Date.Value.GetDateTime();
                 var note = $"{alert.ToString()} - ({entry.DateString})";
 
-                CreateAnnouncement(note, date, "SgvAlert");
+                CreateAnnouncement(note, date, "Alert");
 
             }
 
@@ -522,13 +531,17 @@ namespace CGM.Communication.Data.Nightscout
             Treatments.Add(treatment);
         }
 
-        private void CreateCannulaChanged(DateTime createdAt)
+        private Treatment CreateCannulaChanged(DateTime createdAt)
         {
+            CreateInsulinChanged(createdAt);
+
             Treatment treatment = new Treatment();
             treatment.EventType = "Site Change";
             treatment.Created_at = createdAt.ToString(dateformat);
             treatment.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
             Treatments.Add(treatment);
+
+            return treatment;
         }
     }
 }

@@ -82,6 +82,9 @@ namespace CGM.Communication.Data.Repository
         public async Task SaveSession(SerializerSession session)
         {
             _uow.Device.AddUpdateSessionToDevice(session);
+
+
+
         }
 
        

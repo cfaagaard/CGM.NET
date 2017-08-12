@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using CGM.Communication.Extensions;
+using Newtonsoft.Json;
 
 namespace CGM.Communication.Data.Nightscout
 {
@@ -167,6 +168,8 @@ namespace CGM.Communication.Data.Nightscout
 
     public partial class Treatment
     {
+       
+        [JsonIgnore]
         public Notification Notification { get; set; } = new Notification();
     }
 }
