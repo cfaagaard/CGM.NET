@@ -218,7 +218,7 @@ namespace CGM.Communication.MiniMed
           ts.Hours, ts.Minutes, ts.Seconds,
           ts.Milliseconds / 10);
 
-            Logger.LogError($"Pumpsession-time: {elapsedTime}");
+            Logger.LogInformation($"Pumpsession-time: {elapsedTime}");
 
             try
             {
@@ -237,11 +237,7 @@ namespace CGM.Communication.MiniMed
 
         private async Task StartCollectDeviceInfoAsync(CancellationToken cancelToken)
         {
-
-
             Logger.LogInformation("Getting CNL deviceInformation");
-
-
             CommunicationBlock block = new CommunicationBlock();
 
             block.Request = new AstmStart("X");
@@ -385,6 +381,8 @@ namespace CGM.Communication.MiniMed
             //    this.Session.RadioChannel = 0x00;
             //}
             //List<byte> channels = new List<byte>() { 0x1a,  0x14, 0x0e, 0x11 };
+
+            //and then NOT.... because of no connections....
             byte lastChannel = this.Session.RadioChannel;
 
 
@@ -579,16 +577,11 @@ namespace CGM.Communication.MiniMed
                 Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
 
                 await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-              
                 await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
 
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
             }
-
-
-
         }
 
         private async Task StartReadHistoryEvents(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
@@ -605,11 +598,7 @@ namespace CGM.Communication.MiniMed
         {
             Logger.LogInformation($"ReadHistoryInfo: {historytype.ToString()}");
             await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(from, to, historytype), cancelToken);
-
-
         }
-
-        //
 
         private async Task StartGetCarbRatio(CancellationToken cancelToken)
         {
@@ -645,13 +634,11 @@ namespace CGM.Communication.MiniMed
             if (Session.PumpDataHistory.CurrentMultiPacketHandler == null)
             {
                 throw new Exception($"Error in getting InitiateMultiPacketTransferResponse. CurrentMultiPacketHandler is not set.");
-
             }
 
             if (Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment == null)
             {
                 throw new Exception($"Error in getting InitiateMultiPacketTransferResponse. CurrentSegment is not set.");
-
             }
 
             int expectedMessages = Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketsToFetch;

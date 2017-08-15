@@ -21,7 +21,7 @@ namespace CGM.Communication.Extensions
             stream.Position = 0;
             byte[] buffer = new byte[length];
             for (int totalBytesCopied = 0; totalBytesCopied < length;)
-                totalBytesCopied += stream.Read(buffer, totalBytesCopied, Convert.ToInt32(stream.Length) - totalBytesCopied);
+                totalBytesCopied += stream.Read(buffer, totalBytesCopied, Convert.ToInt32(length) - totalBytesCopied);
             return buffer;
         }
     }
