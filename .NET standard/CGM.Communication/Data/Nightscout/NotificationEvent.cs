@@ -16,6 +16,10 @@ namespace CGM.Communication.Data.Nightscout
         [Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Date { get; set; }
 
+
+        //[Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        //public string EventDate { get; set; }
+
         public static Notification FromJson(string data)
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<Notification>(data);

@@ -148,7 +148,7 @@ namespace CGM.Communication.Data.Nightscout
                             NotificationClient client = new NotificationClient(Session.Settings.NotificationUrl);
                             foreach (var item in notif)
                             {
-                                await client.AddNotificationAsync(item, cancelToken);
+                               // await client.AddNotificationAsync(item, cancelToken);
                             }
                             Logger.LogInformation($"Notifications sent. ({notif.Count()})");
                         }

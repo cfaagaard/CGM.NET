@@ -569,7 +569,7 @@ namespace CGM.Communication.MiniMed
         private async Task StartReadHistory(CancellationToken cancelToken)
         {
             //await SetDates();
-            SetDatesDays(1);
+            SetDatesDays(0);
 
             if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
             {

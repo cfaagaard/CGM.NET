@@ -7,6 +7,8 @@ Been running 24/7 on Raspberry PI 3 with Windows Iot (v.10.0.15063.540) since 13
 
 Testing sending pump-events (history) as JSON to a [Microsoft Flow](http://flow.microsoft.com) in order to send notifications and create tasks in a [wunderlist](http://www.wunderlist.com) todo-list (when to change sensor/cannula).
 
+known issues:
+Getting some errors when reading history, but not always.....
 
 ## Projects
 CGM.Communication: The core communication between pump and CNL. Coded in c# [.NET standard 1.4](https://docs.microsoft.com/en-us/dotnet/standard/net-standard). 

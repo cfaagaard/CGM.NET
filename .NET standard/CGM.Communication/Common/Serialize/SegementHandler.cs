@@ -56,7 +56,7 @@ namespace CGM.Communication.Common.Serialize
             Events = new List<PumpEvent>();
             List<byte> segmentbytes = new List<byte>();
 
-            var all = PumpStateHistory.Select(e => e.Message);
+            var all = PumpStateHistory.OrderBy(e=>e.PacketNumber).Select(e => e.Message);
 
             foreach (var item in all)
             {
@@ -114,6 +114,7 @@ namespace CGM.Communication.Common.Serialize
                     else
                     {
                         Logger.LogError($"CRC16CCITT does not match.");
+                        //testEvents(blockData, 0);
                         return;
                     }
                 }
@@ -137,5 +138,22 @@ namespace CGM.Communication.Common.Serialize
 
         }
 
+        List<PumpEvent> events = new List<PumpEvent>();
+        private void testEvents(List<byte> bytes, int start)
+        {
+           
+            var length = bytes[start + 2];
+            var bytesMessage = bytes.GetRange(start, length).ToArray();
+            var eventmessage = _handler._seri.Deserialize<PumpEvent>(bytesMessage);
+
+            events.Add(eventmessage);
+            int newstart = start + length;
+            if (newstart < bytes.Count)
+            {
+                testEvents(bytes, newstart);
+            }
+
+
+        }
     }
 }
