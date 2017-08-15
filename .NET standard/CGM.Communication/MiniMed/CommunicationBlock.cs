@@ -26,15 +26,18 @@ namespace CGM.Communication.MiniMed
         private CancellationToken _cancelToken;
         private ILogger Logger = ApplicationLogging.CreateLogger<CommunicationBlock>();
         private int delay = 100;
+
         protected BlockingCollection<AstmStart> ResponsesRecieved { get; set; } = new BlockingCollection<AstmStart>();
 
         public SerializerSession Session { get; set; } = new SerializerSession();
 
         public int TimeoutSeconds { get; set; } = 5;
+
         public AstmStart Request { get; set; }
+
         public BlockingCollection<IReportPattern> ExpectedResponses { get; set; } = new BlockingCollection<IReportPattern>();
 
-    
+        public bool LogDataRecieved { get; set; } = true;
 
         private List<List<byte>> GetRequestBytes()
         {
@@ -64,7 +67,7 @@ namespace CGM.Communication.MiniMed
             return lists;
         }
 
-        public async Task StartCommunication(IDevice device,SerializerSession session,CancellationToken cancelToken)
+        public async Task StartCommunication(IDevice device, SerializerSession session, CancellationToken cancelToken)
         {
             int periode = 0;
             _cancelToken = cancelToken;
@@ -89,7 +92,7 @@ namespace CGM.Communication.MiniMed
                     {
                         periode += delay;
                         Task.Delay(delay).Wait();
-                        if ((TimeoutSeconds*1000) <= periode)
+                        if ((TimeoutSeconds * 1000) <= periode)
                         {
                             CommunicationError("Error: timeout");
                             return;
@@ -100,7 +103,6 @@ namespace CGM.Communication.MiniMed
             }
         }
 
-
         public virtual void _device_DataReceived(object sender, byte[] bytes)
         {
             if (bytes == null)
@@ -108,7 +110,6 @@ namespace CGM.Communication.MiniMed
                 StopTimer();
                 return;
             }
-            //this.recievedBytesLength += bytes.Length;
             if (this._messageContinuePattern.Evaluate(bytes))
             {
                 _waitForMoreReports = true;
@@ -119,65 +120,41 @@ namespace CGM.Communication.MiniMed
             }
 
             _reports.Add(bytes);
+            if (LogDataRecieved)
+            {
+                Log(bytes);
+            }
 
-            Log(bytes);
 
             if (_waitForMoreReports == false)
             {
-                //if (this._communicationBlock != null)
-                //{
-                    var response = this.ExpectedResponses.Take();
-                //if (MaxRecievedBytesLength != -1 && MaxRecievedBytesLength > recievedBytesLength)
-                //{
-                //    this.ExpectedResponses.Add(response);
-                //}
-
-                    if (response.Evaluate(this._reports[0]))
+                var response = this.ExpectedResponses.Take();
+                if (response.Evaluate(this._reports[0]))
+                {
+                    try
                     {
-                        try
-                        {
-                            Serializer serializer = new Serializer(Session);
+                        Serializer serializer = new Serializer(Session);
 
-                            var temp = this._reports.JoinToArray();
-                            var resp = serializer.Deserialize<AstmStart>(temp);
-                            //this.ResponsesRecieved.Add(resp);
+                        var temp = this._reports.JoinToArray();
+                        var resp = serializer.Deserialize<AstmStart>(temp);
                     }
-                        catch (Exception x)
-                        {
-                            CommunicationError(x.Message);
-                        }
-
-                        _reports = new List<byte[]>();
-                    }
-                    else
+                    catch (Exception x)
                     {
-
-                        CommunicationError("Error. Unhandled");
+                        CommunicationError(x.Message);
                     }
 
-                    if (this.ExpectedResponses.Count == 0)
-                    {
-                        StopTimer();
-                    }
-                //}
-                //else
-                //{
-                //    try
-                //    {
-                //        Serializer serializer = new Serializer(Session);
+                    _reports = new List<byte[]>();
+                }
+                else
+                {
 
-                //        var temp = this._reports.JoinToArray();
-                //        var resp = serializer.Deserialize<AstmStart>(temp);
-                //        this.ResponsesRecieved.Add(resp);
-                //    }
-                //    catch (Exception x)
-                //    {
-                //        CommunicationError(x.Message);
-                //    }
+                    CommunicationError("Error. Unhandled");
+                }
 
-                //    _reports = new List<byte[]>();
-                //}
-
+                if (this.ExpectedResponses.Count == 0)
+                {
+                    StopTimer();
+                }
             }
 
         }
@@ -195,25 +172,13 @@ namespace CGM.Communication.MiniMed
             _running = true;
             _device.DataReceived += _device_DataReceived;
             var autoEvent = new AutoResetEvent(false);
-
-            //PeriodicTaskFactory.Start(() =>
-            //{
-            //    if (_running)
-            //    {
-            //        CommunicationError($"Error: timeout - ({this.GetType().Name})");
-            //    }
-
-            //}, _communicationBlock.TimeoutSeconds * 1000, _communicationBlock.TimeoutSeconds * 1000,5,1,true, _cancelToken);
-
             _timer = new Timer(TimeIsUp, autoEvent, TimeoutSeconds * 1000, TimeoutSeconds * 1000);
-
         }
 
         private void TimeIsUp(Object stateInfo)
         {
             string timeout = $"Error: timeout - ({this.GetType().Name})";
             CommunicationError(timeout);
-
         }
 
         private void StopTimer()
@@ -230,7 +195,7 @@ namespace CGM.Communication.MiniMed
             _reports = new List<byte[]>();
             _device.DataReceived -= _device_DataReceived;
             _running = false;
-           
+
 
         }
 
@@ -240,11 +205,8 @@ namespace CGM.Communication.MiniMed
             this.ExpectedResponses = new BlockingCollection<IReportPattern>();
             StopTimer();
             Logger.LogError(error);
-            //throw new Exception(error);
-
-
         }
-        //p
+        
 
     }
 }

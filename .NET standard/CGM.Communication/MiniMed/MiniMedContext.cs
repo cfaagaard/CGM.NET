@@ -662,6 +662,8 @@ namespace CGM.Communication.MiniMed
             }
 
             communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages / 2));
+            communicationBlock.LogDataRecieved = false;
+
 
             Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);
