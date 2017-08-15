@@ -1,5 +1,7 @@
 # Introduction
-Alpha version of uploader for the 600-series pump.
+Beta version of uploader for the 600-series pump.
+
+Status: Been running 24/7 on Raspberry PI 3 with Windows Iot (v.10.0.15063.540) since 13-08-2017.
 
 ## Projects
 CGM.Communication: The core communication between pump and CNL. Coded in c# [.NET standard 1.4](https://docs.microsoft.com/en-us/dotnet/standard/net-standard). 
