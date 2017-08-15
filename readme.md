@@ -1,7 +1,12 @@
 # Introduction
 Beta version of uploader for the 600-series pump.
 
-Status: Been running 24/7 on Raspberry PI 3 with Windows Iot (v.10.0.15063.540) since 13-08-2017.
+#### Status
+
+Been running 24/7 on Raspberry PI 3 with Windows Iot (v.10.0.15063.540) since 13-08-2017.
+
+Testing sending pump-events (history) as JSON to a [Microsoft Flow](http://flow.microsoft.com) in order to send notifications and create tasks in a [wunderlist](http://www.wunderlist.com) todo-list (when to change sensor/cannula).
+
 
 ## Projects
 CGM.Communication: The core communication between pump and CNL. Coded in c# [.NET standard 1.4](https://docs.microsoft.com/en-us/dotnet/standard/net-standard). 
