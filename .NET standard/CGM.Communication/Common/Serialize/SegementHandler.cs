@@ -40,23 +40,23 @@ namespace CGM.Communication.Common.Serialize
         public void GetHistoryEvents()
         {
 
-            if (this.PumpStateHistory.Count==0)
+            if (this.PumpStateHistory.Count == 0)
             {
                 Logger.LogError($"No history read: {this._handler.ReadInfoResponse.HistoryDataType.ToString()}");
                 return;
             }
 
-            if (this.PumpStateHistory.Count!=this.Init.PacketsToFetch)
+            if (this.PumpStateHistory.Count != this.Init.PacketsToFetch)
             {
                 Logger.LogError($"Wrong number of PacketsToFetch  {this._handler.ReadInfoResponse.HistoryDataType.ToString()} (expected {this.Init.PacketsToFetch}/{this.PumpStateHistory.Count})");
             }
 
             int block_size = 2048;
-            byte[] blockpayload;
+            
             Events = new List<PumpEvent>();
             List<byte> segmentbytes = new List<byte>();
 
-            var all = PumpStateHistory.OrderBy(e=>e.PacketNumber).Select(e => e.Message);
+            var all = PumpStateHistory.OrderBy(e => e.PacketNumber).Select(e => e.Message);
 
             foreach (var item in all)
             {
@@ -70,15 +70,26 @@ namespace CGM.Communication.Common.Serialize
                 return;
             }
 
+            byte[] blockpayload = new byte[HistoryStart.historySizeUncompressed];
+
             //int remainderBefore = (int)Math.IEEERemainder(HistoryStart.historySizeUncompressed, block_size);
             //int lzoSize = HistoryStart.historySizeUncompressed + remainderBefore;
             if (HistoryStart.historyCompressed == 0x01)
             {
                 using (Stream stream = new MemoryStream(HistoryStart.AllBytesNoHeader))
-                using (var ms = new MemoryStream())
+                using (var memoryStream = new MemoryStream(HistoryStart.historySizeUncompressed))
                 using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
                 {
-                    blockpayload = decompressed1.ToByteArray();
+                    blockpayload = decompressed1.ToByteArray(HistoryStart.historySizeUncompressed);
+
+                    //decompressed1.CopyTo(memoryStream);
+                    //blockpayload= memoryStream.ToArray();
+
+                    //using (var br = new BinaryReader(decompressed1))
+                    //    blockpayload = br.ReadBytes(HistoryStart.historySizeUncompressed);
+
+
+
                 }
             }
             else
@@ -87,13 +98,13 @@ namespace CGM.Communication.Common.Serialize
             }
             int remainder = (int)Math.IEEERemainder(blockpayload.Length, block_size);
 
-           
+
 
             //ignorering this and check the checksum, then we get some of the events...... but is it save to do this?
             if ((blockpayload.Length % block_size) != 0)
             {
                 Logger.LogError($"{this._handler.ReadInfoResponse.HistoryDataType.ToString()}: Block payload size is not a multiple of 2048 ({blockpayload.Length.ToString()} -> {remainder.ToString()})");
-               return;
+                return;
             }
 
             var length = blockpayload.Length / block_size;
@@ -141,7 +152,7 @@ namespace CGM.Communication.Common.Serialize
         List<PumpEvent> events = new List<PumpEvent>();
         private void testEvents(List<byte> bytes, int start)
         {
-           
+
             var length = bytes[start + 2];
             var bytesMessage = bytes.GetRange(start, length).ToArray();
             var eventmessage = _handler._seri.Deserialize<PumpEvent>(bytesMessage);

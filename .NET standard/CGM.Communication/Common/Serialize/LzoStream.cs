@@ -501,11 +501,11 @@ namespace CGM.Communication.Common.Serialize
 
         #endregion
 
-        public byte[] ToArray()
+        public byte[] ToArray(int initialLength)
         {
 
             Stream stream = this;
-            int initialLength = (int)_length;
+            //int initialLength = (int)_length;
             // If we've been passed an unhelpful initial length, just
             // use 32K.
             if (initialLength < 1)

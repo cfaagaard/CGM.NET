@@ -15,5 +15,14 @@ namespace CGM.Communication.Extensions
                 totalBytesCopied += stream.Read(buffer, totalBytesCopied, Convert.ToInt32(stream.Length) - totalBytesCopied);
             return buffer;
         }
+
+        public static byte[] ToByteArray(this Stream stream,int length)
+        {
+            stream.Position = 0;
+            byte[] buffer = new byte[length];
+            for (int totalBytesCopied = 0; totalBytesCopied < length;)
+                totalBytesCopied += stream.Read(buffer, totalBytesCopied, Convert.ToInt32(stream.Length) - totalBytesCopied);
+            return buffer;
+        }
     }
 }
