@@ -19,7 +19,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-
+//https://github.com/zivillian/lzo.net
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -45,7 +45,7 @@ namespace CGM.Communication.Common.Serialize
     /// <summary>
     /// Wrapper Stream for lzo compression
     /// </summary>
-    public class LzoStream:Stream
+    public class LzoStream : Stream
     {
         private readonly Stream _base;
         private long? _length;
@@ -88,8 +88,8 @@ namespace CGM.Communication.Common.Serialize
         /// </summary>
         /// <param name="stream">the compressed stream</param>
         /// <param name="mode">currently only decompression is supported</param>
-        public LzoStream(Stream stream, CompressionMode mode,long length)
-            :this(stream, mode, false, length) {}
+        public LzoStream(Stream stream, CompressionMode mode, long length)
+            : this(stream, mode, false, length) { }
 
         /// <summary>
         /// creates a new lzo stream for decompression
@@ -104,7 +104,7 @@ namespace CGM.Communication.Common.Serialize
             if (!stream.CanRead)
                 throw new ArgumentException("write-only stream cannot be used for decompression");
             _base = stream;
-            _length=length;
+            _length = length;
             _inputLength = _base.Length;
             _leaveOpen = leaveOpen;
             DecodeFirstByte();
@@ -343,7 +343,7 @@ namespace CGM.Communication.Common.Serialize
                 CopyFromRingBuffer(DecodedBuffer, 0, DecodedBuffer.Length, distance, copy, state);
                 return 0;
             }
-            
+
             var size = copy;
             if (copy > distance)
             {
@@ -431,9 +431,9 @@ namespace CGM.Communication.Common.Serialize
             get { return true; }
         }
 
-        public override bool CanSeek {get { return false; }}
+        public override bool CanSeek { get { return false; } }
 
-        public override bool CanWrite {get { return false; }}
+        public override bool CanWrite { get { return false; } }
 
         public override long Length
         {
@@ -500,5 +500,52 @@ namespace CGM.Communication.Common.Serialize
         }
 
         #endregion
+
+        public byte[] ToArray()
+        {
+
+            Stream stream = this;
+            int initialLength = (int)_length;
+            // If we've been passed an unhelpful initial length, just
+            // use 32K.
+            if (initialLength < 1)
+            {
+                initialLength = 32768;
+            }
+
+            byte[] buffer = new byte[initialLength];
+            int read = 0;
+
+            int chunk;
+            while ((chunk = stream.Read(buffer, read, buffer.Length - read)) > 0)
+            {
+                read += chunk;
+
+                // If we've reached the end of our buffer, check to see if there's
+                // any more information
+                if (read == buffer.Length)
+                {
+                    int nextByte = stream.ReadByte();
+
+                    // End of stream? If so, we're done
+                    if (nextByte == -1)
+                    {
+                        return buffer;
+                    }
+
+                    // Nope. Resize the buffer, put in the byte we've just
+                    // read, and continue
+                    byte[] newBuffer = new byte[buffer.Length * 2];
+                    Array.Copy(buffer, newBuffer, buffer.Length);
+                    newBuffer[read] = (byte)nextByte;
+                    buffer = newBuffer;
+                    read++;
+                }
+            }
+            // Buffer is now too big. Shrink it.
+            byte[] ret = new byte[read];
+            Array.Copy(buffer, ret, read);
+            return ret;
+        }
     }
 }

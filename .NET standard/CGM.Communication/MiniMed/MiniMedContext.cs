@@ -18,6 +18,7 @@ using CGM.Communication.MiniMed.Responses.Patterns;
 using System.Linq;
 using CGM.Communication.Data.Repository;
 using CGM.Communication.MiniMed.Infrastructur;
+using System.Diagnostics;
 
 namespace CGM.Communication.MiniMed
 {
@@ -92,6 +93,9 @@ namespace CGM.Communication.MiniMed
 
         private async Task<SerializerSession> CallPumpWithActions(List<Func<Task>> tasks, CancellationToken cancelToken)
         {
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
             try
             {
@@ -204,7 +208,28 @@ namespace CGM.Communication.MiniMed
                 {
                     await CloseAsync(cancelToken);
                 }
-                
+
+            }
+
+
+            stopWatch.Stop();
+            TimeSpan ts = stopWatch.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+          ts.Hours, ts.Minutes, ts.Seconds,
+          ts.Milliseconds / 10);
+
+            Logger.LogError($"Pumpsession-time: {elapsedTime}");
+
+            try
+            {
+                if (Session.PumpDataHistory.MultiPacketHandlers!=null && Session.PumpDataHistory.MultiPacketHandlers.Count>0)
+                {
+                    Session.PumpDataHistory.GetHistoryEvents();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e.Message);
             }
 
             return Session;
@@ -221,14 +246,14 @@ namespace CGM.Communication.MiniMed
 
             block.Request = new AstmStart("X");
             //expected responses for the request
-            block.ExpectedResponses.Add(new ReportPattern(new byte[] { 0x00, 0x41,0x42,0x43 }, 0));
+            block.ExpectedResponses.Add(new ReportPattern(new byte[] { 0x00, 0x41, 0x42, 0x43 }, 0));
             block.ExpectedResponses.Add(new EnqOREotkPattern());
             //Start Communication 
             await this.StartCommunication(block, cancelToken);
 
             if (string.IsNullOrEmpty(this.Session.Device.SerialNumber))
             {
-                
+
                 throw new Exception("DeviceInfo not set.");
             }
             else
@@ -532,7 +557,7 @@ namespace CGM.Communication.MiniMed
 
         private void SetDatesDays(int days)
         {
-            var from = DateTime.Now.AddDays(-1*days);
+            var from = DateTime.Now.AddDays(-1 * days);
 
             from = from.AddDays(-1);
             this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
@@ -541,7 +566,7 @@ namespace CGM.Communication.MiniMed
             this.Session.PumpDataHistory.To = DateTime.Now;
         }
 
-            private async Task StartReadHistory( CancellationToken cancelToken)
+        private async Task StartReadHistory(CancellationToken cancelToken)
         {
             //await SetDates();
             SetDatesDays(1);
@@ -553,19 +578,15 @@ namespace CGM.Communication.MiniMed
 
                 Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
 
-                //await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.UNKNOWN, cancelToken);
-                //await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.UNKNOWN, cancelToken);
+                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+                await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
                 await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
 
-
-                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-                await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-
-                Session.PumpDataHistory.GetHistoryEvents();
+                
             }
-            
+
 
 
         }
@@ -584,6 +605,8 @@ namespace CGM.Communication.MiniMed
         {
             Logger.LogInformation($"ReadHistoryInfo: {historytype.ToString()}");
             await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(from, to, historytype), cancelToken);
+
+
         }
 
         //
@@ -619,10 +642,10 @@ namespace CGM.Communication.MiniMed
             communicationBlock.Request = Session.GetMultiPacket(bytes);
             communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
 
-            if (Session.PumpDataHistory.CurrentMultiPacketHandler==null)
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler == null)
             {
                 throw new Exception($"Error in getting InitiateMultiPacketTransferResponse. CurrentMultiPacketHandler is not set.");
-              
+
             }
 
             if (Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment == null)
@@ -632,18 +655,18 @@ namespace CGM.Communication.MiniMed
             }
 
             int expectedMessages = Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketsToFetch;
-            
+
             for (int i = 0; i < expectedMessages; i++)
             {
                 communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             }
 
-            communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages /2)); 
+            communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages / 2));
 
             Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);
 
-            
+
         }
 
         private async Task EndMultiPacketAsync(byte[] bytes, CancellationToken cancelToken)

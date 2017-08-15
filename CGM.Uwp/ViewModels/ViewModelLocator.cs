@@ -20,7 +20,7 @@ namespace CGM.Uwp.ViewModels
             SimpleIoc.Default.Register<IDialogService, DialogService>();
             SimpleIoc.Default.Register<ShellViewModel>();
             Register<MainViewModel, MainPage>();
-            //Register<LogViewModel, LogPage>();
+            Register<ObjectBrowserViewModel, ObjectBrowserPage>();
             Register<StatusViewModel, StatusPage>();
             Register<StatusDetailViewModel, StatusDetailPage>();
             Register<SettingsViewModel, SettingsPage>();
@@ -29,12 +29,10 @@ namespace CGM.Uwp.ViewModels
 
         public DeviceViewModel DeviceViewModel => ServiceLocator.Current.GetInstance<DeviceViewModel>();
         public SettingsViewModel SettingsViewModel => ServiceLocator.Current.GetInstance<SettingsViewModel>();
-
+        public ObjectBrowserViewModel ObjectBrowserViewModel => ServiceLocator.Current.GetInstance<ObjectBrowserViewModel>();
         public StatusDetailViewModel StatusDetailViewModel => ServiceLocator.Current.GetInstance<StatusDetailViewModel>();
 
         public StatusViewModel StatusViewModel => ServiceLocator.Current.GetInstance<StatusViewModel>();
-
-        //public LogViewModel LogViewModel => ServiceLocator.Current.GetInstance<LogViewModel>();
 
         public MainViewModel MainViewModel => ServiceLocator.Current.GetInstance<MainViewModel>();
 

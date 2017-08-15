@@ -161,8 +161,9 @@ namespace CGM.Uwp.ViewModels
             // More on Segoe UI Symbol icons: https://docs.microsoft.com/windows/uwp/style/segoe-ui-symbol-font
             // Edit String/en-US/Resources.resw: Add a menu item title for each page
             _primaryItems.Add(new ShellNavigationItem("Shell_Main".GetLocalized(), Symbol.Document, typeof(MainViewModel).FullName));
-            //_primaryItems.Add(new ShellNavigationItem("Shell_Log".GetLocalized(), Symbol.Document, typeof(LogViewModel).FullName));
+          
             _primaryItems.Add(new ShellNavigationItem("Shell_Status".GetLocalized(), Symbol.Document, typeof(StatusViewModel).FullName));
+            //_primaryItems.Add(new ShellNavigationItem("Shell_ObjectBrowser".GetLocalized(), Symbol.Document, typeof(ObjectBrowserViewModel).FullName));
             _secondaryItems.Add(new ShellNavigationItem("Shell_Settings".GetLocalized(), Symbol.Setting, typeof(SettingsViewModel).FullName));
         }
 

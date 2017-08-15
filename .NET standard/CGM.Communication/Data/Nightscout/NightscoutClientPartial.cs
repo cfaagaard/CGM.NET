@@ -171,6 +171,8 @@ namespace CGM.Communication.Data.Nightscout
        
         [JsonIgnore]
         public Notification Notification { get; set; } = new Notification();
+
+        public string Reference { get; set; }
     }
 }
 

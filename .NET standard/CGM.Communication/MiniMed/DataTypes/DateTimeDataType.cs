@@ -1,4 +1,5 @@
-﻿using CGM.Communication.Common.Serialize;
+﻿using CGM.Communication.Common;
+using CGM.Communication.Common.Serialize;
 using CGM.Communication.Extensions;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,9 @@ namespace CGM.Communication.MiniMed.DataTypes
         public Int32 Offset { get; set; }
 
 
-        public string DateTimeString { get { return DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture); } }
+        //public string DateTimeString { get { return DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture); } }
 
+        public string DateTimeString { get { return DateTime.Value.ToString(Constants.Dateformat); } }
         public DateTime? DateTime
         {
             get

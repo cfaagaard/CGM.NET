@@ -72,8 +72,19 @@ namespace CGM.Communication
 
         private async Task StartCommunication(CancellationToken cancelToken)
         {
-            await _communicationBlock.StartCommunication(Device, Session, cancelToken);
-            //_communicationBlock = null;
+            try
+            {
+                await _communicationBlock.StartCommunication(Device, Session, cancelToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message);
+                _communicationBlock = null;
+
+                //throw;
+            }
+
+
         }
 
     }

@@ -30,7 +30,7 @@ namespace CGM.Communication.MiniMed
 
         public SerializerSession Session { get; set; } = new SerializerSession();
 
-        public int TimeoutSeconds { get; set; } = 7;
+        public int TimeoutSeconds { get; set; } = 5;
         public AstmStart Request { get; set; }
         public BlockingCollection<IReportPattern> ExpectedResponses { get; set; } = new BlockingCollection<IReportPattern>();
 
@@ -227,17 +227,20 @@ namespace CGM.Communication.MiniMed
                     // _timer.Dispose();
                 }
             }
-
+            _reports = new List<byte[]>();
             _device.DataReceived -= _device_DataReceived;
             _running = false;
+           
+
         }
 
 
         private void CommunicationError(string error)
         {
+            this.ExpectedResponses = new BlockingCollection<IReportPattern>();
             StopTimer();
             Logger.LogError(error);
-
+            //throw new Exception(error);
 
 
         }

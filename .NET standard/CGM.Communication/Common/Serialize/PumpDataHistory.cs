@@ -24,10 +24,10 @@ namespace CGM.Communication.Common.Serialize
         public PumpDataHistory(SerializerSession session)
         {
             _session = session;
-          
+
         }
 
-     
+
 
         public void AddMultiHandler(PumpStateHistoryReadInfoResponse response)
         {
@@ -69,7 +69,7 @@ namespace CGM.Communication.Common.Serialize
         public List<PumpEvent> JoinAllEvents()
         {
             List<PumpEvent> all = new List<PumpEvent>();
-            MultiPacketHandlers.ForEach(e => e.Segments.ForEach(f => all.AddRange(f.Events)));
+            MultiPacketHandlers.ForEach(e => all.AddRange(e.JoinAllEvents()));
             return all.OrderBy(e => e.Timestamp).ToList(); ;
         }
     }

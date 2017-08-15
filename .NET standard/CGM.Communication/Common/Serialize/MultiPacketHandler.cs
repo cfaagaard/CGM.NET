@@ -39,5 +39,12 @@ namespace CGM.Communication.Common.Serialize
         {
             Segments.ForEach(e => e.GetHistoryEvents());
         }
+
+        public List<PumpEvent> JoinAllEvents()
+        {
+            List<PumpEvent> all = new List<PumpEvent>();
+            Segments.ForEach(f => all.AddRange(f.Events));
+            return all.OrderBy(e => e.Timestamp).ToList(); ;
+        }
     }
 }

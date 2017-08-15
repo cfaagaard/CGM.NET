@@ -15,16 +15,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using CGM.Communication.Extensions;
 using CGM.Communication.MiniMed.Infrastructur;
+using CGM.Communication.Common;
 
 namespace CGM.Communication.Data.Nightscout
 {
     public class UploadLogic
     {
+        //private string dateformat = "yyyy-MM-ddTHH\\:mm\\:sszzz";
+
         protected ILogger Logger = ApplicationLogging.CreateLogger<UploadLogic>();
 
         private SerializerSession _session;
         private CGM.Communication.Data.Nightscout.NightscoutClient _client;
-        private string dateformat = "yyyy-MM-ddTHH\\:mm\\:sszzz";
+        //private string dateformat = "yyyy-MM-ddTHH\\:mm\\:sszzz";
         //private string treatmentDateformat = "yyyy-MM-ddTHH\\:mm\\:ss.000Z";
 
         public List<Treatment> Treatments { get; set; } = new List<Treatment>();
@@ -32,7 +35,7 @@ namespace CGM.Communication.Data.Nightscout
         public DeviceStatus DeviceStatus { get; set; } = new DeviceStatus();
 
         public SerializerSession Session { get { return _session; } }
-
+      
         private bool gotReadingFromEvent = false;
         private PumpStatusMessage _lastStatusMessage;
         public PumpStatusMessage LastStatusMessage
@@ -85,13 +88,13 @@ namespace CGM.Communication.Data.Nightscout
                     if (!gotReadingFromEvent)
                     {
                         await CreateEntrySgv(this.LastStatusMessage.Sgv, this.LastStatusMessage.SgvDateTime.DateTimeString, (long)this.LastStatusMessage.SgvDateTime.DateTimeEpoch, this.LastStatusMessage.CgmTrendName.ToString(), true);
-                        if (LastStatusMessage.BolusWizardRecent == 1)
-                        {
-                            CreateEntryMbg();
-                        }
+                        //if (LastStatusMessage.BolusWizardRecent == 1)
+                        //{
+                        //    CreateEntryMbg();
+                        //}
                         //getting it from history....
                         //carbs is not in the statusmessage.
-                        CreateCorrectionBolus(this.LastStatusMessage.BolusEstimate, 0, this.LastStatusMessage.SgvDateTime.Rtc.ToString(), this.LastStatusMessage.LastBolusDateTime.ToString(dateformat));
+                        CreateCorrectionBolus(this.LastStatusMessage.BolusEstimate, 0, this.LastStatusMessage.SgvDateTime.Rtc.ToString(), this.LastStatusMessage.LastBolusDateTime.ToString(Constants.Dateformat));
                     }
 
                     CreateDeviceStatus();
@@ -121,8 +124,8 @@ namespace CGM.Communication.Data.Nightscout
             {
                 //only upload new treatments
 
-                //get double ..... maybe this could be done better
-                var getCount = this.Treatments.Count * 2;
+                //get trible ..... maybe this could be done better
+                var getCount = this.Treatments.Count * 3;
                 var all = await _client.TreatmentsAsync(null, getCount);
                 //remove treatments that are uploaded.
 
@@ -207,7 +210,7 @@ namespace CGM.Communication.Data.Nightscout
             {
                 foreach (var item in events)
                 {
-                   var treatment= CreateCannulaChanged(item.Timestamp.Value);
+                   var treatment= CreateInsulinChanged(item.Timestamp.Value);
                     treatment.Notification.Date = item.Timestamp.Value.ToString();
                     treatment.Notification.Type = EventTypeEnum.CANNULA_FILL_DELIVERED.ToString();
                     treatment.Notification.Text = EventTypeEnum.CANNULA_FILL_DELIVERED.ToString();
@@ -246,7 +249,7 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     var msg = (BOLUS_WIZARD_ESTIMATE_Event)item.Message;
 
-                    CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(dateformat));
+                    CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(Constants.Dateformat));
 
                 }
             }
@@ -311,6 +314,8 @@ namespace CGM.Communication.Data.Nightscout
 
         class CompareEvents
         {
+            private string dateformat = "yyyy-MM-ddTHH\\:mm\\:sszzz";
+
             public string DateString { get; set; }
             public DateTime ReadingTime { get; set; }
             public long Epoch { get; set; }
@@ -321,23 +326,25 @@ namespace CGM.Communication.Data.Nightscout
                 this.ReadingTime = readingTime;
                 DateTimeOffset utcTime2 = this.ReadingTime;
                 Epoch = utcTime2.ToUnixTimeMilliseconds();
-                DateString = readingTime.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture);
+                //DateString = readingTime.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture);
+                DateString = readingTime.ToString(dateformat);
             }
         }
 
-        protected void CreateEntryMbg()
-        {
-            string serialNum = _session.Device.SerialNumberFull;
-            PumpStatusMessage message = this.LastStatusMessage;
+        //protected void CreateEntryMbg()
+        //{
+        //    string serialNum = _session.Device.SerialNumberFull;
+        //    PumpStatusMessage message = this.LastStatusMessage;
 
-            Entry entry = new Entry();
-            entry.Date = message.SgvDateTime.DateTimeEpoch;
-            entry.Mbg = message.BolusWizardBGL;
-            entry.Type = "mbg";
-            entry.DateString = message.SgvDateTime.DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy");
-            entry.Device = string.Format("medtronic-640g://{0}", serialNum);
-            this.Entries.Add(entry);
-        }
+        //    Entry entry = new Entry();
+        //    entry.Date = message.SgvDateTime.DateTimeEpoch;
+        //    entry.Mbg = message.BolusWizardBGL;
+        //    entry.Type = "mbg";
+        //    //entry.DateString = message.SgvDateTime.DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy");
+        //    entry.DateString = message.SgvDateTime.DateTime.Value.ToString(dateformat);
+        //    entry.Device = string.Format("medtronic-640g://{0}", serialNum);
+        //    this.Entries.Add(entry);
+        //}
 
         protected async Task CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists)
         {
@@ -393,12 +400,12 @@ namespace CGM.Communication.Data.Nightscout
 
             this.DeviceStatus.UploaderBattery = uploadBattery;
             this.DeviceStatus.Device = string.Format("medtronic-640g://{0}", serialNum);
-            this.DeviceStatus.CreatedAt = create.ToString(dateformat);
+            this.DeviceStatus.CreatedAt = create.ToString(Constants.Dateformat);
             this.DeviceStatus.PumpInfo.Reservoir = Math.Round(message.ReservoirAmount, 3);
             this.DeviceStatus.PumpInfo.Iob.Bolusiob = Math.Round(message.ActiveInsulin.INSULIN, 3);
-            this.DeviceStatus.PumpInfo.Iob.Timestamp = create.ToString("ddd, MMM dd HH:mm:ss CEST yyyy");
-
-            this.DeviceStatus.PumpInfo.Clock = create.ToString(dateformat);
+            //this.DeviceStatus.PumpInfo.Iob.Timestamp = create.ToString("ddd, MMM dd HH:mm:ss CEST yyyy");
+            this.DeviceStatus.PumpInfo.Iob.Timestamp = create.ToString(Constants.Dateformat);
+            this.DeviceStatus.PumpInfo.Clock = create.ToString(Constants.Dateformat);
             this.DeviceStatus.PumpInfo.Battery.Percent = message.BatteryPercentage;
 
             //if (message.Status.Suspended)
@@ -452,7 +459,15 @@ namespace CGM.Communication.Data.Nightscout
             Treatment treatment = new Treatment();
             treatment.Insulin = insulin;// message.BolusEstimate;
             treatment.Carbs = carbs;
-            treatment.EventType = "Correction Bolus";
+            if (treatment.Carbs.HasValue && treatment.Carbs.Value!=0)
+            {
+                treatment.EventType = "Meal Bolus";
+            }
+            else
+            {
+                treatment.EventType = "Correction Bolus";
+            }
+            
             treatment.EnteredBy = $"Ref:{reference}";// $"Ref:{message.LastBolusReference}";
             treatment.Created_at = dateTime;// message.LastBolusDateTime.ToString(dateformat);
             Treatments.Add(treatment);
@@ -493,7 +508,7 @@ namespace CGM.Communication.Data.Nightscout
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Announcement";
-            treatment.Created_at = createdAt.ToString(dateformat);
+            treatment.Created_at = createdAt.ToString(Constants.Dateformat);
             treatment.Notes = note;
             treatment.EnteredBy = $"ref:${reference} - {treatment.Created_at}";
             Treatments.Add(treatment);
@@ -506,7 +521,7 @@ namespace CGM.Communication.Data.Nightscout
 
             Treatment treatment = new Treatment();
             treatment.EventType = "Sensor Change";
-            treatment.Created_at = createdAt.ToString(dateformat);
+            treatment.Created_at = createdAt.ToString(Constants.Dateformat);
             treatment.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
             Treatments.Add(treatment);
 
@@ -514,7 +529,7 @@ namespace CGM.Communication.Data.Nightscout
 
             Treatment treatment2 = new Treatment();
             treatment2.EventType = "Sensor Start";
-            treatment2.Created_at = createdAt.ToString(dateformat);
+            treatment2.Created_at = createdAt.ToString(Constants.Dateformat);
             treatment2.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
             Treatments.Add(treatment2);
 
@@ -522,22 +537,24 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
-        private void CreateInsulinChanged(DateTime createdAt)
+        private Treatment CreateInsulinChanged(DateTime createdAt)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Insulin Change";
-            treatment.Created_at = createdAt.ToString(dateformat);
+            treatment.Created_at = createdAt.ToString(Constants.Dateformat);
             treatment.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
             Treatments.Add(treatment);
+
+            return treatment;
         }
 
         private Treatment CreateCannulaChanged(DateTime createdAt)
         {
-            CreateInsulinChanged(createdAt);
+            
 
             Treatment treatment = new Treatment();
             treatment.EventType = "Site Change";
-            treatment.Created_at = createdAt.ToString(dateformat);
+            treatment.Created_at = createdAt.ToString(Constants.Dateformat);
             treatment.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
             Treatments.Add(treatment);
 
