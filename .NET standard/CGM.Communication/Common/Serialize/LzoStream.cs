@@ -110,7 +110,11 @@ namespace CGM.Communication.Common.Serialize
             DecodeFirstByte();
         }
 
-        private void DecodeFirstByte()
+        public LzoStream(Stream stream, CompressionMode mode, bool leaveOpen):this(stream,mode,leaveOpen,stream.Length)
+        {
+        }
+
+            private void DecodeFirstByte()
         {
             Instruction = GetByte();
             if (Instruction > 15 && Instruction <= 17)

@@ -89,6 +89,19 @@ namespace CGM.Communication.MiniMed
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartBasalPatternAsync(cancelToken));
             return await CallPumpWithActions(tasks, cancelToken);
+
+
+          //.buildSettingsRecords(events)
+          //.buildBasalRecords(events)
+          //.buildTempBasalRecords(events)
+          //.buildSuspendResumeRecords(events)
+          //.buildNormalBolusRecords(events)
+          //.buildSquareBolusRecords(events)
+          //.buildDualBolusRecords(events)
+          //.buildRewindRecords(events)
+          //.buildPrimeRecords(events)
+          //.buildCGMRecords(events)
+          //.buildBGRecords(events);
         }
 
         private async Task<SerializerSession> CallPumpWithActions(List<Func<Task>> tasks, CancellationToken cancelToken)
@@ -567,7 +580,7 @@ namespace CGM.Communication.MiniMed
         private async Task StartReadHistory(CancellationToken cancelToken)
         {
             //await SetDates();
-            SetDatesDays(0);
+            SetDatesDays(1);
 
             if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
             {
@@ -648,8 +661,8 @@ namespace CGM.Communication.MiniMed
                 communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             }
 
-            communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages / 2));
-            communicationBlock.LogDataRecieved = false;
+            communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages / 4));
+            //communicationBlock.LogDataRecieved = false;
 
 
             Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");

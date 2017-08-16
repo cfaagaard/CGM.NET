@@ -319,16 +319,13 @@ namespace CGM.Communication.Common.Serialize
 
         public AstmStart GetReadHistoryInfo(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType)
         {
-
-            
-
             try
             {
                 AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
                 ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType);
                 return msg;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
                 throw;

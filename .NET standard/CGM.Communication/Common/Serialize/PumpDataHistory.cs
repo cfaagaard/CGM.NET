@@ -34,12 +34,13 @@ namespace CGM.Communication.Common.Serialize
             MultiPacketHandler handler = new MultiPacketHandler(_session);
             handler.ReadInfoResponse = response;
             MultiPacketHandlers.Add(handler);
+            _session.SessionVariables.GetNextMultiPacketIndex();
             //CurrentMultiPacketHandler = handler;
         }
 
         public int GetSize(HistoryDataTypeEnum historyDataType)
         {
-            var handler = MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)historyDataType);
+            var handler = MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)historyDataType);// MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)historyDataType);
             if (handler != null)
             {
                 return handler.ReadInfoResponse.HistorySize;
@@ -49,7 +50,7 @@ namespace CGM.Communication.Common.Serialize
 
         public void SetCurrentMulitPacket(ReadHistoryRequest request)
         {
-            this.CurrentMultiPacketHandler = MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType);
+            this.CurrentMultiPacketHandler = this.MultiPacketHandlers[_session.SessionVariables.GetCurrentMultiPacketIndex()]; // MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType);
         }
 
         public void GetHistoryEvents()

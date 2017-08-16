@@ -18,10 +18,11 @@ namespace CGM.Communication.Extensions
 
         public static byte[] ToByteArray(this Stream stream,int length)
         {
+
             stream.Position = 0;
             byte[] buffer = new byte[length];
-            for (int totalBytesCopied = 0; totalBytesCopied < length;)
-                totalBytesCopied += stream.Read(buffer, totalBytesCopied, Convert.ToInt32(length) - totalBytesCopied);
+            for (int totalBytesCopied = 0; totalBytesCopied < stream.Length;)
+                totalBytesCopied += stream.Read(buffer, totalBytesCopied, Convert.ToInt32(stream.Length) - totalBytesCopied);
             return buffer;
         }
     }

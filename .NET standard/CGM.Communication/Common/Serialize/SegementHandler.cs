@@ -69,17 +69,53 @@ namespace CGM.Communication.Common.Serialize
             }
 
             byte[] blockpayload = new byte[HistoryStart.historySizeUncompressed];
-
-
+            //byte[] blockpayload2 = new byte[HistoryStart.historySizeUncompressed];
+            //byte[] blockpayload3 = new byte[HistoryStart.historySizeUncompressed];
             if (HistoryStart.historyCompressed == 0x01)
             {
                 try
                 {
                     using (Stream stream = new MemoryStream(HistoryStart.AllBytesNoHeader))
                     using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
+                    //using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress, false ))
                     {
-                        blockpayload = decompressed1.ToByteArray(HistoryStart.historySizeUncompressed);
+                        //blockpayload = decompressed1.ToByteArray(HistoryStart.historySizeUncompressed);
+
+
+                        //using (MemoryStream stream3 = new MemoryStream(HistoryStart.historySizeUncompressed))
+                        //{
+                        //    decompressed1.CopyTo(stream3);
+                        //    blockpayload = stream3.ToArray();
+                        //}
+
+                        blockpayload = decompressed1.ToArray(HistoryStart.historySizeUncompressed);
+
+                        //blockpayload = decompressed1.ToByteArray();
                     }
+
+                    //using (Stream stream2 = new MemoryStream(HistoryStart.AllBytesNoHeader))
+                    //using (var decompressed1 = new LzoStream(stream2, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
+                    //{
+
+                    //    blockpayload2 = decompressed1.ToArray(HistoryStart.historySizeUncompressed);
+
+
+
+                    //}
+
+                    //using (Stream stream4 = new MemoryStream(HistoryStart.AllBytesNoHeader))
+                    //using (var decompressed1 = new LzoStream(stream4, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
+                    //{
+
+                    //    //blockpayload2 = decompressed1.ToArray(HistoryStart.historySizeUncompressed);
+                    //    using (MemoryStream stream3 = new MemoryStream())
+                    //    {
+                    //        decompressed1.CopyTo(stream3);
+                    //        blockpayload3 = stream3.ToArray();
+                    //    }
+
+
+                    //}
                 }
                 catch (Exception ex)
                 {
