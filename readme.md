@@ -1,19 +1,32 @@
 # Introduction
 Beta version of uploader for the 600-series pump.
 
-#### Status
+### Status
 
+#### Hardware-tests
 Been running 24/7 on Raspberry PI 3 with Windows Iot (v.10.0.15063.540) since 13-08-2017.
-<img src="Docs/pie.png" width="50">
-<img src="Docs/PieCNL.jpg" width="200">
+<table >
+<tr>
+<td><img src="Docs/pie.png" width="50"></td>
+<td><img src="Docs/PieCNL.jpg" width="200"></td>
+</tr>
+</table>
 
-Testing sending pump-events (history) as JSON to a [Microsoft Flow](http://flow.microsoft.com) in order to send notifications and create tasks in a [wunderlist](http://www.wunderlist.com) todo-list (when to change sensor/cannula).
 
 Testing application on a old Microsoft Lumia 950 mobile phone. (17-08-2017). Looks good so fare.
-<img src="Docs/lumia.png" width="100">
-<img src="Docs/IMG_20170817_162023.png" width="200">
 
-known issues:
+<table >
+<tr>
+<td><img src="Docs/lumia.png" width="100"></td>
+<td><img src="Docs/IMG_20170817_162023.png" width="200"></td>
+</tr>
+</table>
+
+#### Workflow-tests
+Testing sending pump-events (history) as JSON to a [Microsoft Flow](http://flow.microsoft.com) in order to send notifications and create tasks in a [wunderlist](http://www.wunderlist.com) todo-list (when to change sensor/cannula).
+
+
+#### known issues:
 
 Getting some errors when reading history, but not always.....
 
