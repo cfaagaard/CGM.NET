@@ -12,157 +12,261 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid Margin="{StaticResource MediumLeftRightMargin}" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="48"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
 
-            <TextBlock
-                Grid.Row="0"
-                x:Uid="Settings_Title"
-                x:Name="TitlePage"
-                Style="{StaticResource PageTitleStyle}" />
+        <Pivot x:Name="rootPivot" >
+            <PivotItem Header="Upload">
+                <Grid Margin="{StaticResource MediumLeftRightMargin}" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-            <TextBlock  Grid.Row="1" Grid.Column="0"  x:Uid="Settings_Theme" Style="{StaticResource BodyTextStyle}"/>
+  
 
-            <ToggleSwitch  Grid.Row="1" Grid.Column="1"
-                    x:Uid="Settings_ThemeToggle"
-                    IsOn="{x:Bind ViewModel.IsLightThemeEnabled, Mode=OneWay}"
+
+                    <TextBlock  Text="NightscoutUrl" Grid.Row="2" Grid.Column="0" x:Uid="Settings_url" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutUrl, Mode=TwoWay}"></TextBox>
+
+
+                    <TextBlock Grid.Row="3" Grid.Column="0"  x:Uid="Settings_key" Text="NightscoutApiKey" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKey, Mode=TwoWay}"></TextBox>
+
+
+                    <TextBlock Grid.Row="4" Grid.Column="0"  x:Uid="Settings_notification" Text="NotificationUrl" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{x:Bind ViewModel.NotificationUrl, Mode=TwoWay}"></TextBox>
+
+
+                    <TextBlock Grid.Row="5" Grid.Column="0"  x:Uid="Settings_interval" Text="Interval in seconds" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{x:Bind ViewModel.IntervalSeconds, Mode=TwoWay}"></TextBox>
+
+
+                    <TextBlock Grid.Row="6" Grid.Column="0"  x:Uid="Settings_history" Text="Include history (Beta)" Style="{StaticResource BodyTextStyle}"/>
+
+                    <ToggleSwitch  Grid.Row="6" Grid.Column="1"
+                    x:Uid="Settings_historyToggle"
+                    IsOn="{x:Bind ViewModel.IncludeHistory, Mode=TwoWay}"
                     Margin="0,4,0,0">
-                <i:Interaction.Behaviors>
-                    <ic:EventTriggerBehavior EventName="Toggled">
-                        <ic:InvokeCommandAction Command="{x:Bind ViewModel.SwitchThemeCommand}"/>
-                    </ic:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-            </ToggleSwitch>
+                    </ToggleSwitch>
+                </Grid>
+            </PivotItem>
+            <PivotItem Header="Developer">
+                <Grid Margin="{StaticResource MediumLeftRightMargin}" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
-            <TextBlock  Text="NightscoutUrl" Grid.Row="2" Grid.Column="0" x:Uid="Settings_url" Style="{StaticResource BodyTextStyle}"/>
-            <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutUrl, Mode=TwoWay}"></TextBox>
-
-
-            <TextBlock Grid.Row="3" Grid.Column="0"  x:Uid="Settings_key" Text="NightscoutApiKey" Style="{StaticResource BodyTextStyle}"/>
-            <TextBox Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKey, Mode=TwoWay}"></TextBox>
-
-
-            <TextBlock Grid.Row="4" Grid.Column="0"  x:Uid="Settings_notification" Text="NotificationUrl" Style="{StaticResource BodyTextStyle}"/>
-            <TextBox Grid.Row="4" Grid.Column="1" Text="{x:Bind ViewModel.NotificationUrl, Mode=TwoWay}"></TextBox>
-
-            <TextBlock
-                Grid.Row="5" Grid.ColumnSpan="2"
-                Style="{StaticResource PageTitleStyle}" >Developer information</TextBlock>
-
-
-            <Grid  Grid.Row="6" Grid.Column="0" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                
-                <TextBlock  x:Uid="Filepath" Text="Registred devices" Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center"/>
-                <HyperlinkButton Grid.Column="1" ToolTipService.ToolTip="Refresh devices" Command="{x:Bind ViewModel.GetDevicesCommand}"  Margin="0,0,10,0" HorizontalAlignment="Right" >
-                    <Grid>
-                        <Path Data="M1.6000061,18.200001L11.199982,22.599996 8.6000061,24.400015C10.699982,26.200002 13.299988,27.30001 16.100006,27.30001 21.399994,27.30001 26.100006,23.800009 27.199982,18.700002L27.399994,18.300007 32,18.300007 31.799988,19.099996C30.5,26.599998 23.899994,31.599998 16.100006,31.599998 11.699982,31.599998 7.6999817,29.900017 4.6999817,26.900017L2.5,28.400017z M15.899994,0C20.299988,1.8645551E-07,24.299988,1.6999976,27.299988,4.5999921L29.399994,3.000001 30.299988,13.000004 20.699982,9.1999996 23.299988,7.3999956C21.199982,5.5999926 18.600006,4.5999921 15.799988,4.5999921 10.5,4.5999921 5.7999878,8.3000048 4.6999817,13.399998L4.5,14.300007 0,14.300007 0.19998169,13.000004C1.5,5.5000017,8.1999817,1.8645551E-07,15.899994,0z"
-                              Stretch="Uniform" Fill="#FF0EA333" Width="15" Height="15" Margin="0,0,0,0" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
-                            <Path.RenderTransform>
-                                <TransformGroup>
-                                    <TransformGroup.Children>
-                                        <RotateTransform Angle="0" />
-                                        <ScaleTransform ScaleX="1" ScaleY="1" />
-                                    </TransformGroup.Children>
-                                </TransformGroup>
-                            </Path.RenderTransform>
-                        </Path>
-                    </Grid>
-                </HyperlinkButton>
-           
-            </Grid>
-
-            <ListBox Grid.Row="7" Grid.Column="0" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{Binding SelectedDevice,Mode=TwoWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="DevicesList">
-                <ListBox.ItemTemplate>
-                    <DataTemplate x:DataType="viewmodels:DeviceItemViewModel">
-                        <StackPanel Orientation="Horizontal">
-                            <HyperlinkButton  ToolTipService.ToolTip="Delete device" Command="{x:Bind DeleteDeviceCommand}"
-                                             VerticalAlignment="Center" Margin="0,0,10,0" >
-                               
-                                <Grid>
-                                    <Path Data="M20.200012,8.4000015L16,12.599998 11.800049,8.5 8.4000244,11.900002 12.600037,16.099998 8.4000244,20.300003 11.800049,23.699997 16,19.5 20.200012,23.699997 23.600037,20.300003 19.400024,16 23.600037,11.800003z M16,0C24.800049,0 32,7.1999969 32,16 32,24.800003 24.800049,32 16,32 7.2000122,32 0,24.800003 0,16 0,7.1999969 7.2000122,0 16,0z"
-                                          Stretch="Uniform" Fill="#FFEA4343" Width="16" Height="16" Margin="0,0,0,0" >
-                                        <Path.RenderTransform>
-                                            <TransformGroup>
-                                                <TransformGroup.Children>
-                                                    <RotateTransform Angle="0" />
-                                                    <ScaleTransform ScaleX="1" ScaleY="1" />
-                                                </TransformGroup.Children>
-                                            </TransformGroup>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                </Grid>
-                            </HyperlinkButton>
-                            <TextBlock Text="{Binding}" VerticalAlignment="Center" ></TextBlock>
-                        </StackPanel>
-
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-
-            <ItemsControl Grid.Row="7" Grid.Column="1"  ItemsSource="{Binding SelectedDevice.DeviceInformation}"  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10" >
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="160"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{Binding Key}" VerticalAlignment="Center"></TextBlock>
-                            <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True"  ></TextBox>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <TextBlock Grid.Row="9" Grid.Column="0"  x:Uid="Settings_keyhashed" Text="Hashed NightscoutApiKey (Readonly)" Style="{StaticResource BodyTextStyle}"/>
-            <TextBox Grid.Row="9" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKeyHashed, Mode=OneWay}" IsReadOnly="True"></TextBox>
+                    <TextBlock Grid.Row="9" Grid.Column="0"  x:Uid="Settings_keyhashed" Text="Hashed NightscoutApiKey (Readonly)" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="9" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKeyHashed, Mode=OneWay}" IsReadOnly="True"></TextBox>
 
 
-            <TextBlock Grid.Row="10" Grid.Column="0"  x:Uid="Filepath" Text="Local path to logs" Style="{StaticResource BodyTextStyle}"/>
-            <TextBox Grid.Row="10" Grid.Column="1" Text="{x:Bind ViewModel.LocalPath, Mode=OneWay}" IsReadOnly="True"></TextBox>
+                    <TextBlock Grid.Row="10" Grid.Column="0"  x:Uid="Filepath" Text="Local path to logs" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="10" Grid.Column="1" Text="{x:Bind ViewModel.LocalPath, Mode=OneWay}" IsReadOnly="True"></TextBox>
 
-            <StackPanel Grid.Row="11" Grid.ColumnSpan="2" Margin="0,16,0,0">
-                <TextBlock
+                    <StackPanel Grid.Row="11" Grid.ColumnSpan="2" Margin="0,16,0,0">
+                        <TextBlock
                     x:Uid="Settings_About"
                     Style="{StaticResource BodyTextStyle}"/>
-                <TextBlock
+                        <TextBlock
                     Text="{x:Bind ViewModel.AppDescription, Mode=OneWay}"
                     Style="{StaticResource BodyTextStyle}"
                     Margin="0,4,0,0"/>
-                <TextBlock
+                        <TextBlock
                     x:Uid="Settings_AboutDescription"
                     Style="{StaticResource BodyTextStyle}"/>
-            </StackPanel>
+                    </StackPanel>
 
 
-        </Grid>
+                </Grid>
+            </PivotItem>
+            <PivotItem Header="Devices">
+                <Grid Margin="{StaticResource MediumLeftRightMargin}" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
 
+
+
+
+
+
+                    <Grid  Grid.Row="6" Grid.Column="0" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock  x:Uid="Filepath" Text="Registred devices" Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center"/>
+                        <HyperlinkButton Grid.Column="1" ToolTipService.ToolTip="Refresh devices" Command="{x:Bind ViewModel.GetDevicesCommand}"  Margin="0,0,10,0" HorizontalAlignment="Right" >
+                            <Grid>
+                                <Path Data="M1.6000061,18.200001L11.199982,22.599996 8.6000061,24.400015C10.699982,26.200002 13.299988,27.30001 16.100006,27.30001 21.399994,27.30001 26.100006,23.800009 27.199982,18.700002L27.399994,18.300007 32,18.300007 31.799988,19.099996C30.5,26.599998 23.899994,31.599998 16.100006,31.599998 11.699982,31.599998 7.6999817,29.900017 4.6999817,26.900017L2.5,28.400017z M15.899994,0C20.299988,1.8645551E-07,24.299988,1.6999976,27.299988,4.5999921L29.399994,3.000001 30.299988,13.000004 20.699982,9.1999996 23.299988,7.3999956C21.199982,5.5999926 18.600006,4.5999921 15.799988,4.5999921 10.5,4.5999921 5.7999878,8.3000048 4.6999817,13.399998L4.5,14.300007 0,14.300007 0.19998169,13.000004C1.5,5.5000017,8.1999817,1.8645551E-07,15.899994,0z"
+                              Stretch="Uniform" Fill="#FF0EA333" Width="15" Height="15" Margin="0,0,0,0" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Top">
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <TransformGroup.Children>
+                                                <RotateTransform Angle="0" />
+                                                <ScaleTransform ScaleX="1" ScaleY="1" />
+                                            </TransformGroup.Children>
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Grid>
+                        </HyperlinkButton>
+
+                    </Grid>
+
+                    <ListBox Grid.Row="7" Grid.Column="0" ItemsSource="{x:Bind ViewModel.Devices}" SelectedItem="{Binding SelectedDevice,Mode=TwoWay}" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="DevicesList">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="viewmodels:DeviceItemViewModel">
+                                <StackPanel Orientation="Horizontal">
+                                    <HyperlinkButton  ToolTipService.ToolTip="Delete device" Command="{x:Bind DeleteDeviceCommand}"
+                                             VerticalAlignment="Center" Margin="0,0,10,0" >
+
+                                        <Grid>
+                                            <Path Data="M20.200012,8.4000015L16,12.599998 11.800049,8.5 8.4000244,11.900002 12.600037,16.099998 8.4000244,20.300003 11.800049,23.699997 16,19.5 20.200012,23.699997 23.600037,20.300003 19.400024,16 23.600037,11.800003z M16,0C24.800049,0 32,7.1999969 32,16 32,24.800003 24.800049,32 16,32 7.2000122,32 0,24.800003 0,16 0,7.1999969 7.2000122,0 16,0z"
+                                          Stretch="Uniform" Fill="#FFEA4343" Width="16" Height="16" Margin="0,0,0,0" >
+                                                <Path.RenderTransform>
+                                                    <TransformGroup>
+                                                        <TransformGroup.Children>
+                                                            <RotateTransform Angle="0" />
+                                                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                                                        </TransformGroup.Children>
+                                                    </TransformGroup>
+                                                </Path.RenderTransform>
+                                            </Path>
+                                        </Grid>
+                                    </HyperlinkButton>
+                                    <TextBlock Text="{Binding}" VerticalAlignment="Center" ></TextBlock>
+                                </StackPanel>
+
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <ItemsControl Grid.Row="7" Grid.Column="1"  ItemsSource="{Binding SelectedDevice.DeviceInformation}"  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="10" >
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Key}" VerticalAlignment="Center"></TextBlock>
+                                    <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" IsReadOnly="True"  ></TextBox>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    
+
+
+                </Grid>
+            </PivotItem>
+            <PivotItem Header="Other">
+                <Grid Margin="{StaticResource MediumLeftRightMargin}" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="48"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock  Grid.Row="1" Grid.Column="0"  x:Uid="Settings_Theme" Style="{StaticResource BodyTextStyle}"/>
+
+                    <ToggleSwitch  Grid.Row="1" Grid.Column="1"
+                    x:Uid="Settings_ThemeToggle"
+                    IsOn="{x:Bind ViewModel.IsLightThemeEnabled, Mode=OneWay}"
+                    Margin="0,4,0,0">
+                        <i:Interaction.Behaviors>
+                            <ic:EventTriggerBehavior EventName="Toggled">
+                                <ic:InvokeCommandAction Command="{x:Bind ViewModel.SwitchThemeCommand}"/>
+                            </ic:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                    </ToggleSwitch>
+
+
+                    
+                </Grid>
+            </PivotItem>
+        </Pivot>
+      
+       
         <!--  Adaptive triggers  -->
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="WindowStates">
@@ -175,9 +279,9 @@
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="0"/>
                     </VisualState.StateTriggers>
-                    <VisualState.Setters>
+                    <!--<VisualState.Setters>
                         <Setter Target="TitlePage.Margin" Value="48,0,12,7"/>
-                    </VisualState.Setters>
+                    </VisualState.Setters>-->
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>

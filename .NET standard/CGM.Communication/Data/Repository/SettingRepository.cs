@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,11 +17,22 @@ namespace CGM.Communication.Data.Repository
         {
             var query = _uow.Connection.Table<Setting>().Where(v => v.SettingId == 1);
             Setting setting = query.FirstOrDefault();
+            
             if (setting==null)
             {
                 setting = new Setting();
             };
+            if (!string.IsNullOrEmpty( setting.OtherSettingsJson))
+            {
+                setting.OtherSettings = JsonConvert.DeserializeObject<OtherSettings>(setting.OtherSettingsJson);
+            }
             return setting;
+        }
+
+        public override void Update(Setting entity)
+        {
+            entity.OtherSettingsJson = JsonConvert.SerializeObject(entity.OtherSettings);
+            base.Update(entity);
         }
     }
 }

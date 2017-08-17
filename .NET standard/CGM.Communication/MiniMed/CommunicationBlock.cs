@@ -90,6 +90,7 @@ namespace CGM.Communication.MiniMed
                     //wait for all responses or timeout for whole block.
                     while (this._running && _device.IsConnected)
                     {
+ 
                         periode += delay;
                         Task.Delay(delay).Wait();
                         if ((TimeoutSeconds * 1000) <= periode)
@@ -137,6 +138,7 @@ namespace CGM.Communication.MiniMed
 
                         var temp = this._reports.JoinToArray();
                         var resp = serializer.Deserialize<AstmStart>(temp);
+                        ResponsesRecieved.Add(resp);
                     }
                     catch (Exception x)
                     {
@@ -147,8 +149,9 @@ namespace CGM.Communication.MiniMed
                 }
                 else
                 {
+                    Logger.LogError("Unexpected message received.");
 
-                    CommunicationError("Error. Unhandled");
+                    //CommunicationError("Unexpected message received.");
                 }
 
                 if (this.ExpectedResponses.Count == 0)
@@ -167,7 +170,7 @@ namespace CGM.Communication.MiniMed
 
         private void StartTimer()
         {
-            ResponsesRecieved = new BlockingCollection<AstmStart>();
+            //ResponsesRecieved = new BlockingCollection<AstmStart>();
             _reports = new List<byte[]>();
             _running = true;
             _device.DataReceived += _device_DataReceived;
@@ -195,10 +198,9 @@ namespace CGM.Communication.MiniMed
             _reports = new List<byte[]>();
             _device.DataReceived -= _device_DataReceived;
             _running = false;
-
+           
 
         }
-
 
         private void CommunicationError(string error)
         {
@@ -206,7 +208,6 @@ namespace CGM.Communication.MiniMed
             StopTimer();
             Logger.LogError(error);
         }
-        
 
     }
 }

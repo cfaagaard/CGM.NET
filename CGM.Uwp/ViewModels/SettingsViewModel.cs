@@ -85,6 +85,25 @@ namespace CGM.Uwp.ViewModels
             }
         }
 
+        public bool  IncludeHistory
+        {
+            get { return _setting.OtherSettings.IncludeHistory; }
+            set
+            {
+                _setting.OtherSettings.IncludeHistory = value;
+                SaveSetting();
+            }
+        }
+
+        public int IntervalSeconds
+        {
+            get { return _setting.OtherSettings.IntervalSeconds; }
+            set
+            {
+                _setting.OtherSettings.IntervalSeconds = value;
+                SaveSetting();
+            }
+        }
 
         public ObservableCollection<DeviceItemViewModel> Devices { get; set; } = new ObservableCollection<DeviceItemViewModel>();
 

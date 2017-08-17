@@ -47,9 +47,6 @@ namespace CGM.Uwp
             {
                 await ActivationService.ActivateAsync(e); 
             }
-
-
-
             string DataPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
             ApplicationLogging.LoggerFactory.AddCgmLog(DataPath);
             
@@ -59,6 +56,8 @@ namespace CGM.Uwp
             {
                 uow.CheckDatabaseVersion(DataPath);
             }
+
+
         }
 
 

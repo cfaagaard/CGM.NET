@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.ExtendedExecution;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 
@@ -145,7 +146,8 @@ namespace CGM.Uwp.ViewModels
                 //should run
                 if (!_isStarted && IsConnected)
                 {
-                    Start();
+                   StartExtended();
+                    //Start();
                 }
 
             }
@@ -172,7 +174,7 @@ namespace CGM.Uwp.ViewModels
         {
             var tDif = session.PumpTime.PumpDateTime.Value.Subtract(DateTime.Now);
             string difference = string.Format("{0}:{1}:{2}", tDif.Hours, tDif.Minutes, tDif.Seconds);
-           
+
 
             this.PumpTime = string.Format("{0} ({1})", session.PumpTime.PumpDateTime.Value.ToString("HH:mm:ss"), difference);
         }
@@ -264,6 +266,56 @@ namespace CGM.Uwp.ViewModels
 
             _task.Start(((App)App.Current).Device);
             _isStarted = true;
+        }
+
+        ExtendedExecutionSession session = null;
+
+        public async Task StartExtended()
+        {
+            ClearExtendedExecution();
+
+            var newSession = new ExtendedExecutionSession();
+            newSession.Reason = ExtendedExecutionReason.LocationTracking;
+            newSession.Revoked += SessionRevoked;
+            ExtendedExecutionResult result = await newSession.RequestExtensionAsync();
+            switch (result)
+            {
+                case ExtendedExecutionResult.Allowed:
+                    session = newSession;
+                    Start();
+                    break;
+
+                default:
+                case ExtendedExecutionResult.Denied:
+                    newSession.Dispose();
+                    break;
+            }
+
+        }
+        private void EndExtendedExecution()
+        {
+            ClearExtendedExecution();
+        }
+
+        void ClearExtendedExecution()
+        {
+            if (session != null)
+            {
+                session.Revoked -= SessionRevoked;
+                session.Dispose();
+                session = null;
+            }
+
+        }
+
+        private async void SessionRevoked(object sender, ExtendedExecutionRevokedEventArgs args)
+        {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+
+                Logger.LogWarning($"Session Revoked: {args.Reason}");
+                EndExtendedExecution();
+            });
         }
     }
 }

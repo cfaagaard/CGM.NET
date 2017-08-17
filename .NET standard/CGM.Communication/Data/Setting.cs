@@ -1,4 +1,5 @@
 ﻿using CGM.Communication.Extensions;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,6 +22,12 @@ namespace CGM.Communication.Data
 
         [SQLite.MaxLength(3000)]
         public string NotificationUrl { get; set; }
+
+        [SQLite.MaxLength(3000)]
+        public string OtherSettingsJson { get; set; }
+
+        [Ignore]
+        public OtherSettings OtherSettings { get; set; } = new OtherSettings();
 
         public int DatabaseVersion { get; set; } = 0;
 

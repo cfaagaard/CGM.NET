@@ -24,7 +24,7 @@ namespace CGM.Communication.Data.Repository
             var s = _uow.Connection.Insert(entity);
         }
 
-        public void Update(T entity)
+        public virtual void Update(T entity)
         {
             var s = _uow.Connection.Update(entity);
         }

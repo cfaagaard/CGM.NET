@@ -447,7 +447,11 @@ namespace CGM.Communication.Data.Nightscout
                 statusMessage += $" - Cal.{diff.Hours}h{diff.Minutes}m";
                 //statusMessage += $" - Cal. {message.SensorCalibrationDateTime.Value.ToString()}";
             }
-        
+
+            if (message.SensorCalibrationMinutesRemaining==-1)
+            {
+                statusMessage += "Calibrating....";
+            }
 
 
             this.DeviceStatus.PumpInfo.Status.Add("status", statusMessage);

@@ -1,4 +1,5 @@
 ﻿using CGM.Communication.Common.Serialize;
+using CGM.Communication.Data;
 using CGM.Communication.Data.Repository;
 using CGM.Communication.Interfaces;
 using CGM.Communication.Log;
@@ -15,7 +16,9 @@ namespace CGM.Communication.Tasks
     {
         protected CancellationTokenSource _cts;
         protected int _delayInSeconds = 150;
-        protected int _intervalseconds = 300;
+        private Setting _setting;
+        public int Intervalseconds { get; set; }
+        //protected int Intervalseconds = 300;
 
         protected IDevice _device;
         protected ILogger Logger = ApplicationLogging.CreateLogger<NightScoutTask>();
@@ -32,6 +35,12 @@ namespace CGM.Communication.Tasks
             Delay = TimeSpan.FromSeconds(_delayInSeconds);
             _tokenSource = new CancellationTokenSource();
             _token = _tokenSource.Token;
+            using (Data.Repository.CgmUnitOfWork uow = new CgmUnitOfWork())
+            {
+                _setting= uow.Setting.GetSettings();
+                Intervalseconds = _setting.OtherSettings.IntervalSeconds;
+            }
+
             SetUpTimer(DateTime.Now.AddSeconds(2));
         }
 
@@ -78,6 +87,11 @@ namespace CGM.Communication.Tasks
 
         private async Task GetData()
         {
+            if (!CheckNet())
+            {
+                Stop();
+                return;
+            }
             SerializerSession session = null;
             try
             {
@@ -134,6 +148,11 @@ namespace CGM.Communication.Tasks
         protected virtual void GotSession(SerializerSession session)
         {
 
+        }
+
+        protected virtual bool CheckNet()
+        {
+            return true;
         }
 
         protected virtual int GetBattery()

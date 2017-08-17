@@ -12,7 +12,7 @@ namespace CGM.Communication.Data.Repository
     public class CgmUnitOfWork : IDisposable
     {
         protected ILogger Logger = ApplicationLogging.CreateLogger<BaseRepository<CgmUnitOfWork>>();
-        private int _currentDBVersion = 9;
+        private int _currentDBVersion = 10;
         public static string DatabaseName { get { return @"CgmData.db"; } }
 
         private SQLiteConnection _connection;

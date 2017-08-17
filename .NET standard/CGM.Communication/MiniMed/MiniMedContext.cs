@@ -19,15 +19,21 @@ using System.Linq;
 using CGM.Communication.Data.Repository;
 using CGM.Communication.MiniMed.Infrastructur;
 using System.Diagnostics;
+using CGM.Communication.Data;
 
 namespace CGM.Communication.MiniMed
 {
     public class MiniMedContext : BaseContext
     {
-
+        private Setting _setting;
 
         public MiniMedContext(IDevice device) : base(device)
         {
+            using (Data.Repository.CgmUnitOfWork uow = new CgmUnitOfWork())
+            {
+                _setting = uow.Setting.GetSettings();
+                
+            }
         }
 
         public MiniMedContext(IDevice device, SerializerSession session) : base(device)
@@ -68,6 +74,7 @@ namespace CGM.Communication.MiniMed
         public async Task<SerializerSession> GetPumpSessionAsync(CancellationToken cancelToken)
         {
 
+
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartPumpTimeAsync(cancelToken));
             tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
@@ -76,7 +83,11 @@ namespace CGM.Communication.MiniMed
 
             //tasks.Add(() => StartBasalPatternAsync(cancelToken));
             //tasks.Add(() => StartGetCarbRatio(cancelToken));
-            tasks.Add(() => StartReadHistory(cancelToken));
+            if (_setting.OtherSettings.IncludeHistory)
+            {
+                tasks.Add(() => StartReadHistory(cancelToken));
+            }
+            
 
 
             return await CallPumpWithActions(tasks, cancelToken);
@@ -250,6 +261,10 @@ namespace CGM.Communication.MiniMed
 
         private async Task StartCollectDeviceInfoAsync(CancellationToken cancelToken)
         {
+            //if in bad state.....
+            //await CloseAsync(cancelToken);
+
+
             Logger.LogInformation("Getting CNL deviceInformation");
             CommunicationBlock block = new CommunicationBlock();
 
@@ -260,19 +275,24 @@ namespace CGM.Communication.MiniMed
             //Start Communication 
             await this.StartCommunication(block, cancelToken);
 
-            if (string.IsNullOrEmpty(this.Session.Device.SerialNumber))
+            if (!cancelToken.IsCancellationRequested)
             {
-
-                throw new Exception("DeviceInfo not set.");
-            }
-            else
-            {
-                //Get previous saved parameters Or set this session if device do not exsist
-                using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                if (string.IsNullOrEmpty(this.Session.Device.SerialNumber))
                 {
-                    uow.Device.GetOrSetSessionAndSettings(Session);
+                    //if in bad state.....
+                    //await CloseAsync(cancelToken);
+                    throw new Exception("DeviceInfo not set.");
+                }
+                else
+                {
+                    //Get previous saved parameters Or set this session if device do not exsist
+                    using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                    {
+                        uow.Device.GetOrSetSessionAndSettings(Session);
+                    }
                 }
             }
+
 
 
 
