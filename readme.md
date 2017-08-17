@@ -7,7 +7,11 @@ Been running 24/7 on Raspberry PI 3 with Windows Iot (v.10.0.15063.540) since 13
 
 Testing sending pump-events (history) as JSON to a [Microsoft Flow](http://flow.microsoft.com) in order to send notifications and create tasks in a [wunderlist](http://www.wunderlist.com) todo-list (when to change sensor/cannula).
 
+Testing application on a old Microsoft Lumia 950 mobile phone. (17-08-2017). Looks good so fare.
+![lumia](Docs/IMG_20170817_162023.png)
+
 known issues:
+
 Getting some errors when reading history, but not always.....
 
 ## Projects
