@@ -86,8 +86,13 @@ namespace CGM.Uwp.Tasks
 
             var aggBattery = Battery.AggregateBattery;
             var report = aggBattery.GetReport();
-            var getPercentage = (report.RemainingCapacityInMilliwattHours.Value / (double)report.FullChargeCapacityInMilliwattHours.Value);
-            return Convert.ToInt32((Math.Round(getPercentage, 2) * 100));
+            if (report.RemainingCapacityInMilliwattHours.HasValue)
+            {
+                var getPercentage = (report.RemainingCapacityInMilliwattHours.Value / (double)report.FullChargeCapacityInMilliwattHours.Value);
+                return Convert.ToInt32((Math.Round(getPercentage, 2) * 100));
+            }
+            //no battery -> raspberry pi 
+            return 100;
         }
         //Here savedProfileName will have network ssid its connected.
         //Also connectedProfile.IsWlanConnectionProfile will be true if connected over wifi
