@@ -10,20 +10,14 @@
     d:DesignWidth="400">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="48"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock
-            x:Name="TitlePage"
-            Text="{x:Bind MasterMenuItem, Mode=OneWay}"
-            Style="{StaticResource PageTitleStyle}" />
+        <!--<StackPanel Orientation="Horizontal">
             <views:TrendArrows  StatusMessage="{x:Bind MasterMenuItem, Mode=OneWay}" Margin="10,0,0,0" Height="30"/>
-        </StackPanel>
+        </StackPanel>-->
 
 
         <ScrollViewer
-            Grid.Row="1"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             ScrollViewer.VerticalScrollMode="Auto">
@@ -71,9 +65,9 @@
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
-                    <VisualState.Setters>
+                    <!--<VisualState.Setters>
                         <Setter Target="TitlePage.Margin" Value="48,0,12,7"/>
-                    </VisualState.Setters>
+                    </VisualState.Setters>-->
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>

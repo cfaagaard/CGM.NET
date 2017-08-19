@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -25,14 +26,14 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Sync status (on/off)</TextBlock>
+            <TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Uploader (on/off)</TextBlock>
             <ToggleSwitch IsOn="{Binding On, Mode=TwoWay}"  IsEnabled="{Binding IsConnected}" ></ToggleSwitch>
         </StackPanel>
    
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" >
-            <TextBlock Text="Last status:" FontSize="20" Margin="0,0,0,0" />
-            <TextBlock Text="{Binding CurrentMessage}" FontSize="20" Margin="20,0,0,0" />
+            <TextBlock Text="Last status:" FontSize="16" Margin="0,0,0,0" />
+            <TextBlock Text="{Binding CurrentMessage}" FontSize="16" Margin="20,0,0,0" />
             <views:TrendArrows StatusMessage="{Binding CurrentMessage, Mode=OneWay}" Margin="10,0,0,0" Height="30" Width="30"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left">
@@ -58,22 +59,31 @@
                     </Path.RenderTransform>
                 </Path>
             </Grid>
-            <TextBlock Text="{Binding Alert}" FontSize="20" />
+            <TextBlock Text="{Binding Alert}" FontSize="16" />
         </StackPanel>
 
 
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <TextBlock Text="Local time:" FontSize="20" />
-            <TextBlock Text="{Binding CurrentTime}" FontSize="20" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <TextBlock Text="Pume time:" FontSize="20" />
-            <TextBlock Text="{Binding PumpTime}" FontSize="20" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
-            <TextBlock Text="Next run in:" FontSize="20" />
-            <TextBlock Text="{Binding NextRun}" FontSize="20" />
-        </StackPanel>
+            <Grid Grid.Row="3" Grid.ColumnSpan="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Text="Local time:" FontSize="14" />
+                    <TextBlock Text="{Binding CurrentTime}" FontSize="14" />
+                </StackPanel>
+            <StackPanel Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Text="Pume time:" FontSize="14" />
+                    <TextBlock Text="{Binding PumpTime}" FontSize="14" />
+                </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Text="Next run in:" FontSize="14" />
+                    <TextBlock Text="{Binding NextRun}" FontSize="14" />
+                </StackPanel>
+            </Grid>
+       
+
 
     </Grid>
 </UserControl>

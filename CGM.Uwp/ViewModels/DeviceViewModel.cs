@@ -1,4 +1,5 @@
 ﻿using CGM.Communication.Common.Serialize;
+using CGM.Communication.Data;
 using CGM.Communication.Log;
 using CGM.Communication.MiniMed.Responses;
 using CGM.Uwp.Helpers;
@@ -144,6 +145,11 @@ namespace CGM.Uwp.ViewModels
             if (On)
             {
                 //should run
+                //Setting settings;
+                //using (CGM.Communication.Data.Repository.CgmUnitOfWork uow =new Communication.Data.Repository.CgmUnitOfWork())
+                //{
+                //   settings= uow.Setting.GetSettings();
+                //}
                 if (!_isStarted && IsConnected)
                 {
                    StartExtended();
@@ -228,7 +234,20 @@ namespace CGM.Uwp.ViewModels
                     () =>
                     {
                         this.IsConnected = device.IsConnected;
-                        this.On = this.IsConnected;
+                        Setting settings;
+                        using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+                        {
+                            settings = uow.Setting.GetSettings();
+                            if (this.IsConnected && settings.OtherSettings.AutoStartTask)
+                            {
+                                this.On = true;
+                            }
+                            else
+                            {
+                                this.On = false;
+                            }
+                        }
+                        
 
                     });
 
