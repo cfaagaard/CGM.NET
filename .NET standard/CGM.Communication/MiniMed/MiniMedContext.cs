@@ -269,6 +269,7 @@ namespace CGM.Communication.MiniMed
             CommunicationBlock block = new CommunicationBlock();
 
             block.Request = new AstmStart("X");
+            //block.Request = new AstmStart("W");
             //expected responses for the request
             block.ExpectedResponses.Add(new ReportPattern(new byte[] { 0x00, 0x41, 0x42, 0x43 }, 0));
             block.ExpectedResponses.Add(new EnqOREotkPattern());
@@ -737,6 +738,8 @@ namespace CGM.Communication.MiniMed
             Logger.LogInformation("Close CNL");
             //sometimes we get a enq and sometimes not......
             await StartCommunication(new EOTMessage(), new ReportPattern(new byte[] { 001, ASCII.ENQ }, 4), cancelToken);
+            await StartCommunication(new AstmStart(new byte[] { 0x15 }), new ReportPattern(new byte[] { 001, ASCII.EOT }, 4), cancelToken);
+            await StartCommunication(new AstmStart(new byte[] { 0x05 }), new ReportPattern(new byte[] { 001, 0x06 }, 4), cancelToken);
         }
 
     }

@@ -42,7 +42,7 @@
             <TextBlock VerticalAlignment="Center" Margin="0,0,10,0" >Uploader (on/off)</TextBlock>
             <ToggleSwitch IsOn="{Binding On, Mode=TwoWay}"  IsEnabled="{Binding IsConnected}"></ToggleSwitch>
         </StackPanel>
-        <TextBlock x:Name="InsertText" Margin="50,0,0,0" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3">Please insert CNL</TextBlock>
+        <TextBlock x:Name="InsertText" Text="{Binding StatusText}" Margin="50,0,0,0" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3"></TextBlock>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="50,0,0,0" >
             <TextBlock Text="{Binding CurrentMessage}" FontSize="14" />

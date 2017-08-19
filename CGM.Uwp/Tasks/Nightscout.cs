@@ -40,7 +40,7 @@ namespace CGM.Uwp.Tasks
         protected override void GotSession(SerializerSession session)
         {
             base.GotSession(session);
-            if (session != null && session.Status.Count > 0)
+            if (session != null) //&& session.Status.Count > 0
             {
                 Messenger.Default.Send<SerializerSession>(session);
             }

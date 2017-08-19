@@ -97,20 +97,14 @@ namespace CGM.Communication.Tasks
             {
                 using (CgmUnitOfWork uow = new CgmUnitOfWork())
                 {
-                    session = await uow.Pump.GetPumpDataAndUploadAsync(_device, GetBattery(), _token);
-
-                    //session = await uow.Pump.GetPumpSessionAsync(_device,_token);
-                    if (session != null)
+                    if (_setting.OtherSettings.UploadToNightscout)
                     {
-                        GotSession(session);
+                        session = await uow.Pump.GetPumpDataAndUploadAsync(_device, GetBattery(), _token);
                     }
-
-                    if (this.timer != null)
+                    else
                     {
-                        timer.Dispose();
+                        session = await uow.Pump.GetPumpSessionAsync(_device,_token);
                     }
-
-
                 }
             }
             catch (Exception)
@@ -134,6 +128,14 @@ namespace CGM.Communication.Tasks
                             var time = DateTime.Now.AddMinutes(5);
                             session.NextRun = time;
                             Logger.LogInformation($"Next session: {time} (From local datetime. No sgv-time)");
+                        }
+                        if (session != null)
+                        {
+                            GotSession(session);
+                        }
+                        if (this.timer != null)
+                        {
+                            timer.Dispose();
                         }
                         SetUpTimer(session.NextRun.Value);
                         session.NewSession();

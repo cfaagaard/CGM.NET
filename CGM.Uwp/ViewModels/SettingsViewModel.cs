@@ -152,6 +152,17 @@ namespace CGM.Uwp.ViewModels
             }
         }
 
+        public bool UploadToNightscout
+        {
+            get { return _setting.OtherSettings.UploadToNightscout; }
+            set
+            {
+                _setting.OtherSettings.UploadToNightscout = value;
+                this.RaisePropertyChanged(nameof(UploadToNightscout));
+                SaveSetting();
+            }
+        }
+
         public ObservableCollection<DeviceItemViewModel> Devices { get; set; } = new ObservableCollection<DeviceItemViewModel>();
 
 

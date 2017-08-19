@@ -107,6 +107,15 @@ namespace CGM.Uwp.ViewModels
             set { Set(ref _showAlert, value); }
         }
 
+        private string _statustext="";
+
+        public string StatusText
+        {
+            get { return _statustext; }
+            set { Set(ref _statustext, value); }
+        }
+
+
         public FixedSizeObservableCollection<PumpStatusMessage> PumpStatusMessages { get { return ((App)App.Current).Data.PumpStatusMessages; } }
 
         public DeviceViewModel()
@@ -116,7 +125,7 @@ namespace CGM.Uwp.ViewModels
             Messenger.Default.Register<SerializerSession>(this, (session) => UpdatedSession(session));
             Messenger.Default.Register<BayerUsbDevice>(this, (device) => StatusChanged(device));
             this.PropertyChanged += DeviceViewModel_PropertyChanged;
-
+            this.StatusText = "Insert CNL ";
 
             if (((App)App.Current).Device != null)
             {
@@ -254,6 +263,8 @@ namespace CGM.Uwp.ViewModels
 
         }
 
+ 
+
         void timer_Tick(object sender, object e)
         {
             DateTime dt = DateTime.Now;
@@ -262,6 +273,7 @@ namespace CGM.Uwp.ViewModels
                 var tm = NextRunDateTime.Value.Subtract(dt);
                 NextRun = string.Format("{0:D2}:{1:D2}", tm.Minutes, tm.Seconds);
             }
+
 
             CurrentTime = dt.ToString("HH:mm");
         }
