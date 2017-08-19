@@ -7,13 +7,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     DataContext="{Binding DeviceViewModel, Source={StaticResource Locator}}"
     xmlns:views="using:CGM.Uwp.Views"
+    xmlns:helpers="using:CGM.Uwp.Helpers"
         xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
   xmlns:Core="using:Microsoft.Xaml.Interactions.Core" 
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-
-    <Grid  Margin="50,10,10,10">
+    <Grid x:Name="AllGrid" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -25,19 +25,31 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Uploader (on/off)</TextBlock>
-            <ToggleSwitch IsOn="{Binding On, Mode=TwoWay}"  IsEnabled="{Binding IsConnected}" ></ToggleSwitch>
-        </StackPanel>
-   
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" >
-            <TextBlock Text="Last status:" FontSize="16" Margin="0,0,0,0" />
-            <TextBlock Text="{Binding CurrentMessage}" FontSize="16" Margin="20,0,0,0" />
-            <views:TrendArrows StatusMessage="{Binding CurrentMessage, Mode=OneWay}" Margin="10,0,0,0" Height="30" Width="30"/>
+        <Interactivity:Interaction.Behaviors>
+            <Core:DataTriggerBehavior Binding="{Binding IsConnected}" Value="False">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=Uploader}" PropertyName="Visibility" Value="Collapsed" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=InsertText}" PropertyName="Visibility" Value="Visible" />
+            
+            </Core:DataTriggerBehavior>
+            <Core:DataTriggerBehavior Binding="{Binding IsConnected}" Value="True">
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=Uploader}" PropertyName="Visibility" Value="Visible" />
+                <Core:ChangePropertyAction TargetObject="{Binding ElementName=InsertText}" PropertyName="Visibility" Value="Collapsed" />
+            </Core:DataTriggerBehavior>
+        </Interactivity:Interaction.Behaviors>
+        
+        <StackPanel x:Name="Uploader" Orientation="Horizontal"  Margin="50,0,0,0" HorizontalAlignment="Left" Grid.ColumnSpan="3">
+            <TextBlock VerticalAlignment="Center" Margin="0,0,10,0" >Uploader (on/off)</TextBlock>
+            <ToggleSwitch IsOn="{Binding On, Mode=TwoWay}"  IsEnabled="{Binding IsConnected}"></ToggleSwitch>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left">
-            <Grid Grid.Column="1" Margin="0,0,10,0" x:Name="AlertSign" Height="30" Width="30" >
+        <TextBlock x:Name="InsertText" Margin="50,0,0,0" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3">Please insert CNL</TextBlock>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="50,0,0,0" >
+            <TextBlock Text="{Binding CurrentMessage}" FontSize="14" />
+            <!--<views:TrendArrows StatusMessage="{Binding CurrentMessage, Mode=OneWay}" Margin="10,0,0,0" Height="30" Width="30"/>-->
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left"  Margin="10,0,0,0">
+            <Grid Grid.Column="1" Margin="0,0,10,0" x:Name="AlertSign" Height="15" Width="15" >
                 <Interactivity:Interaction.Behaviors>
                     <Core:DataTriggerBehavior Binding="{Binding ShowAlert}" Value="False">
                         <Core:ChangePropertyAction TargetObject="{Binding ElementName=AlertSign}" PropertyName="Visibility" Value="Collapsed" />
@@ -59,7 +71,7 @@
                     </Path.RenderTransform>
                 </Path>
             </Grid>
-            <TextBlock Text="{Binding Alert}" FontSize="16" />
+            <TextBlock Text="{Binding Alert}" FontSize="14" />
         </StackPanel>
 
 
@@ -69,15 +81,15 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <TextBlock Text="Local time:" FontSize="14" />
                     <TextBlock Text="{Binding CurrentTime}" FontSize="14" />
                 </StackPanel>
-            <StackPanel Grid.Column="1"  Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <StackPanel Grid.Column="1"  Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <TextBlock Text="Pume time:" FontSize="14" />
                     <TextBlock Text="{Binding PumpTime}" FontSize="14" />
                 </StackPanel>
-            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <TextBlock Text="Next run in:" FontSize="14" />
                     <TextBlock Text="{Binding NextRun}" FontSize="14" />
                 </StackPanel>

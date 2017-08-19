@@ -182,7 +182,7 @@ namespace CGM.Uwp.ViewModels
             string difference = string.Format("{0}:{1}:{2}", tDif.Hours, tDif.Minutes, tDif.Seconds);
 
 
-            this.PumpTime = string.Format("{0} ({1})", session.PumpTime.PumpDateTime.Value.ToString("HH:mm:ss"), difference);
+            this.PumpTime = string.Format("{0} ({1})", session.PumpTime.PumpDateTime.Value.ToString("HH:mm"), difference);
         }
     }
 });

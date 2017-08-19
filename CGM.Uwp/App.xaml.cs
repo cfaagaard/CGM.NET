@@ -11,6 +11,7 @@ using CGM.Uwp.Helpers;
 using GalaSoft.MvvmLight.Messaging;
 using CGM.Uwp.Tasks;
 using Microsoft.Extensions.Logging;
+using Windows.Foundation.Metadata;
 
 namespace CGM.Uwp
 {
@@ -56,6 +57,7 @@ namespace CGM.Uwp
             {
                 uow.CheckDatabaseVersion(DataPath);
             }
+
 
 
         }
