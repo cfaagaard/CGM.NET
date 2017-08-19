@@ -140,7 +140,7 @@ namespace CGM.Communication.Data.Nightscout
                     await _client.AddTreatmentsAsync(this.Treatments, cancelToken);
                     Logger.LogInformation($"Treatments uploaded to Nightscout. ({Treatments.Count})");
 
-                    if (!string.IsNullOrEmpty(Session.Settings.NotificationUrl))
+                    if (!string.IsNullOrEmpty(Session.Settings.NotificationUrl) && Session.Settings.OtherSettings.SendEventsToNotificationUrl)
                     {
                         var notif = this.Treatments.Where(e => !string.IsNullOrEmpty(e.Notification.Type)).Select(e => e.Notification);
                         if (notif.Count() > 0)
@@ -148,7 +148,7 @@ namespace CGM.Communication.Data.Nightscout
                             NotificationClient client = new NotificationClient(Session.Settings.NotificationUrl);
                             foreach (var item in notif)
                             {
-                               // await client.AddNotificationAsync(item, cancelToken);
+                                await client.AddNotificationAsync(item, cancelToken);
                             }
                             Logger.LogInformation($"Notifications sent. ({notif.Count()})");
                         }
@@ -257,11 +257,12 @@ namespace CGM.Communication.Data.Nightscout
 
         private async Task MissingReadings(IEnumerable<PumpEvent> allEvents)
         {
+         
             var sensorReadings = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.SENSOR_GLUCOSE_READINGS_EXTENDED);
             int count = sensorReadings.Count();
             if (count > 0)
             {
-                gotReadingFromEvent = true;
+                
                 List<CompareEvents> compares = new List<CompareEvents>();
 
                 foreach (var pumpevent in sensorReadings)
@@ -302,10 +303,15 @@ namespace CGM.Communication.Data.Nightscout
                    select comp;
 
                 var missingReadings = compares.Except(query.ToList()).ToList();
+                    
+                if (missingReadings.Count>0)
+                {
+                    gotReadingFromEvent = true;
+                }
 
                 foreach (var reading in missingReadings.OrderBy(e => e.ReadingTime))
                 {
-                    //TODO need to find direction in the history, maybe rate of change....
+                   
                     await CreateEntrySgv(reading.Detail.Amount, reading.DateString, reading.Epoch, reading.Detail.Trend.ToString(), false);
                 }
 
@@ -392,13 +398,11 @@ namespace CGM.Communication.Data.Nightscout
 
             PumpStatusMessage message = this.LastStatusMessage;
             string serialNum = _session.Device.SerialNumberFull;
-
-            int uploadBattery = 100;
             DateTime create = _session.PumpTime.PumpDateTime.Value;
 
             this.DeviceStatus = new DeviceStatus();
 
-            this.DeviceStatus.UploaderBattery = uploadBattery;
+            this.DeviceStatus.UploaderBattery = _session.UploaderBattery;
             this.DeviceStatus.Device = string.Format("medtronic-640g://{0}", serialNum);
             this.DeviceStatus.CreatedAt = create.ToString(Constants.Dateformat);
             this.DeviceStatus.PumpInfo.Reservoir = Math.Round(message.ReservoirAmount, 3);
@@ -408,19 +412,7 @@ namespace CGM.Communication.Data.Nightscout
             this.DeviceStatus.PumpInfo.Clock = create.ToString(Constants.Dateformat);
             this.DeviceStatus.PumpInfo.Battery.Percent = message.BatteryPercentage;
 
-            //if (message.Status.Suspended)
-            //{
-            //    this.DeviceStatus.PumpInfo.Status.Add("supended", true);
-            //}
-            //if (message.Status.Bolusing)
-            //{
-            //    this.DeviceStatus.PumpInfo.Status.Add("bolusing", true);
-            //}
 
-            //if (!message.Status.Suspended && !message.Status.Bolusing)
-            //{
-            //    this.DeviceStatus.PumpInfo.Status.Add("status", "normal");
-            //}
 
             this.DeviceStatus.PumpInfo.Status.Add("supended", false);
             this.DeviceStatus.PumpInfo.Status.Add("bolusing", false);
@@ -432,12 +424,12 @@ namespace CGM.Communication.Data.Nightscout
             {
                 statusMessage = "suspended";
             }
-            if (message.Status.Bolusing)
+            if (message.Status.BolusingNormal)
             {
                 statusMessage = "bolusing";
             }
 
-            if (!message.Status.Suspended && !message.Status.Bolusing)
+            if (!message.Status.Suspended && !message.Status.BolusingNormal)
             {
                 statusMessage =  "normal";
             }
@@ -448,9 +440,9 @@ namespace CGM.Communication.Data.Nightscout
                 //statusMessage += $" - Cal. {message.SensorCalibrationDateTime.Value.ToString()}";
             }
 
-            if (message.SensorCalibrationMinutesRemaining==-1)
+            if (message.SensorStatus.Calibrating)
             {
-                statusMessage += "Calibrating....";
+                statusMessage += " - Calibrating....";
             }
 
 

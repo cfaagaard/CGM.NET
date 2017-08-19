@@ -48,7 +48,7 @@ namespace CGM.Communication.Data.Repository
                 SerializerSession session = await GetPumpSessionAsync(device, cancelToken);
                 if (session != null)
                 {
-                    session.Battery = uploaderBattery;
+                    session.UploaderBattery = uploaderBattery;
                     if (!cancelToken.IsCancellationRequested && session.CanSaveSession)
                     {
                         await SaveSession(session);

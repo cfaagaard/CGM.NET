@@ -13,6 +13,9 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(0, Length = 2)]
         public Int16 PacketNumber { get; set; }
 
+        [BinaryElement(2)]
+        public byte[] FullMessage { get; set; }
+
         public byte[] Message { get; set; }
 
 
@@ -26,13 +29,14 @@ namespace CGM.Communication.MiniMed.Responses
             var lis = new List<byte>();
             lis.AddRange(bytes);
 
-            if (bytes.Length >= 99)
+            if (bytes.Length >= settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketSize)
             {
-                this.Message = lis.GetRange(2, 94).ToArray();
+                this.Message = lis.GetRange(2, settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketSize).ToArray();
             }
             else
             {
-                this.Message = lis.GetRange(2, bytes.Length - 6).ToArray();
+                //must be the last one.
+                this.Message = lis.GetRange(2, settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.LastPacketSize).ToArray();
             }
 
             this.AllBytes = bytes;

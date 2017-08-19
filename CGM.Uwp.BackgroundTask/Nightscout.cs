@@ -26,6 +26,7 @@ namespace CGM.Uwp.Tasks
         private string savedProfileName = null;
         private ConnectionProfile connectedProfile;
         private string nettype="(None)";
+
         public Nightscout() : base()
         {
             Messenger.Default.Register<BayerUsbDevice>(this, (device) => Disconnect(device));

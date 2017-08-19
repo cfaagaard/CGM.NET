@@ -22,7 +22,7 @@ namespace CGM.Communication.Common.Serialize
         public List<PumpEvent> Events { get; set; } = new List<PumpEvent>();
         public List<PumpStateHistory> PumpStateHistory { get; set; } = new List<PumpStateHistory>();
         public int ReadLength { get; set; } = 0;
-
+        public bool Errors { get; set; } = false;
         private MultiPacketHandler _handler;
 
 
@@ -47,12 +47,14 @@ namespace CGM.Communication.Common.Serialize
             if (this.PumpStateHistory.Count == 0)
             {
                 Logger.LogError($"No history read: {this._handler.ReadInfoResponse.HistoryDataType.ToString()}");
+                Errors = true;
                 return;
             }
 
             if (this.PumpStateHistory.Count != this.Init.PacketsToFetch)
             {
                 Logger.LogError($"Wrong number of PacketsToFetch  {this._handler.ReadInfoResponse.HistoryDataType.ToString()} (expected {this.Init.PacketsToFetch}/{this.PumpStateHistory.Count})");
+                Errors = true;
                 return;
             }
 
@@ -65,6 +67,7 @@ namespace CGM.Communication.Common.Serialize
             if (this.Init.SegmentSize != this.ReadLength)
             {
                 Logger.LogError($"Wrong segmentsize in {this._handler.ReadInfoResponse.HistoryDataType.ToString()} ({this.Init.SegmentSize}/{this.ReadLength})");
+                Errors = true;
                 return;
             }
 
@@ -76,6 +79,7 @@ namespace CGM.Communication.Common.Serialize
                 try
                 {
                     using (Stream stream = new MemoryStream(HistoryStart.AllBytesNoHeader))
+                    //using (Stream stream = new MemoryStream(segmentbytes.ToArray()))
                     using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
                     //using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress, false ))
                     {
@@ -134,6 +138,7 @@ namespace CGM.Communication.Common.Serialize
             if ((blockpayload.Length % block_size) != 0)
             {
                 Logger.LogError($"{this._handler.ReadInfoResponse.HistoryDataType.ToString()}: Block payload size is not a multiple of 2048 ({blockpayload.Length.ToString()} -> {remainder.ToString()})");
+                Errors = true;
                 return;
             }
 
@@ -154,7 +159,8 @@ namespace CGM.Communication.Common.Serialize
                     }
                     else
                     {
-                        Logger.LogError($"CRC16CCITT does not match.");
+                        Logger.LogError($"{this._handler.ReadInfoResponse.HistoryDataType.ToString()}: CRC16CCITT does not match.");
+                        Errors = true;
                         return;
                     }
                 }

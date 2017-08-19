@@ -1,5 +1,5 @@
 # Introduction
-Beta version of uploader for the 600-series pump.
+Beta version of Nightscout-uploader for the 600-series pump.
 
 ### Status
 
@@ -43,7 +43,7 @@ TODO projects:
 - .NET Core (just a proof-of-concept that it can run on Linux. Why? Because you can :-)... maybe.... )
 - Scenario: Mobil: Almost always online and limited power. -> Developer module that can code generate  sketch-scripts for the arduino. (Is Ardunio the right platform??)
 Tested this scenario with a Raspberry pie 3 and a battery pack of 20000mAh. It lasted for almost 24 hours.
-
+- Upgrade to .NET standard 2.0. (waiting on the UWP version to support .NET standard 2.0. Comes later this year.)
 
 
 

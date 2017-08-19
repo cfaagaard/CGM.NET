@@ -95,12 +95,42 @@ namespace CGM.Uwp.ViewModels
             }
         }
 
+        public bool SendEventsToNotificationUrl
+        {
+            get { return _setting.OtherSettings.SendEventsToNotificationUrl; }
+            set
+            {
+                _setting.OtherSettings.SendEventsToNotificationUrl = value;
+                SaveSetting();
+            }
+        }
+
+        public int HistoryDaysBack
+        {
+            get { return _setting.OtherSettings.HistoryDaysBack; }
+            set
+            {
+                _setting.OtherSettings.HistoryDaysBack = value;
+                SaveSetting();
+            }
+        }
+
         public int IntervalSeconds
         {
             get { return _setting.OtherSettings.IntervalSeconds; }
             set
             {
                 _setting.OtherSettings.IntervalSeconds = value;
+                SaveSetting();
+            }
+        }
+
+        public bool AutoStartTask
+        {
+            get { return _setting.OtherSettings.AutoStartTask; }
+            set
+            {
+                _setting.OtherSettings.AutoStartTask = value;
                 SaveSetting();
             }
         }

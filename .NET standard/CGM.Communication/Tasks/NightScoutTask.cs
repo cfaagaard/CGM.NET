@@ -16,7 +16,7 @@ namespace CGM.Communication.Tasks
     {
         protected CancellationTokenSource _cts;
         protected int _delayInSeconds = 150;
-        private Setting _setting;
+        protected Setting _setting;
         public int Intervalseconds { get; set; }
         //protected int Intervalseconds = 300;
 

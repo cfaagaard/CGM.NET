@@ -11,7 +11,7 @@ namespace CGM.Communication.MiniMed.Responses
 {
     public enum StatusFlag
     {
-        No_sgv=16
+        No_sgv = 16
     }
 
 
@@ -30,8 +30,8 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(5)]
         public byte[] Unknown1 { get; set; }
 
-        [BinaryElement(10)]
-        public byte NowBolusingMinutesRemaining { get; set; }
+        [BinaryElement(9)]
+        public Int16 NowBolusingMinutesRemaining { get; set; }
 
         [BinaryElement(11)]
         public Int16 NowBolusingReference { get; set; }
@@ -42,7 +42,7 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(17)]
         public int LastBolusTime { get; set; }
 
-        public DateTime LastBolusDateTime { get { return  new DateTime(2000, 1, 1, 0, 0, 0, 0).AddSeconds(LastBolusTime); } }
+        public DateTime LastBolusDateTime { get { return new DateTime(2000, 1, 1, 0, 0, 0, 0).AddSeconds(LastBolusTime); } }
 
         [BinaryElement(21)]
         public Int16 LastBolusReference { get; set; }
@@ -78,14 +78,6 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(45)]
         public byte InsulinMinutes { get; set; }
 
-        //[BinaryElement(46)]
-        //public Int32 ActiveInsulinRaw { get; set; }
-
-        //[BinaryElement(46)]
-        //public byte Unknown2 { get; set; }
-
-        //[BinaryElement(47)]
-        //public byte BolusEstModifiedByUser { get; set; }
 
         [BinaryElement(46)]
         public InsulinDataType ActiveInsulin { get; set; }
@@ -114,7 +106,7 @@ namespace CGM.Communication.MiniMed.Responses
         public byte CgmTrend { get; set; }
 
         [BinaryElement(62)]
-        public byte SensorStatus { get; set; }
+        public byte SensorStatusFlag { get; set; }
 
         [BinaryElement(63)]
         public byte Unknown3 { get; set; }
@@ -122,16 +114,36 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(64)]
         public Int16 SensorCalibrationMinutesRemaining { get; set; }
 
-        public DateTime? SensorCalibrationDateTime { get {
-                if (this.SensorCalibrationMinutesRemaining>0)
+        public DateTime? SensorCalibrationDateTime
+        {
+            get
+            {
+                if (this.SensorCalibrationMinutesRemaining > 0)
                 {
                     return DateTime.Now.AddMinutes(SensorCalibrationMinutesRemaining);
                 }
                 return null;
-            } }
+            }
+        }
 
         [BinaryElement(66)]
-        public byte SensorBattery_maybe { get; set; }
+        public byte SensorBatteryRaw { get; set; }
+
+        private int _sensorBattery;
+        public int SensorBattery
+        {
+            get
+            {
+
+                if (SensorBatteryRaw == 0x3F) _sensorBattery = 100;
+                else if (SensorBatteryRaw == 0x2B) _sensorBattery = 73;
+                else if (SensorBatteryRaw == 0x27) _sensorBattery = 47;
+                else if (SensorBatteryRaw == 0x23) _sensorBattery = 20;
+                else if (SensorBatteryRaw == 0x10) _sensorBattery = 0;
+                else _sensorBattery = 0;
+                return _sensorBattery;
+            }
+        }
 
         [BinaryElement(67)]
         public Int16 SensorRateOfChangeRaw { get; set; }
@@ -221,6 +233,13 @@ namespace CGM.Communication.MiniMed.Responses
             { return new PumpStatus(this.StatusFlag); }
         }
 
+        public SensorStatus SensorStatus
+        {
+            get
+            { return new SensorStatus(this.SensorStatusFlag); }
+        }
+
+
         public SgvTrend CgmTrendName { get { return TrendConvert(this.CgmTrend); } }
 
         public Alerts AlertName { get { return (Alerts)this.Alert; } }
@@ -266,15 +285,15 @@ namespace CGM.Communication.MiniMed.Responses
             //    this.ActiveInsulinRawConvert += 0x0000ffff + 1;
             //}
             //errors where sgv >= 769
-            this.Sgv= this.SgvRaw & 0x0000ffff;
-            this.BolusWizardBGL= this.BolusWizardBGLRaw & 0x0000ffff;
+            this.Sgv = this.SgvRaw & 0x0000ffff;
+            this.BolusWizardBGL = this.BolusWizardBGLRaw & 0x0000ffff;
 
 
         }
 
         private SgvTrend TrendConvert(byte messageByte)
         {
-            if (this.Sgv!=0)
+            if (this.Sgv != 0)
             {
                 switch (messageByte)
                 {
@@ -297,7 +316,7 @@ namespace CGM.Communication.MiniMed.Responses
                 }
             }
             return SgvTrend.NotSet;
-  
+
         }
 
 
@@ -307,32 +326,72 @@ namespace CGM.Communication.MiniMed.Responses
         }
     }
 
+    public class SensorStatus
+    {
+        public bool Calibrating { get; set; }
+        public bool CalibrationComplete { get; set; }
+        public bool Exception { get; set; }
+
+        public SensorStatus(byte status)
+        {
+            Calibrating = (status & 0x01) != 0x00;
+            CalibrationComplete = (status & 0x02) != 0x00;
+            Exception = (status & 0x04) != 0x00;
+        }
+
+        public override string ToString()
+        {
+            List<string> names = new List<string>();
+            if (Calibrating) names.Add(nameof(Calibrating));
+            if (CalibrationComplete) names.Add(nameof(CalibrationComplete));
+            if (Exception) names.Add(nameof(Exception));
+
+            return string.Join("/", names);
+        }
+    }
 
     public class PumpStatus
     {
         public bool Suspended { get; set; }
-        public bool Bolusing { get; set; }
+        public bool BolusingNormal { get; set; }
+        public bool BolusingSquare { get; set; }
+        public bool BolusingDual { get; set; }
+
+
         public bool DeliveringInsulin { get; set; }
         public bool CgmActive { get; set; }
         public bool TempBasalActive { get; set; }
 
         public PumpStatus(byte status)
         {
-            this.Suspended = (status & 1) != 0x00;
-            this.Bolusing = (status & 2) != 0x00;
-            this.DeliveringInsulin = (status & 16) != 0x00;
-            this.TempBasalActive = (status & 32) != 0x00;
-            this.CgmActive = (status & 64) != 0x00;
+            Suspended = (status & 0x01) != 0x00;
+            BolusingNormal = (status & 0x02) != 0x00;
+            BolusingSquare = (status & 0x04) != 0x00;
+            BolusingDual = (status & 0x08) != 0x00;
+            DeliveringInsulin = (status & 0x10) != 0x00;
+            TempBasalActive = (status & 0x20) != 0x00;
+            CgmActive = (status & 0x40) != 0x00;
+
+            //cgmCalibrating = (cgmStatus & 0x01) != 0x00;
+            //cgmCalibrationComplete = (cgmStatus & 0x02) != 0x00;
+            //cgmException = (cgmStatus & 0x04) != 0x00;
+
         }
 
         public override string ToString()
         {
             List<string> names = new List<string>();
             if (Suspended) names.Add(nameof(Suspended));
-            if (Bolusing) names.Add(nameof(Bolusing));
+            if (BolusingNormal) names.Add(nameof(BolusingNormal));
+            if (BolusingSquare) names.Add(nameof(BolusingNormal));
+            if (BolusingDual) names.Add(nameof(BolusingNormal));
             if (DeliveringInsulin) names.Add(nameof(DeliveringInsulin));
             if (CgmActive) names.Add(nameof(CgmActive));
             if (TempBasalActive) names.Add(nameof(TempBasalActive));
+
+
+
+
             return string.Join("/", names);
         }
     }

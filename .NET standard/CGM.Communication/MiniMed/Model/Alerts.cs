@@ -35,7 +35,7 @@ namespace CGM.Communication.MiniMed.Model
         No_Reservoir_66 = 66,
         Sensor_Alarm_786 = 786,
         Sensor_Alarm_787 = 787,
-        Sensor_Alarm_788 = 788,
+        Sensor_Alarm_788 = 788, //"BG not received."
         Sensor_Alarm_789 = 789,
         Sensor_Alarm_790 = 790,
         Sensor_Alarm_791 = 791,
@@ -47,7 +47,7 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Alert_Calibration_Error_776 = 776,
         Sensor_Alert_Calibration_Reminder_869 = 869,
         Sensor_Alert_Change_Sensor_777 = 777,
-        Sensor_Alert_Change_Sensor_778 = 778,
+        //Sensor_Alert_Change_Sensor_778 = 778,
         Sensor_Alert_Lost_Sensor_780 = 780,
         Sensor_Alert_Lost_Sensor_781 = 781,
         Sensor_Alert_Low_Transmitter_870 = 870,

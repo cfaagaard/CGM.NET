@@ -36,36 +36,56 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300"></ColumnDefinition>
+                        <!--<ColumnDefinition Width="300"></ColumnDefinition>-->
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
 
   
 
 
-                    <TextBlock  Text="NightscoutUrl" Grid.Row="2" Grid.Column="0" x:Uid="Settings_url" Style="{StaticResource BodyTextStyle}"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutUrl, Mode=TwoWay}"></TextBox>
+                    <TextBlock  Text="NightscoutUrl" Grid.Row="0" x:Uid="Settings_url" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="1" Text="{x:Bind ViewModel.NightscoutUrl, Mode=TwoWay}"></TextBox>
 
 
-                    <TextBlock Grid.Row="3" Grid.Column="0"  x:Uid="Settings_key" Text="NightscoutApiKey" Style="{StaticResource BodyTextStyle}"/>
-                    <TextBox Grid.Row="3" Grid.Column="1" Text="{x:Bind ViewModel.NightscoutApiKey, Mode=TwoWay}"></TextBox>
+                    <TextBlock Grid.Row="3"   x:Uid="Settings_key" Text="NightscoutApiKey" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="3" Text="{x:Bind ViewModel.NightscoutApiKey, Mode=TwoWay}"></TextBox>
 
 
-                    <TextBlock Grid.Row="4" Grid.Column="0"  x:Uid="Settings_notification" Text="NotificationUrl" Style="{StaticResource BodyTextStyle}"/>
-                    <TextBox Grid.Row="4" Grid.Column="1" Text="{x:Bind ViewModel.NotificationUrl, Mode=TwoWay}"></TextBox>
+                    <TextBlock Grid.Row="4"  x:Uid="Settings_notification" Text="NotificationUrl" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="4" Text="{x:Bind ViewModel.NotificationUrl, Mode=TwoWay}"></TextBox>
+
+                    <TextBlock Grid.Row="5"   x:Uid="Settings_historysend" Text="Send events to NotificationUrl" Style="{StaticResource BodyTextStyle}"/>
+
+                    <ToggleSwitch  Grid.Row="5" 
+                    x:Uid="Settings_historyToggle"
+                    IsOn="{x:Bind ViewModel.SendEventsToNotificationUrl, Mode=TwoWay}"
+                    Margin="0,4,0,0">
+                    </ToggleSwitch>
+
+                    <TextBlock Grid.Row="6" x:Uid="Settings_interval" Text="Interval in seconds" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="6"  Text="{x:Bind ViewModel.IntervalSeconds, Mode=TwoWay}"></TextBox>
 
 
-                    <TextBlock Grid.Row="5" Grid.Column="0"  x:Uid="Settings_interval" Text="Interval in seconds" Style="{StaticResource BodyTextStyle}"/>
-                    <TextBox Grid.Row="5" Grid.Column="1" Text="{x:Bind ViewModel.IntervalSeconds, Mode=TwoWay}"></TextBox>
+                    <TextBlock Grid.Row="7"   x:Uid="Settings_history" Text="Include history (Beta)" Style="{StaticResource BodyTextStyle}"/>
 
-
-                    <TextBlock Grid.Row="6" Grid.Column="0"  x:Uid="Settings_history" Text="Include history (Beta)" Style="{StaticResource BodyTextStyle}"/>
-
-                    <ToggleSwitch  Grid.Row="6" Grid.Column="1"
+                    <ToggleSwitch  Grid.Row="7" 
                     x:Uid="Settings_historyToggle"
                     IsOn="{x:Bind ViewModel.IncludeHistory, Mode=TwoWay}"
                     Margin="0,4,0,0">
                     </ToggleSwitch>
+
+                    <TextBlock Grid.Row="8"   x:Uid="Settings_interval" Text="Number of days in history (Beta)" Style="{StaticResource BodyTextStyle}"/>
+                    <TextBox Grid.Row="8"  Text="{x:Bind ViewModel.HistoryDaysBack, Mode=TwoWay}"></TextBox>
+
+                    <TextBlock Grid.Row="8"   x:Uid="Settings_history" Text="Auto start task when CNL inserted" Style="{StaticResource BodyTextStyle}"/>
+
+                    <ToggleSwitch  Grid.Row="8" 
+                    x:Uid="Settings_historyToggle"
+                    IsOn="{x:Bind ViewModel.AutoStartTask, Mode=TwoWay}"
+                    Margin="0,4,0,0">
+                    </ToggleSwitch>
+
+
                 </Grid>
             </PivotItem>
             <PivotItem Header="Developer">

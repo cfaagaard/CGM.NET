@@ -28,7 +28,12 @@ namespace CGM.Communication.MiniMed.Responses
         {
             get
             {
-               return DateTimeExtension.GetDateTime(this.Rtc, this.OffSet);
+                if (this.Rtc!=null && this.OffSet!=null)
+                {
+                    return DateTimeExtension.GetDateTime(this.Rtc, this.OffSet);
+                }
+                return null;
+               
             }
         }
 

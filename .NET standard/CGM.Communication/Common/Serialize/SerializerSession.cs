@@ -67,7 +67,7 @@ namespace CGM.Communication.Common.Serialize
         public byte RadioChannel { get; set; }
         public bool RadioChannelConfirmed { get; set; }
         public int RadioSignalStrength { get; set; }
-        public int Battery { get; set; }
+        public int UploaderBattery { get; set; }
 
         public bool CanSaveSession
         {
