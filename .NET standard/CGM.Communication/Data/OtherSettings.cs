@@ -14,6 +14,8 @@ namespace CGM.Communication.Data
         public int HistoryDaysBack { get; set; } = 1;
         public string TurnOffIfOnThisWifi { get; set; }
 
+        public bool OnlyFromTheLastReading { get; set; }
+
         public bool AutoStartTask { get; set; } = true;
     }
 }

@@ -85,12 +85,14 @@ namespace CGM.Uwp.ViewModels
             }
         }
 
+       
         public bool  IncludeHistory
         {
             get { return _setting.OtherSettings.IncludeHistory; }
             set
             {
                 _setting.OtherSettings.IncludeHistory = value;
+                RaisePropertyChanged(nameof(IncludeHistory));
                 SaveSetting();
             }
         }
@@ -101,6 +103,7 @@ namespace CGM.Uwp.ViewModels
             set
             {
                 _setting.OtherSettings.SendEventsToNotificationUrl = value;
+                this.RaisePropertyChanged(nameof(SendEventsToNotificationUrl));
                 SaveSetting();
             }
         }
@@ -111,6 +114,7 @@ namespace CGM.Uwp.ViewModels
             set
             {
                 _setting.OtherSettings.HistoryDaysBack = value;
+                this.RaisePropertyChanged(nameof(HistoryDaysBack));
                 SaveSetting();
             }
         }
@@ -121,6 +125,7 @@ namespace CGM.Uwp.ViewModels
             set
             {
                 _setting.OtherSettings.IntervalSeconds = value;
+                this.RaisePropertyChanged(nameof(IntervalSeconds));
                 SaveSetting();
             }
         }
@@ -131,6 +136,18 @@ namespace CGM.Uwp.ViewModels
             set
             {
                 _setting.OtherSettings.AutoStartTask = value;
+                this.RaisePropertyChanged(nameof(AutoStartTask));
+                SaveSetting();
+            }
+        }
+
+        public bool OnlyFromTheLastReading
+        {
+            get { return _setting.OtherSettings.OnlyFromTheLastReading; }
+            set
+            {
+                _setting.OtherSettings.OnlyFromTheLastReading = value;
+                this.RaisePropertyChanged(nameof(OnlyFromTheLastReading));
                 SaveSetting();
             }
         }

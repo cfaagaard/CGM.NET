@@ -16,7 +16,7 @@ namespace CGM.Communication.MiniMed.Requests
 
         }
 
-        public ReadHistoryRequest(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType) : base(fromDateTime, toDateTime, historyDataType)
+        public ReadHistoryRequest(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType,long offset) : base(fromDateTime, toDateTime, historyDataType, offset)
         {
         }
 
@@ -64,12 +64,12 @@ namespace CGM.Communication.MiniMed.Requests
 
         }
 
-        public ReadHistoryInfoRequest(DateTime fromDateTime, DateTime toDateTime,HistoryDataTypeEnum historyDataType)
+        public ReadHistoryInfoRequest(DateTime fromDateTime, DateTime toDateTime,HistoryDataTypeEnum historyDataType,long offset)
         {
             this.FromDateTime = fromDateTime;
             this.ToDateTime = toDateTime;
 
-            this.FromRtc = fromDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
+            this.FromRtc = fromDateTime.GetRtcBytes(offset).Reverse().ToArray();
             //this.FromRtc = new byte[] { 0xea, 0x4e, 0x13, 0x84 };
             
             //this.ToRtc = toDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();

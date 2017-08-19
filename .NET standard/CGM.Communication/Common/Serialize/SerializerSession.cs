@@ -322,7 +322,7 @@ namespace CGM.Communication.Common.Serialize
             try
             {
                 AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
-                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType);
+                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType, -1665586902);
                 return msg;
             }
             catch (Exception)
@@ -337,7 +337,7 @@ namespace CGM.Communication.Common.Serialize
         public AstmStart GetReadHistory(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType, int expectedSize)
         {
             AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
-            ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType);
+            ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType, -1665586902);
             return msg;
         }
 
