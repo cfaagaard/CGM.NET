@@ -581,16 +581,16 @@ namespace CGM.Communication.Data.Nightscout
             treatment.EventType = "BG Check";
             treatment.GlucoseType = "Finger";
 
-            if (bgEvent.BgUnits==BgUnitEnum.MMOL_L)
-            {
-                treatment.Glucose = bgEvent.BgValueInMmol.ToString();
-                treatment.Units = "mmol";
-            }
-            else
-            {
+            //if (bgEvent.BgUnits==BgUnitEnum.MMOL_L)
+            //{
+            //    treatment.Glucose = bgEvent.BgValueInMmol.ToString();
+            //    treatment.Units = "mmol";
+            //}
+            //else
+            //{
                 treatment.Glucose = bgEvent.BgValueInMg.ToString();
                 treatment.Units = "mg/dl";
-            }
+            //}
 
     
             treatment.Created_at = bgEvent.Timestamp.Value.ToString(Constants.Dateformat);
