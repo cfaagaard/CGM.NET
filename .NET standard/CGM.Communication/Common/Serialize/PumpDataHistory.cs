@@ -7,6 +7,7 @@ using System.Linq;
 using CGM.Communication.MiniMed.Requests;
 using CGM.Communication.MiniMed.Infrastructur;
 using System.Threading.Tasks;
+using CGM.Communication.MiniMed;
 
 namespace CGM.Communication.Common.Serialize
 {
@@ -50,11 +51,23 @@ namespace CGM.Communication.Common.Serialize
 
         public void SetCurrentMulitPacket(ReadHistoryRequest request)
         {
+            if (this.MultiPacketHandlers.Count== 0)
+            {
+                throw new Exception("MultipacketHandlet not set.");
+            }
             this.CurrentMultiPacketHandler = this.MultiPacketHandlers[_session.SessionVariables.GetCurrentMultiPacketIndex()]; // MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType);
         }
 
         public void GetHistoryEvents()
         {
+
+            //var msgs = _session.All.Where(e.MedtronicMessage.Message2 is MedtronicMessage2).Select(e => (MedtronicMessage2)e.Message2);
+            //var msgs2 = msgs.Where(e => e.CommandTypeName == Communication.MiniMed.Infrastructur.AstmCommandType.RECEIVE_MESSAGE && e.Message is PumpMessageResponse).Select(e => (PumpMessageResponse)e.Message);
+            //var msgs3 = msgs2.Where(e => e.Message.MessageTypeName == AstmSendMessageType.READ_HISTORY_INFO_RESPONSE);
+
+
+   
+
             MultiPacketHandlers.ForEach(e => e.GetHistoryEvents());
         }
 

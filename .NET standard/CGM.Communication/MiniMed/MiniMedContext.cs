@@ -618,10 +618,11 @@ namespace CGM.Communication.MiniMed
                 Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
 
                 await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+
+                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+               
             }
         }
 
@@ -652,6 +653,7 @@ namespace CGM.Communication.MiniMed
         private async Task StartReadHistoryAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
             Logger.LogInformation($"ReadHistory: {historytype.ToString()}");
+
             int expectedSize = this.Session.PumpDataHistory.GetSize(historytype);
 
             CommunicationBlock communicationBlock = new CommunicationBlock();
@@ -730,7 +732,7 @@ namespace CGM.Communication.MiniMed
         private async Task CloseConnectionAsync(CancellationToken cancelToken)
         {
             Logger.LogInformation($"Closing connection");
-            await StartCommunication(Session.GetCloseConnectionRequest(), new CloseConnectionResponsePattern(), cancelToken);
+            await StartCommunication(Session.GetCloseConnectionRequest(), new AnyResponsePattern(), cancelToken);
         }
 
         private async Task CloseAsync(CancellationToken cancelToken)
@@ -738,8 +740,8 @@ namespace CGM.Communication.MiniMed
             Logger.LogInformation("Close CNL");
             //sometimes we get a enq and sometimes not......
             await StartCommunication(new EOTMessage(), new ReportPattern(new byte[] { 001, ASCII.ENQ }, 4), cancelToken);
-            await StartCommunication(new AstmStart(new byte[] { 0x15 }), new ReportPattern(new byte[] { 001, ASCII.EOT }, 4), cancelToken);
-            await StartCommunication(new AstmStart(new byte[] { 0x05 }), new ReportPattern(new byte[] { 001, 0x06 }, 4), cancelToken);
+            //await StartCommunication(new AstmStart(new byte[] { 0x15 }), new ReportPattern(new byte[] { 001, ASCII.EOT }, 4), cancelToken);
+            //await StartCommunication(new AstmStart(new byte[] { 0x05 }), new ReportPattern(new byte[] { 001, 0x06 }, 4), cancelToken);
         }
 
     }

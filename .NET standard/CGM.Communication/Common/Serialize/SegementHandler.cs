@@ -35,14 +35,14 @@ namespace CGM.Communication.Common.Serialize
         public void AddHistory(PumpStateHistory history)
         {
             PumpStateHistory.Add(history);
-            ReadLength += history.Message.Length;
+            //ReadLength += history.Message.Length;
         }
 
         public void GetHistoryEvents()
         {
 
             Events = new List<PumpEvent>();
-            List<byte> segmentbytes = new List<byte>();
+            //List<byte> segmentbytes = new List<byte>();
 
             if (this.PumpStateHistory.Count == 0)
             {
@@ -59,17 +59,51 @@ namespace CGM.Communication.Common.Serialize
             }
 
 
-            var all = PumpStateHistory.OrderBy(e => e.PacketNumber).Select(e => e.Message).ToList();
-            all.ForEach(e => segmentbytes.AddRange(e));
+            //var all = PumpStateHistory.OrderBy(e => e.PacketNumber).Select(e => e.Message).ToList();
+            List<byte> bytes = new List<byte>();
 
-            HistoryStart = _handler._seri.Deserialize<PumpStateHistoryStart>(segmentbytes.ToArray());
-
-            if (this.Init.SegmentSize != this.ReadLength)
+            foreach (var item in this.PumpStateHistory.OrderBy(e => e.PacketNumber))
             {
-                Logger.LogError($"Wrong segmentsize in {this._handler.ReadInfoResponse.HistoryDataType.ToString()} ({this.Init.SegmentSize}/{this.ReadLength})");
+                List<byte> temp = new List<byte>();
+                temp.AddRange(item.FullMessage.Reverse());
+                if (item.PacketNumber!=this.Init.PacketsToFetch-1)
+                {
+                    bytes.AddRange(temp.GetRange(0, this.Init.PacketSize));
+                }
+                else
+                {
+                    bytes.AddRange(temp.GetRange(0, this.Init.LastPacketSize));
+                }
+            }
+
+            //for (int i = 0; i < this.Init.PacketsToFetch; i++)
+            //{
+            //    List<byte> temp = new List<byte>();
+            //    temp.AddRange(this.PumpStateHistory[i].FullMessage.Reverse());
+            //    if (i<(this.Init.PacketsToFetch-1))
+            //    {
+            //        bytes.AddRange(temp.GetRange(0, this.Init.PacketSize));
+            //    }
+            //    else
+            //    {
+            //        bytes.AddRange(temp.GetRange(0, this.Init.LastPacketSize));
+            //    }
+              
+            //}
+
+            //var all = PumpStateHistory.OrderBy(e => e.PacketNumber).Select(e => e.FullMessage).ToList();
+            //all.ForEach(e => segmentbytes.AddRange(e));
+
+
+            if (this.Init.SegmentSize != bytes.Count)
+            {
+                Logger.LogError($"Wrong segmentsize in {this._handler.ReadInfoResponse.HistoryDataType.ToString()} ({this.Init.SegmentSize}/{bytes.Count})");
                 Errors = true;
                 return;
             }
+
+            HistoryStart = _handler._seri.Deserialize<PumpStateHistoryStart>(bytes.ToArray());
+
 
             byte[] blockpayload = new byte[HistoryStart.historySizeUncompressed];
             //byte[] blockpayload2 = new byte[HistoryStart.historySizeUncompressed];

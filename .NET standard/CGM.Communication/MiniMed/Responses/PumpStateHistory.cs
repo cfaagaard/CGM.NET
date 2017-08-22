@@ -16,32 +16,32 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(2)]
         public byte[] FullMessage { get; set; }
 
-        public byte[] Message { get; set; }
+        //public byte[] Message { get; set; }
 
 
-        public byte[] AllBytes { get; set; }
-        public byte[] AllBytesE { get; set; }
+        //public byte[] AllBytes { get; set; }
+        //public byte[] AllBytesE { get; set; }
 
-        public string BytesAsString { get; set; }
+        //public string BytesAsString { get; set; }
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            var lis = new List<byte>();
-            lis.AddRange(bytes);
+            //var lis = new List<byte>();
+            //lis.AddRange(bytes);
 
-            if (bytes.Length >= settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketSize)
-            {
-                this.Message = lis.GetRange(2, settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketSize).ToArray();
-            }
-            else
-            {
-                //must be the last one.
-                this.Message = lis.GetRange(2, settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.LastPacketSize).ToArray();
-            }
+            //if (bytes.Length >= settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketSize)
+            //{
+            //    this.Message = lis.GetRange(2, settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.PacketSize).ToArray();
+            //}
+            //else
+            //{
+            //    //must be the last one.
+            //    this.Message = lis.GetRange(2, settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Init.LastPacketSize).ToArray();
+            //}
 
-            this.AllBytes = bytes;
-            this.AllBytesE = bytes.Reverse().ToArray();
-            this.BytesAsString = BitConverter.ToString(AllBytes);
+            //this.AllBytes = bytes;
+            //this.AllBytesE = bytes.Reverse().ToArray();
+            //this.BytesAsString = BitConverter.ToString(AllBytes);
 
             settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.AddHistory(this);//.PumpStateHistory.Add(this);
         }
