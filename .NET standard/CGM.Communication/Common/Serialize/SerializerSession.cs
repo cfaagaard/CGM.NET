@@ -66,7 +66,7 @@ namespace CGM.Communication.Common.Serialize
         public PumpCarbRatioResponse CarbRatio { get; set; }
         public byte RadioChannel { get; set; }
         public bool RadioChannelConfirmed { get; set; }
-        public int RadioSignalStrength { get; set; }
+        public int RadioRSSI { get; set; }
         public int UploaderBattery { get; set; }
 
         public bool CanSaveSession

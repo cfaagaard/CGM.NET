@@ -30,6 +30,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [MessageType(typeof(BOLUS_WIZARD_ESTIMATE_Event), nameof(EventType), EventTypeEnum.BOLUS_WIZARD_ESTIMATE)]
         [MessageType(typeof(CANNULA_FILL_DELIVERED_Event), nameof(EventType), EventTypeEnum.CANNULA_FILL_DELIVERED)]
         [MessageType(typeof(ALARM_NOTIFICATION_Event), nameof(EventType), EventTypeEnum.ALARM_NOTIFICATION)]
+        [MessageType(typeof(BG_READING_Event), nameof(EventType), EventTypeEnum.BG_READING)]
         [MessageType(typeof(BaseEvent))]
         [BinaryPropertyValueTransfer(ChildPropertyName = nameof(Timestamp),ParentPropertyName = nameof(Timestamp))]
         public BaseEvent Message { get; set; }

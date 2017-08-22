@@ -465,9 +465,9 @@ namespace CGM.Communication.MiniMed
                 }
             }
 
-            if (this.Session.RadioSignalStrength == 0 && this.Session.RadioChannel != 0x00)
+            if (this.Session.RadioRSSI == 0 && this.Session.RadioChannel != 0x00)
             {
-                Logger.LogInformation($"Signal on Radiochannel {this.Session.RadioChannel.ToString()} is too weak ({this.Session.RadioSignalStrength}%)");
+                Logger.LogInformation($"Signal on Radiochannel {this.Session.RadioChannel.ToString()} is too weak ({this.Session.RadioRSSI}%)");
                 this.Session.RadioChannel = 0x00;
             }
 
@@ -479,7 +479,7 @@ namespace CGM.Communication.MiniMed
             else
             {
                 this.Session.RadioChannelConfirmed = true;
-                Logger.LogInformation($"Connected on radiochannel {this.Session.RadioChannel.ToString()}. ({this.Session.RadioSignalStrength}%)");
+                Logger.LogInformation($"Connected on radiochannel {this.Session.RadioChannel.ToString()}. ({this.Session.RadioRSSI}%)");
                 //save LinkKey
                 using (CgmUnitOfWork uow = new CgmUnitOfWork())
                 {

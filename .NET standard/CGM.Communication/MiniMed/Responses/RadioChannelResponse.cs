@@ -17,11 +17,11 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(18)]
         public byte[] Unknown6 { get; set; }
 
+        [BinaryElement(26)]
+        public byte RadioRSSI { get; set; }
+
         [BinaryElement(27)]
         public byte[] LinkMac { get; set; }
-
-        [BinaryElement(35)]
-        public byte SignalStrength { get; set; }
 
         [BinaryElement(36)]
         public byte[] Unknown7 { get; set; }
@@ -38,15 +38,17 @@ namespace CGM.Communication.MiniMed.Responses
             {
 
                 settings.RadioChannel = this.RadioChannel;
-                settings.RadioSignalStrength = this.SignalStrength;
+                settings.RadioRSSI = this.RadioRSSIPercentage;
 
             }
 
         }
 
+        public int RadioRSSIPercentage { get { return (((int)RadioRSSI & 0x00FF) * 100) / 0xA8;  } }
+
         public override string ToString()
         {
-            return string.Format("{0} (Channel: {1} - SignalStrength {2}%)", this.GetType().Name.ToString(), this.RadioChannel, this.SignalStrength);
+            return string.Format("{0} (Channel: {1} - SignalStrength {2}%)", this.GetType().Name.ToString(), this.RadioChannel, this.RadioRSSI);
         }
 
     }

@@ -178,12 +178,15 @@ namespace CGM.Communication.Data.Nightscout
                 MissingAlerts(allEvents);
                 SensorChange(allEvents);
                 CannulaChanged(allEvents);
+                BgReadings(allEvents);
                 //Get cannula fill -> microsoft flow
 
                 //Alarm -> microsoft flow
             }
 
         }
+
+
 
         private void SensorChange(IEnumerable<PumpEvent> allEvents)
         {
@@ -315,6 +318,19 @@ namespace CGM.Communication.Data.Nightscout
                     await CreateEntrySgv(reading.Detail.Amount, reading.DateString, reading.Epoch, reading.Detail.Trend.ToString(), false);
                 }
 
+            }
+        }
+
+        private void BgReadings(IEnumerable<PumpEvent> allEvents)
+        {
+            var bGReadings = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.BG_READING).Select(e => (BG_READING_Event)e.Message).Where(e=>e.BgSource==BgSourceEnum.EXTERNAL_METER && (e.BgUnits==BgUnitEnum.MMOL_L || e.BgUnits==BgUnitEnum.MG_DL)).ToList();
+            
+            if (bGReadings.Count > 0)
+            {
+                foreach (var item in bGReadings)
+                {
+                    CreateBgReading(item);
+                }
             }
         }
 
@@ -551,6 +567,33 @@ namespace CGM.Communication.Data.Nightscout
             Treatment treatment = new Treatment();
             treatment.EventType = "Site Change";
             treatment.Created_at = createdAt.ToString(Constants.Dateformat);
+            treatment.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
+            Treatments.Add(treatment);
+
+            return treatment;
+        }
+
+        private Treatment CreateBgReading(BG_READING_Event bgEvent)
+        {
+
+
+            Treatment treatment = new Treatment();
+            treatment.EventType = "BG Check";
+            treatment.GlucoseType = "Finger";
+
+            if (bgEvent.BgUnits==BgUnitEnum.MMOL_L)
+            {
+                treatment.Glucose = bgEvent.BgValueInMmol.ToString();
+                treatment.Units = "mmol";
+            }
+            else
+            {
+                treatment.Glucose = bgEvent.BgValueInMg.ToString();
+                treatment.Units = "mg/dl";
+            }
+
+    
+            treatment.Created_at = bgEvent.Timestamp.Value.ToString(Constants.Dateformat);
             treatment.EnteredBy = $"ref:${treatment.EventType} - {treatment.Created_at}";
             Treatments.Add(treatment);
 

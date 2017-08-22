@@ -10,7 +10,9 @@ namespace CGM.Communication.MiniMed.DataTypes
     {
       
         public byte BGUnits { get; set; } = 0;
+
         public BgUnitEnum BgUnitName { get { return (BgUnitEnum)BGUnits; } }
+
         [BinaryElement(0, Length = 2)]
         public Int16 BG_RAW { get; set; }
 
@@ -30,6 +32,18 @@ namespace CGM.Communication.MiniMed.DataTypes
             }
         }
 
+
+
+        public BgDataType()
+        {
+
+        }
+
+        public BgDataType(short bgRaw,BgUnitEnum bgUnit)
+        {
+            this.BG_RAW = bgRaw;
+            this.BGUnits = (byte)bgUnit;
+        }
 
         public override string ToString()
         {
