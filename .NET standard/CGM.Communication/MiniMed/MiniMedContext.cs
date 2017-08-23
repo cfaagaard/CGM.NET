@@ -713,27 +713,36 @@ namespace CGM.Communication.MiniMed
             await StartCommunication(communicationBlock, cancelToken);
 
             //get  missing segments
+            //await CheckSegments(cancelToken);
+
+
+        }
+
+        private async Task CheckSegments(CancellationToken cancelToken)
+        {
             if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment != null)
             {
                 var segment = Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment;
                 Logger.LogInformation($"MultiPacket - got {segment.PumpStateHistory.Count} messages.");
                 var list = segment.GetMissingSegments();
-                if (list.Count>0)
+                if (list.Count > 0)
                 {
                     Logger.LogInformation($"MultiPacket - Missing {list.Count} message(s).");
                     foreach (var item in list)
                     {
                         Logger.LogInformation($"MultiPacket - Getting missing message number {item}.");
                         CommunicationBlock communicationBlock2 = new CommunicationBlock();
-                        communicationBlock2.Request = Session.GetMissingSegments((ushort)item,1);
+                        communicationBlock2.Request = Session.GetMissingSegments((ushort)item, 1);
+                        communicationBlock2.ExpectedResponses.Add(new SendMessageResponsePattern());
                         communicationBlock2.ExpectedResponses.Add(new RecieveMessageResponsePattern());
                         await StartCommunication(communicationBlock2, cancelToken);
                     }
-            
+                    //check again
+                    await CheckSegments(cancelToken);
                 }
 
             }
-            Logger.LogInformation($"MultiPacket End.");
+
         }
 
         private async Task EndMultiPacketAsync(byte[] bytes, CancellationToken cancelToken)

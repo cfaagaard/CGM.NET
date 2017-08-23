@@ -124,6 +124,9 @@ namespace CGM.Communication.Data.Nightscout
             {
                 //only upload new treatments
 
+                //List<Treatment> treatments = new List<Treatment>();
+
+
                 //get trible ..... maybe this could be done better
                 var getCount = this.Treatments.Count * 3;
                 var all = await _client.TreatmentsAsync(null, getCount);
@@ -185,8 +188,6 @@ namespace CGM.Communication.Data.Nightscout
             }
 
         }
-
-
 
         private void SensorChange(IEnumerable<PumpEvent> allEvents)
         {
@@ -281,12 +282,23 @@ namespace CGM.Communication.Data.Nightscout
                         //}
                     }
                 }
-                //todo another query by dates would be better. a between query.... but nightscout restapi do not have this...or it does not work.
-                var from = sensorReadings.First().Timestamp;
-                var to = sensorReadings.Last().Timestamp;
-
-                var numberOfDays = to.Value.Subtract(from.Value).Days;
+                
                 List<Entry> entries = new List<Entry>();
+                var from = sensorReadings.First().Timestamp.Value;
+                var to = sensorReadings.Last().Timestamp.Value;
+
+                //gt - from this data (include this date)
+                //lt - to this date (NOT including this date). So we add a day to the "to"-date from the reading
+                to = to.AddDays(1);
+                string findStr = $"find[dateString][$gt]={from.ToString("yyyy-MM-dd")}&find[dateString][$lt]={to.ToString("yyyy-MM-dd")}&find[type]=sgv";
+
+                var allTodayEntries = await _client.EntriesAsync(findStr,0);
+                entries.AddRange(allTodayEntries);
+
+
+                //todo another query by dates would be better. a between query.... but nightscout restapi do not have this...or it does not work.
+                //var numberOfDays = to.Value.Subtract(from.Value).Days;
+                //List<Entry> entries = new List<Entry>();
 
                 //for (int i = 0; i <= numberOfDays; i++)
                 //{
@@ -297,8 +309,8 @@ namespace CGM.Communication.Data.Nightscout
                 //}
 
 
-                var allTodayEntries = await _client.EntriesAsync($"find[type]=sgv", 1000);
-                entries.AddRange(allTodayEntries);
+                //var allTodayEntries = await _client.EntriesAsync($"find[type]=sgv", 1000);
+                //entries.AddRange(allTodayEntries);
 
                 var query =
                    from comp in compares
