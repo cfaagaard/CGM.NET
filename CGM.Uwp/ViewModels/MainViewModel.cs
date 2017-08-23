@@ -18,6 +18,8 @@ using CGM.Uwp.Helpers;
 using CGM.Communication.MiniMed.Responses;
 using CGM.Communication.Tasks;
 using CGM.Uwp.Tasks;
+using System.Windows.Input;
+using GalaSoft.MvvmLight.Command;
 
 namespace CGM.Uwp.ViewModels
 {
@@ -25,9 +27,11 @@ namespace CGM.Uwp.ViewModels
     {
         public FixedSizeObservableCollection<LogEntry> Logs { get { return ((App)App.Current).Data.Logs; } }
 
+        public ICommand ClearLogCommand { get; set; }
+
         public MainViewModel()
         {
-
+            this.ClearLogCommand   = new RelayCommand(() => Logs.Clear());
         }
 
     }

@@ -20,19 +20,35 @@
         <Grid 
             Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
+              
                 <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="50"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <!--The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
                 Place your content here.-->
 
 
+            <HyperlinkButton  ToolTipService.ToolTip="Clear log" Command="{Binding ClearLogCommand}" HorizontalAlignment="Right"
+                                             VerticalAlignment="Center" Margin="0,0,10,0" Grid.Row="0" Grid.Column="1" >
 
+                <Grid>
+                    <Path Data="M20.200012,8.4000015L16,12.599998 11.800049,8.5 8.4000244,11.900002 12.600037,16.099998 8.4000244,20.300003 11.800049,23.699997 16,19.5 20.200012,23.699997 23.600037,20.300003 19.400024,16 23.600037,11.800003z M16,0C24.800049,0 32,7.1999969 32,16 32,24.800003 24.800049,32 16,32 7.2000122,32 0,24.800003 0,16 0,7.1999969 7.2000122,0 16,0z"
+                                          Stretch="Uniform" Fill="#FFEA4343" Width="16" Height="16" Margin="0,0,0,0" >
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <TransformGroup.Children>
+                                    <RotateTransform Angle="0" />
+                                    <ScaleTransform ScaleX="1" ScaleY="1" />
+                                </TransformGroup.Children>
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                    </Path>
+                </Grid>
+            </HyperlinkButton>
             <ListBox ItemsSource="{Binding Logs}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" >
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
