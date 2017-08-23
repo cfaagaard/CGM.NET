@@ -21,6 +21,8 @@ namespace CGM.Communication.Test.LogFiles
             
 
             SerializerSession session = new SerializerSession();
+
+
             session.EncryptKey = "B4-47-7E-4B-56-D3-D3-9C-F5-A4-AE-49-C1-AD-A6-C8".GetBytes();
 
             //this will read the log file

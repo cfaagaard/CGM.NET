@@ -22,7 +22,7 @@ namespace CGM.Communication.MiniMed.Requests
         [BinaryElement(3)]
         [MessageType(typeof(ReadHistoryInfoRequest),nameof(MessageTypeName), AstmSendMessageType.READ_HISTORY_INFO_REQUEST)]
         [MessageType(typeof(ReadHistoryRequest), nameof(MessageTypeName), AstmSendMessageType.READ_HISTORY_REQUEST)]
-        
+        [MessageType(typeof(MissingSegmentRequest), nameof(MessageTypeName), AstmSendMessageType.MULTIPACKET_RESEND_PACKETS)]
         [MessageType(typeof(PumpGeneral))]
         public object Message { get; set; }
 

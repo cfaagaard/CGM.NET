@@ -95,7 +95,7 @@ namespace CGM.Communication.MiniMed
 
         public async Task<SerializerSession> GetOnlyCnlSessionAsync(CancellationToken cancelToken)
         {
-            return await CallPumpWithActions(null, false,cancelToken);
+            return await CallPumpWithActions(null, false, cancelToken);
         }
 
         public async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
@@ -165,7 +165,7 @@ namespace CGM.Communication.MiniMed
 
                                         try
                                         {
-                                            if (tasks!=null)
+                                            if (tasks != null)
                                             {
                                                 foreach (var item in tasks)
                                                 {
@@ -174,7 +174,7 @@ namespace CGM.Communication.MiniMed
 
                                                 }
                                             }
-                                            
+
                                         }
                                         catch (Exception e)
                                         {
@@ -647,8 +647,6 @@ namespace CGM.Communication.MiniMed
             await StartReadHistoryAsync(from, to, historytype, cancelToken);
             await StartMultiPacketAsync(new byte[] { 0x00, 0xff }, cancelToken);
             await EndMultiPacketAsync(new byte[] { 0x01, 0xff }, cancelToken);
-
-
         }
 
 
@@ -711,10 +709,31 @@ namespace CGM.Communication.MiniMed
             //communicationBlock.LogDataRecieved = false;
 
 
-            Logger.LogInformation($"Start MultiPacket - expecting {expectedMessages} messages.");
+            Logger.LogInformation($"MultiPacket Start- expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);
 
+            //get  missing segments
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment != null)
+            {
+                var segment = Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment;
+                Logger.LogInformation($"MultiPacket - got {segment.PumpStateHistory.Count} messages.");
+                var list = segment.GetMissingSegments();
+                if (list.Count>0)
+                {
+                    Logger.LogInformation($"MultiPacket - Missing {list.Count} message(s).");
+                    foreach (var item in list)
+                    {
+                        Logger.LogInformation($"MultiPacket - Getting missing message number {item}.");
+                        CommunicationBlock communicationBlock2 = new CommunicationBlock();
+                        communicationBlock2.Request = Session.GetMissingSegments((ushort)item,1);
+                        communicationBlock2.ExpectedResponses.Add(new RecieveMessageResponsePattern());
+                        await StartCommunication(communicationBlock2, cancelToken);
+                    }
+            
+                }
 
+            }
+            Logger.LogInformation($"MultiPacket End.");
         }
 
         private async Task EndMultiPacketAsync(byte[] bytes, CancellationToken cancelToken)

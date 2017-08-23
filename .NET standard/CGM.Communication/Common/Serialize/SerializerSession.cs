@@ -106,10 +106,10 @@ namespace CGM.Communication.Common.Serialize
         public SerializerSession()
         {
             NewSession();
-           
+
         }
 
-        public SerializerSession(SessionOptions options):this()
+        public SerializerSession(SessionOptions options) : this()
         {
             this.Options = options;
         }
@@ -321,24 +321,32 @@ namespace CGM.Communication.Common.Serialize
         {
             try
             {
-                AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
-                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType, -1665586902);
-                return msg;
+                if (this.PumpTime != null && this.PumpTime.OffSet.Length == 4)
+                {
+                    AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
+                    ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet.GetInt32(0));
+                    return msg;
+                }
+
             }
             catch (Exception)
             {
 
                 throw;
             }
-
+            return null;
         }
-    
+
 
         public AstmStart GetReadHistory(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType, int expectedSize)
         {
-            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
-            ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType, -1665586902);
-            return msg;
+            if (this.PumpTime != null && this.PumpTime.OffSet.Length == 4)
+            {
+                AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
+                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet.GetInt32(0));
+                return msg;
+            }
+            return null;
         }
 
         public AstmStart GetMultiPacket(byte[] bytes)
@@ -348,6 +356,14 @@ namespace CGM.Communication.Common.Serialize
             request.Unknown1 = bytes;//;
 
             ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = request;
+            return msg;
+        }
+
+        public AstmStart GetMissingSegments(UInt16 startPacket, UInt16 packetCount)
+        {
+            AstmStart msg = GetPumpEnvelope(AstmSendMessageType.MULTIPACKET_RESEND_PACKETS);
+            ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new MissingSegmentRequest(startPacket, packetCount);
+
             return msg;
         }
 

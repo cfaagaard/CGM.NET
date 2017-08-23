@@ -148,9 +148,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LogToOutput\OutputLogger.cs" />
+    <Compile Include="UnitTest1.cs" />
+    <Compile Include="USB\BayerUsbDevice.cs" />
     <Compile Include="LogFiles\LogFileReader.cs" />
     <Compile Include="LogFiles\UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="USB\MeterInputReport.cs" />
+    <Compile Include="USB\MeterOutputReport.cs" />
+    <Compile Include="USB\Win32\DeviceManagement.cs" />
+    <Compile Include="USB\Win32\DeviceManagementDeclarations.cs" />
+    <Compile Include="USB\Win32\HIDDevice.cs" />
+    <Compile Include="USB\Win32\HIDDeviceException.cs" />
+    <Compile Include="USB\Win32\InputReport.cs" />
+    <Compile Include="USB\Win32\IUsbEventService.cs" />
+    <Compile Include="USB\Win32\OutputReport.cs" />
+    <Compile Include="USB\Win32\Report.cs" />
+    <Compile Include="USB\Win32\UsbEventService.cs" />
+    <Compile Include="USB\Win32\Win32USB.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

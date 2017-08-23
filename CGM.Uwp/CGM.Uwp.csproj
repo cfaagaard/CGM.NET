@@ -125,7 +125,7 @@
     <Compile Include="Log\EventAggregatorLogger.cs" />
     <Compile Include="Log\EventAggregatorLoggerExtensions.cs" />
     <Compile Include="Log\EventAggregatorLoggerProvider.cs" />
-    <Compile Include="Log\LogEvent.cs" />
+    <Compile Include="Log\LogEntry.cs" />
     <Compile Include="Models\BayerUsbDevice.cs" />
     <Compile Include="Services\ActivationService.cs" />
     <Compile Include="Activation\DefaultLaunchActivationHandler.cs" />

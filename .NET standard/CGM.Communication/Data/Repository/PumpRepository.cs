@@ -41,6 +41,19 @@ namespace CGM.Communication.Data.Repository
 
         }
 
+        public async Task<SerializerSession> GetOnlyCnlSessionAsync(IDevice device, CancellationToken cancelToken)
+        {
+            if (device == null)
+            {
+                throw new ArgumentException("No device found");
+            }
+            MiniMed.MiniMedContext context = new MiniMed.MiniMedContext(device);
+
+            return await context.GetOnlyCnlSessionAsync(cancelToken);
+
+        }
+
+        
 
         public async Task<SerializerSession> GetPumpDataAndUploadAsync(IDevice device, int uploaderBattery, CancellationToken cancelToken)
         {

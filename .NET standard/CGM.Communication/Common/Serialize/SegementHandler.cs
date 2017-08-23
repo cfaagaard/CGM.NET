@@ -35,7 +35,6 @@ namespace CGM.Communication.Common.Serialize
         public void AddHistory(PumpStateHistory history)
         {
             PumpStateHistory.Add(history);
-            //ReadLength += history.Message.Length;
         }
 
         public void GetHistoryEvents()
@@ -215,6 +214,21 @@ namespace CGM.Communication.Common.Serialize
                 GetEvents(bytes, newstart);
             }
 
+        }
+
+
+        public List<int> GetMissingSegments()
+        {
+            List<int> indexes = new List<int>();
+            for (int i = 0; i < this.Init.PacketsToFetch; i++)
+            {
+                if (this.PumpStateHistory[i].PacketNumber!=i)
+                {
+                    indexes.Add(i);
+                    i += 1;
+                }
+            }
+            return indexes;
         }
     }
 }
