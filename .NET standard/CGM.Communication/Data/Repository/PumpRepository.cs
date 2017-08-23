@@ -41,6 +41,7 @@ namespace CGM.Communication.Data.Repository
 
         }
 
+
         public async Task<SerializerSession> GetPumpDataAndUploadAsync(IDevice device, int uploaderBattery, CancellationToken cancelToken)
         {
             try

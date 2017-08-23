@@ -32,7 +32,7 @@ namespace CGM.Communication.MiniMed
             using (Data.Repository.CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 _setting = uow.Setting.GetSettings();
-                
+
             }
         }
 
@@ -87,12 +87,16 @@ namespace CGM.Communication.MiniMed
             {
                 tasks.Add(() => StartReadHistory(cancelToken));
             }
-            
+
 
 
             return await CallPumpWithActions(tasks, cancelToken);
         }
 
+        public async Task<SerializerSession> GetOnlyCnlSessionAsync(CancellationToken cancelToken)
+        {
+            return await CallPumpWithActions(null, false,cancelToken);
+        }
 
         public async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
         {
@@ -102,20 +106,25 @@ namespace CGM.Communication.MiniMed
             return await CallPumpWithActions(tasks, cancelToken);
 
 
-          //.buildSettingsRecords(events)
-          //.buildBasalRecords(events)
-          //.buildTempBasalRecords(events)
-          //.buildSuspendResumeRecords(events)
-          //.buildNormalBolusRecords(events)
-          //.buildSquareBolusRecords(events)
-          //.buildDualBolusRecords(events)
-          //.buildRewindRecords(events)
-          //.buildPrimeRecords(events)
-          //.buildCGMRecords(events)
-          //.buildBGRecords(events);
+            //.buildSettingsRecords(events)
+            //.buildBasalRecords(events)
+            //.buildTempBasalRecords(events)
+            //.buildSuspendResumeRecords(events)
+            //.buildNormalBolusRecords(events)
+            //.buildSquareBolusRecords(events)
+            //.buildDualBolusRecords(events)
+            //.buildRewindRecords(events)
+            //.buildPrimeRecords(events)
+            //.buildCGMRecords(events)
+            //.buildBGRecords(events);
         }
 
         private async Task<SerializerSession> CallPumpWithActions(List<Func<Task>> tasks, CancellationToken cancelToken)
+        {
+            return await CallPumpWithActions(tasks, true, cancelToken);
+        }
+
+        private async Task<SerializerSession> CallPumpWithActions(List<Func<Task>> tasks, bool lookForPump, CancellationToken cancelToken)
         {
 
             Stopwatch stopWatch = new Stopwatch();
@@ -142,23 +151,35 @@ namespace CGM.Communication.MiniMed
                             cancelToken.ThrowIfCancellationRequested();
                             await StartCollectPumpSettingsAsync(cancelToken);
 
-                            try
+                            if (lookForPump)
                             {
-                                cancelToken.ThrowIfCancellationRequested();
-                                await StartChannelNegoationAsync(cancelToken);
-
                                 try
                                 {
                                     cancelToken.ThrowIfCancellationRequested();
-                                    await BeginEHSMAsync(cancelToken);
+                                    await StartChannelNegoationAsync(cancelToken);
 
                                     try
                                     {
-                                        foreach (var item in tasks)
-                                        {
-                                            cancelToken.ThrowIfCancellationRequested();
-                                            await item();
+                                        cancelToken.ThrowIfCancellationRequested();
+                                        await BeginEHSMAsync(cancelToken);
 
+                                        try
+                                        {
+                                            if (tasks!=null)
+                                            {
+                                                foreach (var item in tasks)
+                                                {
+                                                    cancelToken.ThrowIfCancellationRequested();
+                                                    await item();
+
+                                                }
+                                            }
+                                            
+                                        }
+                                        catch (Exception e)
+                                        {
+
+                                            Logger.LogError(e.Message);
                                         }
                                     }
                                     catch (Exception e)
@@ -166,27 +187,22 @@ namespace CGM.Communication.MiniMed
 
                                         Logger.LogError(e.Message);
                                     }
+                                    finally
+                                    {
+                                        if (Device.IsConnected)
+                                        {
+                                            await EndEHSMAsync(cancelToken);
+                                        }
+
+                                    }
+
+
                                 }
                                 catch (Exception e)
                                 {
 
                                     Logger.LogError(e.Message);
                                 }
-                                finally
-                                {
-                                    if (Device.IsConnected)
-                                    {
-                                        await EndEHSMAsync(cancelToken);
-                                    }
-
-                                }
-
-
-                            }
-                            catch (Exception e)
-                            {
-
-                                Logger.LogError(e.Message);
                             }
 
                         }
@@ -246,7 +262,7 @@ namespace CGM.Communication.MiniMed
 
             try
             {
-                if (Session.PumpDataHistory.MultiPacketHandlers!=null && Session.PumpDataHistory.MultiPacketHandlers.Count>0)
+                if (Session.PumpDataHistory.MultiPacketHandlers != null && Session.PumpDataHistory.MultiPacketHandlers.Count > 0)
                 {
                     Session.PumpDataHistory.GetHistoryEvents();
                 }
@@ -608,7 +624,7 @@ namespace CGM.Communication.MiniMed
             {
                 SetDatesDays(Session.Settings.OtherSettings.HistoryDaysBack);
             }
-           
+
 
             if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
             {
@@ -622,7 +638,7 @@ namespace CGM.Communication.MiniMed
 
                 await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
                 await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-               
+
             }
         }
 

@@ -133,6 +133,7 @@
     <Compile Include="Services\NavigationServiceEx.cs" />
     <Compile Include="Services\ThemeSelectorService.cs" />
     <Compile Include="Tasks\Nightscout.cs" />
+    <Compile Include="ViewModels\ContextMenuViewModel.cs" />
     <Compile Include="ViewModels\DeviceItemViewModel.cs" />
     <Compile Include="ViewModels\DeviceViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

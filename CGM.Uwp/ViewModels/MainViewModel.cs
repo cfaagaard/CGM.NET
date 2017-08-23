@@ -29,8 +29,13 @@ namespace CGM.Uwp.ViewModels
 
         public ICommand ClearLogCommand { get; set; }
 
+        public ObservableCollection<ContextMenuViewModel> ContextMenu { get; set; }
+
         public MainViewModel()
         {
+            this.ContextMenu = new ObservableCollection<ContextMenuViewModel>();
+            this.ContextMenu.Add(new ContextMenuViewModel() { MenuText = "Clear log", Action = () => Logs.Clear() });
+            
             this.ClearLogCommand   = new RelayCommand(() => Logs.Clear());
         }
 
