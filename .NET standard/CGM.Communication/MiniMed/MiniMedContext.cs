@@ -720,6 +720,10 @@ namespace CGM.Communication.MiniMed
 
         private async Task CheckSegments(CancellationToken cancelToken)
         {
+            if (cancelToken.IsCancellationRequested)
+            {
+                return;
+            }
             if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment != null)
             {
                 var segment = Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment;

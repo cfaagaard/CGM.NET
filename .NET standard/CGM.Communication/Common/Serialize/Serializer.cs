@@ -162,7 +162,10 @@ namespace CGM.Communication.Common.Serialize
                             value = new byte[] { (byte)property.GetValue(s) };
                         }
 
-
+                        if (checktype == typeof(UInt16))
+                        {
+                            value = BitConverter.GetBytes((UInt16)property.GetValue(s));
+                        }
 
                         if (checktype == typeof(byte[]))
                         {

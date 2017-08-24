@@ -222,20 +222,12 @@ namespace CGM.Communication.Common.Serialize
             List<int> indexes = new List<int>();
             for (int i = 0; i < this.Init.PacketsToFetch; i++)
             {
-                if (this.PumpStateHistory.Count>=i)
-                {
-                    if (this.PumpStateHistory[i].PacketNumber != i)
-                    {
-                        indexes.Add(i);
-                        i += 1;
-                    }
-                }
-                else
+
+                var packet = this.PumpStateHistory.FirstOrDefault(e => e.PacketNumber == i);
+                if (packet==null)
                 {
                     indexes.Add(i);
-                    i += 1;
-                }
-               
+                }               
             }
             return indexes;
         }
