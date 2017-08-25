@@ -7,7 +7,7 @@ namespace CGM.Communication.Data
     public class CommunicationMessage
     {
         [SQLite.PrimaryKey]
-        public string MessageKey { get; set; }
+        public string MessageKey { get; set; }  
 
         public DateTime MessageDateTime { get; set; }
 
