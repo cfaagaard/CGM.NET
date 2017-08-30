@@ -10,6 +10,8 @@ namespace CGM.Communication.MiniMed.DataTypes
 {
     public class DateTimeDataType : BaseDataType
     {
+        private long _baseTime = 946684800;
+
         [BinaryElement(0, Length = 4)]
         public Int32 Rtc { get; set; }
 
@@ -24,7 +26,7 @@ namespace CGM.Communication.MiniMed.DataTypes
         {
             get
             {
-                if (Rtc!=0 && Offset!=0)
+                if (Rtc != 0 && Offset != 0)
                 {
                     return DateTimeExtension.GetDateTime(this.Rtc, this.Offset);
                 }
@@ -45,7 +47,7 @@ namespace CGM.Communication.MiniMed.DataTypes
             }
         }
 
-        public DateTimeDataType(int rtc,int offset)
+        public DateTimeDataType(int rtc, int offset)
         {
             this.Rtc = rtc;
             this.Offset = offset;

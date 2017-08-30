@@ -283,7 +283,7 @@ namespace CGM.Communication.MiniMed
 
             Logger.LogInformation("Getting CNL deviceInformation");
             CommunicationBlock block = new CommunicationBlock();
-
+            block.TimeoutSeconds = _setting.OtherSettings.TimeoutSeconds;
             block.Request = new AstmStart("X");
             //block.Request = new AstmStart("W");
             //expected responses for the request

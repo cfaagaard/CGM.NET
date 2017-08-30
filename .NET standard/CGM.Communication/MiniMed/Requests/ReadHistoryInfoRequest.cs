@@ -69,7 +69,7 @@ namespace CGM.Communication.MiniMed.Requests
             this.FromDateTime = fromDateTime;
             this.ToDateTime = toDateTime;
 
-            this.FromRtc = fromDateTime.GetRtcBytes(offset).Reverse().ToArray();
+            this.FromRtc = fromDateTime.GetRtcBytes(offset);
             //this.FromRtc = new byte[] { 0xea, 0x4e, 0x13, 0x84 };
             
             //this.ToRtc = toDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();

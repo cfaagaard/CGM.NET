@@ -33,9 +33,13 @@ namespace CGM.Communication.MiniMed.Responses
 
 
 
-            //var blockChecksum1 = bytes.GetUInt16BigE(length - 4);
-            //var blockChecksum2 = bytes.GetUInt16BigE(length - 2);
-            //var blockChecksum3 = bytes.GetUInt16BigE(length - 6);
+            //var blockChecksum1 = lis.ToArray().GetUInt16BigE(length - 4);
+            //var blockChecksum2 = lis.ToArray().GetUInt16BigE(length - 2);
+            //var blockChecksum3 = lis.ToArray().GetUInt16BigE(length - 6);
+
+            //var blockChecksum4 = lis.ToArray().GetUInt16(length - 4);
+            //var blockChecksum5 = lis.ToArray().GetUInt16(length - 2);
+            //var blockChecksum6 = lis.ToArray().GetUInt16(length - 6);
 
             //var byteToCheck1 = lis.GetRange(2, length - 4);
             //var byteToCheck2 = lis.GetRange(2, length - 6);

@@ -188,7 +188,10 @@ namespace CGM.Communication.Common.Serialize
 
                     if (blockChecksum == calculatedChecksum2)
                     {
-                        GetEvents(blockData, 0);
+                        if (blockData.Count>0)
+                        {
+                            GetEvents(blockData, 0);
+                        }
                     }
                     else
                     {

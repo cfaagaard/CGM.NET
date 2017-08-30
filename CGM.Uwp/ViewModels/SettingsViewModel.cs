@@ -129,6 +129,17 @@ namespace CGM.Uwp.ViewModels
                 SaveSetting();
             }
         }
+        public int TimeoutSeconds
+        {
+            get { return _setting.OtherSettings.TimeoutSeconds; }
+            set
+            {
+                _setting.OtherSettings.TimeoutSeconds = value;
+                this.RaisePropertyChanged(nameof(TimeoutSeconds));
+                SaveSetting();
+            }
+        }
+        
 
         public bool AutoStartTask
         {

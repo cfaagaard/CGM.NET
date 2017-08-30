@@ -19,5 +19,7 @@ namespace CGM.Communication.Data
         public bool AutoStartTask { get; set; } = true;
 
         public bool UploadToNightscout { get; set; } = true;
+
+        public int TimeoutSeconds { get; set; } = 5;
     }
 }

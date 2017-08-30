@@ -26,12 +26,12 @@ namespace CGM.Communication.MiniMed
         private CancellationToken _cancelToken;
         private ILogger Logger = ApplicationLogging.CreateLogger<CommunicationBlock>();
         private int delay = 100;
-
+        
         protected BlockingCollection<AstmStart> ResponsesRecieved { get; set; } = new BlockingCollection<AstmStart>();
 
         public SerializerSession Session { get; set; } = new SerializerSession();
 
-        public int TimeoutSeconds { get; set; } = 5;
+        public int TimeoutSeconds { get; set; } 
 
         public AstmStart Request { get; set; }
 
@@ -73,6 +73,13 @@ namespace CGM.Communication.MiniMed
             _cancelToken = cancelToken;
             Session = session;
             _device = device;
+
+            if (TimeoutSeconds==0)
+            {
+                TimeoutSeconds = session.Settings.OtherSettings.TimeoutSeconds;
+                //Logger.LogInformation($"Timeout in Seconds: {TimeoutSeconds}");
+            }
+
 
             if (_device.IsConnected)
             {

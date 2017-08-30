@@ -92,7 +92,7 @@ namespace CGM.Communication.Common.Serialize
 
         public PumpDataHistory PumpDataHistory { get; set; }
 
-
+        
 
         public byte[] LinkKey { get; set; }
 
