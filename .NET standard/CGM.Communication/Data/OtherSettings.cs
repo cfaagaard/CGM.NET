@@ -8,10 +8,10 @@ namespace CGM.Communication.Data
     {
         public int IntervalSeconds { get; set; } = 300;
         public bool IncludeHistory { get; set; } = true;
-        public bool SendEventsToNotificationUrl { get; set; } = true;
+        public bool SendEventsToNotificationUrl { get; set; } = false;
 
 
-        public int HistoryDaysBack { get; set; } = 1;
+        public int HistoryDaysBack { get; set; } = 0;
         public string TurnOffIfOnThisWifi { get; set; }
 
         public bool OnlyFromTheLastReading { get; set; } = false;

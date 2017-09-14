@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using CGM.Communication.Log;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SQLite;
 using System;
 using System.Collections.Generic;
@@ -8,6 +10,7 @@ namespace CGM.Communication.Data.Repository
 {
     public class SettingRepository : BaseRepository<Setting>
     {
+
         public SettingRepository(CgmUnitOfWork uow):base(uow)
         {
 
@@ -33,6 +36,15 @@ namespace CGM.Communication.Data.Repository
         {
             entity.OtherSettingsJson = JsonConvert.SerializeObject(entity.OtherSettings);
             base.Update(entity);
+        }
+
+        public void CheckSettings()
+        {
+            var settings = GetSettings();
+            if (string.IsNullOrEmpty(settings.NightscoutUrl) || string.IsNullOrEmpty(settings.NightscoutSecretkey))
+            {
+                Logger.LogInformation("No Nightscout settings entered. Please enter Nightscout settings in the settings page.");
+            }
         }
     }
 }

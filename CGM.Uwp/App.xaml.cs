@@ -56,7 +56,11 @@ namespace CGM.Uwp
             using (Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
             {
                 uow.CheckDatabaseVersion(DataPath);
+                uow.Setting.CheckSettings();
+
             }
+            //check for nightscout settings
+
 
 
 
