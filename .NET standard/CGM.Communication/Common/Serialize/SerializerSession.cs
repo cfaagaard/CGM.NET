@@ -64,6 +64,11 @@ namespace CGM.Communication.Common.Serialize
         public SessionVariables SessionVariables { get; set; } = new SessionVariables();
 
         public PumpCarbRatioResponse CarbRatio { get; set; }
+        public DeviceCharacteristicsResponse DeviceCharacteristics { get; set; }
+
+        public DeviceStringResponse DeviceString { get; set; }
+        public BolusWizardBGTargetsResponse BolusWizardBGTargets { get; set; }
+        public BolusWizardSensitivityFactorsResponse BolusWizardSensitivityFactors { get; set; }
         public byte RadioChannel { get; set; }
         public bool RadioChannelConfirmed { get; set; }
         public int RadioRSSI { get; set; }
@@ -295,21 +300,32 @@ namespace CGM.Communication.Common.Serialize
 
 
 
-        public AstmStart GetPumpTime()
+        //public AstmStart GetPumpTime()
+        //{
+
+        //    return GetPumpEnvelope(AstmSendMessageType.TIME_REQUEST);
+        //}
+
+        //public AstmStart GetCarbRatio()
+        //{
+
+        //    return GetPumpEnvelope(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST);
+        //}
+
+        //public AstmStart GetBgTargets()
+        //{
+
+        //    return GetPumpEnvelope(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST);
+        //}
+
+        //public AstmStart GetPumpData()
+        //{
+        //    return GetPumpEnvelope(AstmSendMessageType.READ_PUMP_STATUS_REQUEST);
+        //}
+
+        public AstmStart GetSetting(AstmSendMessageType type)
         {
-
-            return GetPumpEnvelope(AstmSendMessageType.TIME_REQUEST);
-        }
-
-        public AstmStart GetCarbRatio()
-        {
-
-            return GetPumpEnvelope(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST);
-        }
-
-        public AstmStart GetPumpData()
-        {
-            return GetPumpEnvelope(AstmSendMessageType.READ_PUMP_STATUS_REQUEST);
+            return GetPumpEnvelope(type);
         }
 
         public AstmStart GetPumpBasalPattern(int patternNumber)

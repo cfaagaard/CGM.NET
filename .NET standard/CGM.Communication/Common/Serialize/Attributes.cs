@@ -38,7 +38,7 @@ namespace CGM.Communication.Common.Serialize
         public bool Encrypt { get; set; } = false;
         public DirectionEnum Direction { get; set; }
         public int Length { get; set; } = -1;
-
+     
         public BinaryElement(int fieldOffset, bool isLittleEndian)
         {
             this.Direction = DirectionEnum.Forward;

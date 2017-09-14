@@ -78,11 +78,7 @@ namespace CGM.Communication.MiniMed
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartPumpTimeAsync(cancelToken));
             tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
-
-            //should be on the settings, some kind of parameters/flags
-
-            //tasks.Add(() => StartBasalPatternAsync(cancelToken));
-            //tasks.Add(() => StartGetCarbRatio(cancelToken));
+          
             if (_setting.OtherSettings.IncludeHistory)
             {
                 tasks.Add(() => StartReadHistory(cancelToken));
@@ -100,23 +96,16 @@ namespace CGM.Communication.MiniMed
 
         public async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
         {
-            //right now, just the basal profiles.....
+           
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartBasalPatternAsync(cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_CHARACTERISTICS_REQUEST, cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_STRING_REQUEST, cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST, cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST, cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_SENSITIVITY_FACTORS_REQUEST, cancelToken));
+
             return await CallPumpWithActions(tasks, cancelToken);
-
-
-            //.buildSettingsRecords(events)
-            //.buildBasalRecords(events)
-            //.buildTempBasalRecords(events)
-            //.buildSuspendResumeRecords(events)
-            //.buildNormalBolusRecords(events)
-            //.buildSquareBolusRecords(events)
-            //.buildDualBolusRecords(events)
-            //.buildRewindRecords(events)
-            //.buildPrimeRecords(events)
-            //.buildCGMRecords(events)
-            //.buildBGRecords(events);
         }
 
         private async Task<SerializerSession> CallPumpWithActions(List<Func<Task>> tasks, CancellationToken cancelToken)
@@ -546,7 +535,7 @@ namespace CGM.Communication.MiniMed
         {
 
             Logger.LogInformation("Getting Pumptime");
-            await StartCommunicationStandardResponse(Session.GetPumpTime(), cancelToken);
+            await StartCommunicationStandardResponse(Session.GetSetting(AstmSendMessageType.TIME_REQUEST), cancelToken);
 
             if (Session.PumpTime != null && Session.PumpTime.PumpDateTime.HasValue)
             {
@@ -562,7 +551,7 @@ namespace CGM.Communication.MiniMed
         {
 
             Logger.LogInformation("Getting Pumpstatus");
-            await StartCommunicationStandardResponse(Session.GetPumpData(), cancelToken);
+            await StartCommunicationStandardResponse(Session.GetSetting(AstmSendMessageType.READ_PUMP_STATUS_REQUEST), cancelToken);
             if (Session.Status.Count > 0)
             {
                 Logger.LogInformation($"Got pumpstatus: {Session.Status.Last().ToString()}");
@@ -654,11 +643,11 @@ namespace CGM.Communication.MiniMed
 
         private async Task StartReadHistoryEvents(CancellationToken cancelToken)
         {
-       
+
             await StartMultiPacketAsync(new byte[] { 0x00, 0xff }, cancelToken);
             await EndMultiPacketAsync(new byte[] { 0x01, 0xff }, cancelToken);
 
-            if (Session.PumpDataHistory.CurrentMultiPacketHandler !=null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
             {
                 await StartReadHistoryEvents(cancelToken);
             }
@@ -670,18 +659,35 @@ namespace CGM.Communication.MiniMed
             Logger.LogInformation($"ReadHistoryInfo: {historytype.ToString()}");
             await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(from, to, historytype), cancelToken);
 
-            if (Session.PumpDataHistory.MultiPacketHandlers.Count(e=>e.ReadInfoResponse.HistoryDataType==historytype)==0)
+            if (Session.PumpDataHistory.MultiPacketHandlers.Count(e => e.ReadInfoResponse.HistoryDataType == historytype) == 0)
             {
                 throw new Exception("Error reading historyInfo");
             }
         }
 
-        private async Task StartGetCarbRatio(CancellationToken cancelToken)
+        //private async Task StartGetCarbRatio(CancellationToken cancelToken)
+        //{
+
+        //    DateTime lastReadDateTime = DateTime.Now;
+        //    Logger.LogInformation("ReadCarbRatio");
+        //    await StartCommunicationStandardResponse(Session.GetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST), cancelToken);
+        //}
+
+        //private async Task StartGetBgTargets(CancellationToken cancelToken)
+        //{
+
+        //    DateTime lastReadDateTime = DateTime.Now;
+        //    Logger.LogInformation("ReadCarbRatio");
+        //    await StartCommunicationStandardResponse(Session.GetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST), cancelToken);
+        //}
+
+
+        private async Task StartGetSetting(AstmSendMessageType type, CancellationToken cancelToken)
         {
 
             DateTime lastReadDateTime = DateTime.Now;
-            Logger.LogInformation("ReadCarbRatio");
-            await StartCommunicationStandardResponse(Session.GetCarbRatio(), cancelToken);
+            Logger.LogInformation(type.ToString());
+            await StartCommunicationStandardResponse(Session.GetSetting(type), cancelToken);
         }
 
         private async Task StartReadHistoryAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
@@ -727,7 +733,7 @@ namespace CGM.Communication.MiniMed
 
             communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages / 4));
             //communicationBlock.LogDataRecieved = false;
-            if (communicationBlock.TimeoutSeconds<5)
+            if (communicationBlock.TimeoutSeconds < 5)
             {
                 communicationBlock.TimeoutSeconds = 5;
             }

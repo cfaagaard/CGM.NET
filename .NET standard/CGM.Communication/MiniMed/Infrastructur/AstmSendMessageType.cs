@@ -40,8 +40,9 @@ namespace CGM.Communication.MiniMed.Infrastructur
         Read_Low_Glucose_Sensor_Settings_Request = 0x0211,
         Read_Low_Glucose_Sensor_Settings_Response = 0x0212,
         Read_High_Glucose_Sensor_Settings_Request = 0x0215,
-        Read_High_Glucose_Sensor_Settings_Response = 0x0216
-
+        Read_High_Glucose_Sensor_Settings_Response = 0x0216,
+        Read_Basic_NGP_Parameters_Request = 0x0138,
+        Read_Basic_NGP_Parameters_Response = 0x0139
         //NO_TYPE = 0x0,
         ////ACK_End_Multipacket_Command = 0x00FE,
         ////ACK_Set_Link_Key_Command = 0x00FE,
@@ -58,20 +59,13 @@ namespace CGM.Communication.MiniMed.Infrastructur
         //Read_Basal_Pattern_Response = 0x0123,
         //Read_Basic_NGP_Parameters_Request = 0x0138,
         //Read_Basic_NGP_Parameters_Response = 0x0139,
-        //Read_Bolus_Wizard_BG_Targets_Request = 0x0131,
-        //Read_Bolus_Wizard_BG_Targets_Response = 0x0132,
-        //Read_Bolus_Wizard_Carb_Ratios_Request = 0x012B,
-        //Read_Bolus_Wizard_Carb_Ratios_Response = 0x012C,
-        //Read_Bolus_Wizard_Sensitivity_Factors_Request = 0x012E,
-        //Read_Bolus_Wizard_Sensitivity_Factors_Response = 0x012F,
+
+
         //Read_Glucose_Sensor_Settings_Request = 0x020B,
         //Read_Glucose_Sensor_Settings_Response = 0x020C,
         //Read_High_Glucose_Sensor_Settings_Request = 0x0215,
         //Read_High_Glucose_Sensor_Settings_Response = 0x0216,
-        //Read_History_Info_Response = 0x030D,
-        //Read_History_Info = 0x030C,
-        //Read_History = 0x0304,
-        //Read_History_Response = 0x01FF,
+       
         //Read_Low_Glucose_Sensor_Settings_Request = 0x0211,
         //Read_Low_Glucose_Sensor_Settings_Response = 0x0212,
         //Read_Preset_Boluses_Request = 0x0114,
@@ -83,8 +77,7 @@ namespace CGM.Communication.MiniMed.Infrastructur
         //Read_Timed_Notifications_Request = 0x0134,
         //Read_Timed_Notifications_Response = 0x0135,
         //Read_Trace_History = 0x0302,
-        //Time_Request = 0x0403,
-        //Time_Response = 0x0407,
+
 
         //unknowns
         //prefixs: 0x01,0x02

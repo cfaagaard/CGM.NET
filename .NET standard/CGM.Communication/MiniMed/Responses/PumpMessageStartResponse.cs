@@ -34,6 +34,12 @@ namespace CGM.Communication.MiniMed.Responses
         [MessageType(typeof(PumpCarbRatioResponse), nameof(MessageTypeName), AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_RESPONSE)]
         [MessageType(typeof(EndHistoryTransmissionResponse), nameof(MessageTypeName), AstmSendMessageType.END_HISTORY_TRANSMISSION)]
         [MessageType(typeof(HighSpeedModeResponse), nameof(MessageTypeName), AstmSendMessageType.HIGH_SPEED_MODE_COMMAND)]
+        [MessageType(typeof(DeviceCharacteristicsResponse), nameof(MessageTypeName), AstmSendMessageType.DEVICE_CHARACTERISTICS_RESPONSE)]
+        [MessageType(typeof(DeviceStringResponse), nameof(MessageTypeName), AstmSendMessageType.DEVICE_STRING_RESPONSE)]
+        [MessageType(typeof(BolusWizardBGTargetsResponse), nameof(MessageTypeName), AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_RESPONSE)]
+        [MessageType(typeof(BolusWizardSensitivityFactorsResponse), nameof(MessageTypeName), AstmSendMessageType.READ_BOLUS_WIZARD_SENSITIVITY_FACTORS_RESPONSE)]
+
+        
         [MessageType(typeof(PumpGeneral))]
         public object Message { get; set; }
 
