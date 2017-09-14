@@ -647,14 +647,14 @@ namespace CGM.Communication.MiniMed
             await StartMultiPacketAsync(new byte[] { 0x00, 0xff }, cancelToken);
             await EndMultiPacketAsync(new byte[] { 0x01, 0xff }, cancelToken);
 
-            if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
-            {
-                if (!cancelToken.IsCancellationRequested && !this._communicationBlock.Erorrs)
-                {
-                    await StartReadHistoryEvents(cancelToken);
-                }
+            //if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
+            //{
+            //    if (!cancelToken.IsCancellationRequested && !this._communicationBlock.Erorrs)
+            //    {
+            //        await StartReadHistoryEvents(cancelToken);
+            //    }
             
-            }
+            //}
         }
 
 
