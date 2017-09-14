@@ -649,7 +649,11 @@ namespace CGM.Communication.MiniMed
 
             if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
             {
-                await StartReadHistoryEvents(cancelToken);
+                if (!cancelToken.IsCancellationRequested && !this._communicationBlock.Erorrs)
+                {
+                    await StartReadHistoryEvents(cancelToken);
+                }
+            
             }
         }
 

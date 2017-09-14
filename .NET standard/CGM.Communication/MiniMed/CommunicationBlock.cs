@@ -26,7 +26,7 @@ namespace CGM.Communication.MiniMed
         private CancellationToken _cancelToken;
         private ILogger Logger = ApplicationLogging.CreateLogger<CommunicationBlock>();
         private int delay = 100;
-        
+        public bool Erorrs { get; set; }
         protected BlockingCollection<AstmStart> ResponsesRecieved { get; set; } = new BlockingCollection<AstmStart>();
 
         public SerializerSession Session { get; set; } = new SerializerSession();
@@ -212,6 +212,8 @@ namespace CGM.Communication.MiniMed
         private void CommunicationError(string error)
         {
             this.ExpectedResponses = new BlockingCollection<IReportPattern>();
+            this.Erorrs = true;
+            
             StopTimer();
             Logger.LogError(error);
         }

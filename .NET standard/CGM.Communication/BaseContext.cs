@@ -24,7 +24,7 @@ namespace CGM.Communication
     public abstract class BaseContext //: IDisposable
     {
 
-        private CommunicationBlock _communicationBlock;
+        protected CommunicationBlock _communicationBlock;
         protected IDevice Device;
         protected ILogger Logger = ApplicationLogging.CreateLogger<BaseContext>();
 
