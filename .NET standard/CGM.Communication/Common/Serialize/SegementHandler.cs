@@ -5,9 +5,7 @@ using CGM.Communication.MiniMed.Responses.Events;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using CGM.Communication.Extensions;
 using System.IO;
 
 namespace CGM.Communication.Common.Serialize
@@ -20,139 +18,96 @@ namespace CGM.Communication.Common.Serialize
         public InitiateMultiPacketTransferResponse Init { get; set; }
         public PumpStateHistoryStart HistoryStart { get; set; }
         public List<PumpEvent> Events { get; set; } = new List<PumpEvent>();
-        public List<PumpStateHistory> PumpStateHistory { get; set; } = new List<PumpStateHistory>();
+        public List<Packet> Packets { get; set; } = new List<Packet>();
         public int ReadLength { get; set; } = 0;
         public bool Errors { get; set; } = false;
         private MultiPacketHandler _handler;
-
-
+        public List<Segment> Segments { get; set; } = new List<Segment>();
+        public List<byte> Bytes { get; set; } = new List<byte>();
+        public byte[] Decompressed { get; set; }
         public SegementHandler(MultiPacketHandler handler, InitiateMultiPacketTransferResponse response)
         {
             _handler = handler;
             Init = response;
         }
 
-        public void AddHistory(PumpStateHistory history)
+        public void AddHistory(Packet history)
         {
-            PumpStateHistory.Add(history);
+            Packets.Add(history);
         }
 
         public void GetHistoryEvents()
         {
-
+            Bytes = new List<byte>();
             Events = new List<PumpEvent>();
-            //List<byte> segmentbytes = new List<byte>();
+            Segments = new List<Segment>();
+            Decompressed = null;
 
-            if (this.PumpStateHistory.Count == 0)
+            if (this.Packets.Count == 0)
             {
                 Logger.LogError($"No history read: {this._handler.ReadInfoResponse.HistoryDataType.ToString()}");
                 Errors = true;
                 return;
             }
 
-            if (this.PumpStateHistory.Count != this.Init.PacketsToFetch)
+            if (this.Packets.Count != this.Init.PacketsToFetch)
             {
-                Logger.LogError($"Wrong number of PacketsToFetch  {this._handler.ReadInfoResponse.HistoryDataType.ToString()} (expected {this.Init.PacketsToFetch}/{this.PumpStateHistory.Count})");
+                Logger.LogError($"Wrong number of PacketsToFetch  {this._handler.ReadInfoResponse.HistoryDataType.ToString()} (expected {this.Init.PacketsToFetch}/{this.Packets.Count})");
                 Errors = true;
                 return;
             }
 
 
-            //var all = PumpStateHistory.OrderBy(e => e.PacketNumber).Select(e => e.Message).ToList();
-            List<byte> bytes = new List<byte>();
-
-            foreach (var item in this.PumpStateHistory.OrderBy(e => e.PacketNumber))
+            foreach (var item in this.Packets.OrderBy(e => e.PacketNumber))
             {
                 List<byte> temp = new List<byte>();
                 temp.AddRange(item.FullMessage.Reverse());
-                if (item.PacketNumber!=this.Init.PacketsToFetch-1)
+
+                if (item.PacketNumber != this.Init.PacketsToFetch - 1)
                 {
-                    bytes.AddRange(temp.GetRange(0, this.Init.PacketSize));
+                    Bytes.AddRange(temp.GetRange(0, this.Init.PacketSize));
                 }
                 else
                 {
-                    bytes.AddRange(temp.GetRange(0, this.Init.LastPacketSize));
+                    Bytes.AddRange(temp.GetRange(0, this.Init.LastPacketSize));
                 }
             }
 
-            //for (int i = 0; i < this.Init.PacketsToFetch; i++)
-            //{
-            //    List<byte> temp = new List<byte>();
-            //    temp.AddRange(this.PumpStateHistory[i].FullMessage.Reverse());
-            //    if (i<(this.Init.PacketsToFetch-1))
-            //    {
-            //        bytes.AddRange(temp.GetRange(0, this.Init.PacketSize));
-            //    }
-            //    else
-            //    {
-            //        bytes.AddRange(temp.GetRange(0, this.Init.LastPacketSize));
-            //    }
-              
-            //}
-
-            //var all = PumpStateHistory.OrderBy(e => e.PacketNumber).Select(e => e.FullMessage).ToList();
-            //all.ForEach(e => segmentbytes.AddRange(e));
 
 
-            if (this.Init.SegmentSize != bytes.Count)
+
+            if (this.Init.SegmentSize != Bytes.Count)
             {
-                Logger.LogError($"Wrong segmentsize in {this._handler.ReadInfoResponse.HistoryDataType.ToString()} ({this.Init.SegmentSize}/{bytes.Count})");
+                Logger.LogError($"Wrong segmentsize in {this._handler.ReadInfoResponse.HistoryDataType.ToString()} ({this.Init.SegmentSize}/{Bytes.Count})");
                 Errors = true;
                 return;
             }
 
-            HistoryStart = _handler._seri.Deserialize<PumpStateHistoryStart>(bytes.ToArray());
+            HistoryStart = _handler._seri.Deserialize<PumpStateHistoryStart>(Bytes.ToArray());
+
+            if (HistoryStart.historySizeCompressed != HistoryStart.AllBytesNoHeader.Length)
+            {
+                Logger.LogError($"Wrong historySizeCompressed in {this._handler.ReadInfoResponse.HistoryDataType.ToString()} ({HistoryStart.historySizeCompressed}/{HistoryStart.AllBytesNoHeader.Length})");
+                Errors = true;
+                return;
+            }
+
 
 
             byte[] blockpayload = new byte[HistoryStart.historySizeUncompressed];
-            //byte[] blockpayload2 = new byte[HistoryStart.historySizeUncompressed];
-            //byte[] blockpayload3 = new byte[HistoryStart.historySizeUncompressed];
             if (HistoryStart.historyCompressed == 0x01)
             {
                 try
                 {
                     using (Stream stream = new MemoryStream(HistoryStart.AllBytesNoHeader))
-                    //using (Stream stream = new MemoryStream(segmentbytes.ToArray()))
                     using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
-                    //using (var decompressed1 = new LzoStream(stream, CompressionMode.Decompress, false ))
                     {
-                        //blockpayload = decompressed1.ToByteArray(HistoryStart.historySizeUncompressed);
-
-
-                        //using (MemoryStream stream3 = new MemoryStream(HistoryStart.historySizeUncompressed))
-                        //{
-                        //    decompressed1.CopyTo(stream3);
-                        //    blockpayload = stream3.ToArray();
-                        //}
-
-                        blockpayload = decompressed1.ToArray(HistoryStart.historySizeUncompressed);
-
-                        //blockpayload = decompressed1.ToByteArray();
+                        // blockpayload = decompressed1.ToArray(HistoryStart.historySizeUncompressed);
+                        blockpayload = decompressed1.ToByteArray();
+                        //for debugging...
+                        Decompressed = blockpayload;
                     }
-
-                    //using (Stream stream2 = new MemoryStream(HistoryStart.AllBytesNoHeader))
-                    //using (var decompressed1 = new LzoStream(stream2, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
-                    //{
-
-                    //    blockpayload2 = decompressed1.ToArray(HistoryStart.historySizeUncompressed);
-
-
-
-                    //}
-
-                    //using (Stream stream4 = new MemoryStream(HistoryStart.AllBytesNoHeader))
-                    //using (var decompressed1 = new LzoStream(stream4, CompressionMode.Decompress, false, HistoryStart.historySizeUncompressed))
-                    //{
-
-                    //    //blockpayload2 = decompressed1.ToArray(HistoryStart.historySizeUncompressed);
-                    //    using (MemoryStream stream3 = new MemoryStream())
-                    //    {
-                    //        decompressed1.CopyTo(stream3);
-                    //        blockpayload3 = stream3.ToArray();
-                    //    }
-
-
-                    //}
+                    
                 }
                 catch (Exception ex)
                 {
@@ -176,49 +131,16 @@ namespace CGM.Communication.Common.Serialize
             }
 
             var length = blockpayload.Length / block_size;
+
             for (int i = 0; i < length; i++)
             {
-                var blockStart = i * block_size;
-                var blockSize = blockpayload.GetUInt16BigE(((i + 1) * block_size) - 4);
-                var blockChecksum = blockpayload.GetUInt16BigE(((i + 1) * block_size) - 2);
-                if ((blockStart + blockSize) <= blockpayload.Length)
-                {
-                    var blockData = blockpayload.ToList().GetRange(blockStart, blockSize);
-                    var calculatedChecksum2 = Crc16Ccitt.CRC16CCITT(blockData.ToArray(), 0xFFFF, 0x1021, blockSize);
-
-                    if (blockChecksum == calculatedChecksum2)
-                    {
-                        if (blockData.Count>0)
-                        {
-                            GetEvents(blockData, 0);
-                        }
-                    }
-                    else
-                    {
-                        Logger.LogError($"{this._handler.ReadInfoResponse.HistoryDataType.ToString()}: CRC16CCITT does not match.");
-                        Errors = true;
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void GetEvents(List<byte> bytes, int start)
-        {
-            var length = bytes[start + 2];
-            var bytesMessage = bytes.GetRange(start, length).ToArray();
-            var eventmessage = _handler._seri.Deserialize<PumpEvent>(bytesMessage);
-
-            Events.Add(eventmessage);
-
-            int newstart = start + length;
-            if (newstart < bytes.Count)
-            {
-                GetEvents(bytes, newstart);
+                var blockData = blockpayload.ToList().GetRange(i * block_size, block_size);
+                Segments.Add(new Segment(blockData.ToArray(), _handler._seri));
             }
 
+            this.Segments.Where(e => e.IsBlockDataCorrect).ToList().ForEach(e => e.GetEvents());
+            this.Segments.ForEach(e => this.Events.AddRange(e.Events));
         }
-
 
         public List<int> GetMissingSegments()
         {
@@ -226,11 +148,11 @@ namespace CGM.Communication.Common.Serialize
             for (int i = 0; i < this.Init.PacketsToFetch; i++)
             {
 
-                var packet = this.PumpStateHistory.FirstOrDefault(e => e.PacketNumber == i);
-                if (packet==null)
+                var packet = this.Packets.FirstOrDefault(e => e.PacketNumber == i);
+                if (packet == null)
                 {
                     indexes.Add(i);
-                }               
+                }
             }
             return indexes;
         }

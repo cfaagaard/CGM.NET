@@ -17,6 +17,7 @@ namespace CGM.Communication.Common.Serialize
 
         public MultiPacketHandler CurrentMultiPacketHandler { get; set; }
 
+      
         public List<MultiPacketHandler> MultiPacketHandlers { get; set; } = new List<MultiPacketHandler>();
 
         public DateTime? From { get; set; }
@@ -53,21 +54,19 @@ namespace CGM.Communication.Common.Serialize
         {
             if (this.MultiPacketHandlers.Count== 0)
             {
-                throw new Exception("MultipacketHandlet not set.");
+                throw new Exception("MultipacketHandler not set.");
             }
-            this.CurrentMultiPacketHandler = this.MultiPacketHandlers[_session.SessionVariables.GetCurrentMultiPacketIndex()]; // MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType);
+
+            var packet = this.MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == request.HistoryDataType);
+            if (packet == null)
+            {
+                throw new Exception($"Could not find MultipacketHandler for {request.HistoryDataType}");
+            }
+            this.CurrentMultiPacketHandler = packet;// this.MultiPacketHandlers[_session.SessionVariables.GetCurrentMultiPacketIndex()]; // MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType);
         }
 
         public void GetHistoryEvents()
         {
-
-            //var msgs = _session.All.Where(e.MedtronicMessage.Message2 is MedtronicMessage2).Select(e => (MedtronicMessage2)e.Message2);
-            //var msgs2 = msgs.Where(e => e.CommandTypeName == Communication.MiniMed.Infrastructur.AstmCommandType.RECEIVE_MESSAGE && e.Message is PumpMessageResponse).Select(e => (PumpMessageResponse)e.Message);
-            //var msgs3 = msgs2.Where(e => e.Message.MessageTypeName == AstmSendMessageType.READ_HISTORY_INFO_RESPONSE);
-
-
-   
-
             MultiPacketHandlers.ForEach(e => e.GetHistoryEvents());
         }
 

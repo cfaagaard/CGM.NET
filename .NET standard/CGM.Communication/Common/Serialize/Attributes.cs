@@ -25,16 +25,23 @@ namespace CGM.Communication.Common.Serialize
         public string ChildPropertyName { get; set; }
     }
 
+    public enum DirectionEnum
+    {
+        Forward,
+        Reverse
+    }
+
         [AttributeUsage(AttributeTargets.Property)]
     public class BinaryElement : System.Attribute
     {
         public int FieldOffset { get; set; }
         public bool Encrypt { get; set; } = false;
-
+        public DirectionEnum Direction { get; set; }
         public int Length { get; set; } = -1;
 
         public BinaryElement(int fieldOffset, bool isLittleEndian)
         {
+            this.Direction = DirectionEnum.Forward;
         }
 
         public BinaryElement(int fieldOffset) : this(fieldOffset, true)
@@ -157,7 +164,7 @@ namespace CGM.Communication.Common.Serialize
             // do not get the crc-field
             var temp = bytes.GetRange(0, bytes.Count - 2);
 
-            var crc = Crc16Ccitt.CRC16CCITT(temp.ToArray(), 0xffff, 0x1021, temp.Count);
+            var crc = temp.ToArray().GetCrc16citt() & 0xffff;
 
             var crcbytes = BitConverter.GetBytes((short)crc).ToList();
 

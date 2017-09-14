@@ -28,7 +28,7 @@ namespace CGM.Communication.MiniMed.Responses
         [MessageType(typeof(PumpTimeMessage), nameof(MessageTypeName), AstmSendMessageType.TIME_RESPONSE,LengthEquals =13)]
         [MessageType(typeof(PumpStatusMessage), nameof(MessageTypeName), AstmSendMessageType.READ_PUMP_STATUS_RESPONSE)]
         [MessageType(typeof(PumpPattern), nameof(MessageTypeName), AstmSendMessageType.READ_BASAL_PATTERN_RESPONSE)]
-        [MessageType(typeof(PumpStateHistory), nameof(MessageTypeName), AstmSendMessageType.MULTIPACKET_SEGMENT_TRANSMISSION)]
+        [MessageType(typeof(Packet), nameof(MessageTypeName), AstmSendMessageType.MULTIPACKET_SEGMENT_TRANSMISSION)]
         [MessageType(typeof(InitiateMultiPacketTransferResponse), nameof(MessageTypeName), AstmSendMessageType.INITIATE_MULTIPACKET_TRANSFER)]
         [MessageType(typeof(PumpStateHistoryReadInfoResponse), nameof(MessageTypeName), AstmSendMessageType.READ_HISTORY_INFO_RESPONSE)]
         [MessageType(typeof(PumpCarbRatioResponse), nameof(MessageTypeName), AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_RESPONSE)]

@@ -28,6 +28,7 @@ namespace CGM.Communication.MiniMed.Responses
             this.FromDateTime = DateTimeExtension.GetDateTime(FromRtc, settings.PumpTime.OffSet);
             //255*4 is now, I think..... need to handle this....
             this.ToDateTime = DateTimeExtension.GetDateTime(ToRtc, settings.PumpTime.OffSet);
+            settings.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment = false;
         }
 
         public override string ToString()

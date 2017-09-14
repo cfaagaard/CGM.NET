@@ -144,5 +144,11 @@ namespace CGM.Uwp.Tasks
             bool internet = connections != null && connections.GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess;
             return internet;
         }
+
+        protected override void ResetCommunication(SerializerSession session)
+        {
+            base.ResetCommunication(session);
+            //Windows.ApplicationModel.Core.CoreApplication.re.Exit();
+        }
     }
 }

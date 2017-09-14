@@ -9,7 +9,7 @@ using CGM.Communication.Common;
 namespace CGM.Communication.MiniMed.Responses
 {
     [BinaryType(IsLittleEndian=false)]
-    public class PumpStateHistory : IBinaryType, IBinaryDeserializationSetting
+    public class Packet : IBinaryType, IBinaryDeserializationSetting
     {
         [BinaryElement(0, Length = 2)]
         public Int16 PacketNumber { get; set; }
@@ -20,17 +20,29 @@ namespace CGM.Communication.MiniMed.Responses
         //public byte[] Message { get; set; }
 
 
-        //public byte[] AllBytes { get; set; }
-        //public byte[] AllBytesE { get; set; }
+        public byte[] AllBytes { get; set; }
+        public byte[] AllBytesE { get; set; }
 
-        //public string BytesAsString { get; set; }
+        public string BytesAsString { get; set; }
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             var lis = new List<byte>();
             lis.AddRange(bytes);
             int length = lis.Count;
+            //if (FullMessage.Length==97)
+            //{
+            //    this.FullMessage = lis.GetRange(1, 98).ToArray().Reverse().ToArray();
+            //    //this.FullMessage = 0x00 + this.FullMessage;
+            //    //this.FullMessage = Enumerable.Repeat<byte>(0x00, 98).ToArray();
+            //}
+            //else
+            //{
 
+            //}
+
+            this.AllBytes = bytes;
+            this.AllBytesE = bytes.Reverse().ToArray();
 
 
             //var blockChecksum1 = lis.ToArray().GetUInt16BigE(length - 4);
@@ -56,12 +68,15 @@ namespace CGM.Communication.MiniMed.Responses
             //var calculatedChecksum5 = Crc16Ccitt.CRC16CCITT(byteToCheck5.ToArray(), 0xFFFF, 0x1021, byteToCheck5.Count);
             //var calculatedChecksum6 = Crc16Ccitt.CRC16CCITT(byteToCheck6.ToArray(), 0xFFFF, 0x1021, byteToCheck6.Count);
 
-            settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.AddHistory(this);
+            if (settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.Packets.FirstOrDefault(e=>e.PacketNumber==this.PacketNumber)==null)
+            {
+                settings.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment.AddHistory(this);
+            }
         }
 
         public override string ToString()
         {
-            return $"{this.PacketNumber.ToString()}";
+            return $"{this.PacketNumber.ToString()} ({FullMessage.Length})";
         }
     }
 

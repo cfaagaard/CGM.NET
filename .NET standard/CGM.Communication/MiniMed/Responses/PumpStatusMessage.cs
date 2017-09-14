@@ -300,17 +300,17 @@ namespace CGM.Communication.MiniMed.Responses
                     case (byte)0x60:
                         return SgvTrend.Flat;
                     case (byte)0xc0:
-                        return SgvTrend.DoubleUp;
+                        return SgvTrend.DoubleUp; //3 arrows up
                     case (byte)0xa0:
-                        return SgvTrend.SingleUp;
+                        return SgvTrend.SingleUp; //2 arrows up
                     case (byte)0x80:
-                        return SgvTrend.FortyFiveUp;
+                        return SgvTrend.FortyFiveUp; //1 arrow up
                     case (byte)0x40:
-                        return SgvTrend.FortyFiveDown;
+                        return SgvTrend.FortyFiveDown; //1 arrow down
                     case (byte)0x20:
-                        return SgvTrend.SingleDown;
+                        return SgvTrend.SingleDown;//2 arrows down
                     case (byte)0x00:
-                        return SgvTrend.DoubleDown;
+                        return SgvTrend.DoubleDown;//3 arrows down
                     default:
                         return SgvTrend.NotComputable;
                 }

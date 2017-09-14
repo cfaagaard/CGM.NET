@@ -3,13 +3,16 @@ using System.Linq;
 using CGM.Communication.MiniMed.Infrastructur;
 using CGM.Communication.Patterns;
 using System;
+using System.Collections.Generic;
+using CGM.Communication.Common;
+using CGM.Communication.Extensions;
 
 namespace CGM.Communication.MiniMed
 {
 
 
     [BinaryType]
-    public class MedtronicMessage2: IBinaryType,IBinaryDeserializationSetting
+    public class MedtronicMessage2 : IBinaryType, IBinaryDeserializationSetting
     {
 
         [BinaryElement(0)]
@@ -54,13 +57,13 @@ namespace CGM.Communication.MiniMed
         [MessageType(typeof(Responses.PumpMessageResponse), typeof(Responses.Patterns.EncryptedResponsePattern))]
 
         [MessageType(typeof(Requests.ConnectionRequest), typeof(Requests.Patterns.CloseConnectionRequestPattern))]
-        [MessageType(typeof(Responses.ReadInfoResponse),typeof(Responses.Patterns.ReadInfoResponsePattern))]
+        [MessageType(typeof(Responses.ReadInfoResponse), typeof(Responses.Patterns.ReadInfoResponsePattern))]
         [MessageType(typeof(Responses.LinkKeyResponse), typeof(Responses.Patterns.LinkKeyResponsePattern))]
         //[MessageType(typeof(Requests.PumpMessageGeneral), typeof(Requests.Patterns.PumpHistoryRequestPattern))]
 
 
         [MessageType(typeof(Requests.PumpEnvelope), typeof(Requests.Patterns.PumpRequestPattern))]
-        
+
         public object Message { get; set; }
 
         public byte[] AllBytes { get; set; }
@@ -92,7 +95,7 @@ namespace CGM.Communication.MiniMed
             string returnStr = this.CommandTypeName.ToString();
             if (Message != null)
             {
-                returnStr += " - " +  Message.ToString();
+                returnStr += " - " + Message.ToString();
             }
             return returnStr;
 
@@ -115,65 +118,66 @@ namespace CGM.Communication.MiniMed
             this.AllBytes = bytes;
         }
     }
-
-    //[BinaryType]
-    //public class MedtronicMessage2 : BayerCommand
-    //{
-
-    //    [BinaryElement(7)]
-    //    public string SerialNumber { get; set; }
-
-    //    [BinaryElement(13)]
-    //    public byte[] Unknown1 { get; set; }
-
-    //    [BinaryElement(23)]
-    //    public byte CommandType { get; set; }
-
-    //    public AstmCommandType CommandTypeName { get { return (AstmCommandType)CommandType;  } }
-
-    //    [BinaryElement(24)]
-    //    public byte SessionNumber { get; set; }
-
-    //    [BinaryElement(25)]
-    //    public byte[] Unknown2 { get; set; } //8 bytes
-
-    //    [BinaryElement(33)]
-    //    [BinaryElementLogicLength(Add = -4)]
-    //    public byte Length { get; set; } = 0x00;
-
-    //    [BinaryElement(34)]
-    //    public byte[] Unknown3 { get; set; } //3bytes
-
-    //    [BinaryElement(37)]
-    //    [BinaryElementLogicByteSum]
-    //    public byte ByteSum { get; set; }
-
-    //    public MedtronicMessage2()
-    //    {
-    //    }
-
-    //    public MedtronicMessage2(byte sessionNumber, AstmCommandType command) : this(sessionNumber, (byte)command)
-    //    {
-    //    }
-    //    public MedtronicMessage2(byte sessionNumber, byte commandType) : base(new byte[] { 0x51, 0x03 })
-    //    {
-
-    //        this.SerialNumber = "000000";
-    //        this.Unknown1 = Enumerable.Repeat<byte>(0x00, 10).ToArray();
-    //        this.CommandType = commandType;
-    //        this.SessionNumber = sessionNumber;
-    //        this.Unknown2 = Enumerable.Repeat<byte>(0x00, 8).ToArray();
-
-    //        this.Length = 0x00;
-    //        this.Unknown3 = Enumerable.Repeat<byte>(0x00, 3).ToArray();
-    //        this.ByteSum = 0x00;
-    //    }
-
-
-    //    public override string ToString()
-    //    {
-    //        return base.ToString() + " - " +this.CommandTypeName; 
-    //    }
-    //}
-
 }
+
+//[BinaryType]
+//public class MedtronicMessage2 : BayerCommand
+//{
+
+//    [BinaryElement(7)]
+//    public string SerialNumber { get; set; }
+
+//    [BinaryElement(13)]
+//    public byte[] Unknown1 { get; set; }
+
+//    [BinaryElement(23)]
+//    public byte CommandType { get; set; }
+
+//    public AstmCommandType CommandTypeName { get { return (AstmCommandType)CommandType;  } }
+
+//    [BinaryElement(24)]
+//    public byte SessionNumber { get; set; }
+
+//    [BinaryElement(25)]
+//    public byte[] Unknown2 { get; set; } //8 bytes
+
+//    [BinaryElement(33)]
+//    [BinaryElementLogicLength(Add = -4)]
+//    public byte Length { get; set; } = 0x00;
+
+//    [BinaryElement(34)]
+//    public byte[] Unknown3 { get; set; } //3bytes
+
+//    [BinaryElement(37)]
+//    [BinaryElementLogicByteSum]
+//    public byte ByteSum { get; set; }
+
+//    public MedtronicMessage2()
+//    {
+//    }
+
+//    public MedtronicMessage2(byte sessionNumber, AstmCommandType command) : this(sessionNumber, (byte)command)
+//    {
+//    }
+//    public MedtronicMessage2(byte sessionNumber, byte commandType) : base(new byte[] { 0x51, 0x03 })
+//    {
+
+//        this.SerialNumber = "000000";
+//        this.Unknown1 = Enumerable.Repeat<byte>(0x00, 10).ToArray();
+//        this.CommandType = commandType;
+//        this.SessionNumber = sessionNumber;
+//        this.Unknown2 = Enumerable.Repeat<byte>(0x00, 8).ToArray();
+
+//        this.Length = 0x00;
+//        this.Unknown3 = Enumerable.Repeat<byte>(0x00, 3).ToArray();
+//        this.ByteSum = 0x00;
+//    }
+
+
+//    public override string ToString()
+//    {
+//        return base.ToString() + " - " +this.CommandTypeName; 
+//    }
+//}
+
+

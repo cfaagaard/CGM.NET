@@ -138,6 +138,10 @@ namespace CGM.Communication.Tasks
                             timer.Dispose();
                         }
                         SetUpTimer(session.NextRun.Value);
+                        if (session.NeedResetCommunication)
+                        {
+                            ResetCommunication(session);
+                        }
                         session.NewSession();
                     }
 
@@ -151,7 +155,10 @@ namespace CGM.Communication.Tasks
         {
 
         }
+        protected virtual void ResetCommunication(SerializerSession session)
+        {
 
+        }
         protected virtual bool CheckNet()
         {
             return true;

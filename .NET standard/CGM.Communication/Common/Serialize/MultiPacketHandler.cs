@@ -20,6 +20,7 @@ namespace CGM.Communication.Common.Serialize
 
         public List<SegementHandler> Segments { get; set; } = new List<SegementHandler>();
         public PumpStateHistoryReadInfoResponse ReadInfoResponse { get; set; }
+        public bool WaitingForSegment { get; set; } = false;
 
         public SegementHandler CurrentSegment { get; set; }
 
@@ -33,6 +34,7 @@ namespace CGM.Communication.Common.Serialize
         {
             this.CurrentSegment = new SegementHandler(this, response);
             this.Segments.Add(CurrentSegment);
+            WaitingForSegment = true;
         }
 
         public void GetHistoryEvents()

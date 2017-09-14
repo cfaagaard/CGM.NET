@@ -12,7 +12,10 @@ namespace CGM.Communication.MiniMed.Responses
     {
 
         [BinaryElement(0)]
-        public Int16 Start { get; set; }
+        public byte Start1 { get; set; }
+
+        [BinaryElement(1)]
+        public byte Start2 { get; set; }
 
         [BinaryElement(2)]
         public byte DataType { get; set; }

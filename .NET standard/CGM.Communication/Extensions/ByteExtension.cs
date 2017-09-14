@@ -44,15 +44,15 @@ namespace CGM.Communication.Extensions
 
         }
 
-        public static byte[] Decrypt2(this byte[] cmessage,string password, byte[] salt)
-        {
-            int KEY_SIZE = 256;
-            int iterations = 100;
-            //byte[] salt = new byte[KEY_SIZE >> 3];
+        //public static byte[] Decrypt2(this byte[] cmessage,string password, byte[] salt)
+        //{
+        //    int KEY_SIZE = 256;
+        //    int iterations = 100;
+        //    //byte[] salt = new byte[KEY_SIZE >> 3];
 
-            IBufferedCipher decCipher = BuildDecryptionCipher(password, iterations, salt);
-            return DecryptTemp(decCipher, cmessage);
-        }
+        //    IBufferedCipher decCipher = BuildDecryptionCipher(password, iterations, salt);
+        //    return DecryptTemp(decCipher, cmessage);
+        //}
 
         private static IBufferedCipher BuildDecryptionCipher(string password, int iterations, byte[] salt)
         {
@@ -69,62 +69,62 @@ namespace CGM.Communication.Extensions
             return cipher;
         }
 
-        private static byte[] DecryptTemp(IBufferedCipher cipher, byte[] encrypted)
-        {
-            byte[] plainText;
+        //private static byte[] DecryptTemp(IBufferedCipher cipher, byte[] encrypted)
+        //{
+        //    byte[] plainText;
 
-            using (MemoryStream writeStr = new MemoryStream())
-            {
-                using (MemoryStream readStr = new MemoryStream(encrypted))
-                using (CipherStream cstr = new CipherStream(readStr, cipher, null))
-                {
-                    byte[] data = new byte[256];
-                    int got;
+        //    using (MemoryStream writeStr = new MemoryStream())
+        //    {
+        //        using (MemoryStream readStr = new MemoryStream(encrypted))
+        //        using (CipherStream cstr = new CipherStream(readStr, cipher, null))
+        //        {
+        //            byte[] data = new byte[256];
+        //            int got;
 
-                    while ((got = cstr.Read(data, 0, data.Length)) > 0)
-                    {
-                        writeStr.Write(data, 0, got);
-                    }
-                    writeStr.Flush();
-                }
+        //            while ((got = cstr.Read(data, 0, data.Length)) > 0)
+        //            {
+        //                writeStr.Write(data, 0, got);
+        //            }
+        //            writeStr.Flush();
+        //        }
 
-                plainText = writeStr.ToArray();
-            }
+        //        plainText = writeStr.ToArray();
+        //    }
 
-            return plainText; //Encoding.UTF8.GetString(plainText);
-        }
+        //    return plainText; //Encoding.UTF8.GetString(plainText);
+        //}
 
-        private static IBufferedCipher BuildEncryptionCipher(string password, int iterations,byte[] salt)
-        {
-            // get the password bytes
-            char[] passwordChars = password.ToCharArray();
-            byte[] passwordBytes = PbeParametersGenerator.Pkcs12PasswordToBytes(passwordChars);
+        //private static IBufferedCipher BuildEncryptionCipher(string password, int iterations,byte[] salt)
+        //{
+        //    // get the password bytes
+        //    char[] passwordChars = password.ToCharArray();
+        //    byte[] passwordBytes = PbeParametersGenerator.Pkcs12PasswordToBytes(passwordChars);
 
 
-            string ENCRYPTION_ALGORITHM = "AES";
-            int KEY_SIZE = 256;
+        //    string ENCRYPTION_ALGORITHM = "AES";
+        //    int KEY_SIZE = 256;
             
 
-            // select the digest algorithm.
-            // if you change the digest algorithm, you must change DECRYPTION_ALGORITHM
-            IDigest digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
+        //    // select the digest algorithm.
+        //    // if you change the digest algorithm, you must change DECRYPTION_ALGORITHM
+        //    IDigest digest = new Org.BouncyCastle.Crypto.Digests.Sha256Digest();
 
 
-            PbeParametersGenerator pbeParamGen = new Org.BouncyCastle.Crypto.Generators.Pkcs12ParametersGenerator(digest);
-            pbeParamGen.Init(passwordBytes, salt, iterations);
+        //    PbeParametersGenerator pbeParamGen = new Org.BouncyCastle.Crypto.Generators.Pkcs12ParametersGenerator(digest);
+        //    pbeParamGen.Init(passwordBytes, salt, iterations);
 
-            // 128-bit initialization vector
-            ParametersWithIV parameters = (ParametersWithIV)pbeParamGen.GenerateDerivedParameters(ENCRYPTION_ALGORITHM, KEY_SIZE, 128);
+        //    // 128-bit initialization vector
+        //    ParametersWithIV parameters = (ParametersWithIV)pbeParamGen.GenerateDerivedParameters(ENCRYPTION_ALGORITHM, KEY_SIZE, 128);
 
-            KeyParameter encKey = (KeyParameter)parameters.Parameters;
+        //    KeyParameter encKey = (KeyParameter)parameters.Parameters;
 
-            // we’ll use CBC and PKCS7Padding
-            IBufferedCipher cipher = CipherUtilities.GetCipher(ENCRYPTION_ALGORITHM + "/CBC/PKCS7Padding");
+        //    // we’ll use CBC and PKCS7Padding
+        //    IBufferedCipher cipher = CipherUtilities.GetCipher(ENCRYPTION_ALGORITHM + "/CBC/PKCS7Padding");
 
-            cipher.Init(true, parameters);
+        //    cipher.Init(true, parameters);
 
-            return cipher;
-        }
+        //    return cipher;
+        //}
 
 
         public static byte[] Decrypt(this byte[] cmessage, byte[] m_Key, byte[] iVector)
@@ -177,6 +177,35 @@ namespace CGM.Communication.Extensions
         public static DateTime? GetDateTime(this byte[] bytes)
         {
             return bytes.GetDateTime(0);
+
+        }
+
+        public static ushort GetCrc16citt(this byte[] bytes)
+        {
+            const ushort poly = 4129;
+            ushort[] table = new ushort[256];
+            ushort initialValue = 0xffff;
+            ushort temp, a;
+            ushort crc = initialValue;
+            for (int i = 0; i < table.Length; ++i)
+            {
+                temp = 0;
+                a = (ushort)(i << 8);
+                for (int j = 0; j < 8; ++j)
+                {
+                    if (((temp ^ a) & 0x8000) != 0)
+                        temp = (ushort)((temp << 1) ^ poly);
+                    else
+                        temp <<= 1;
+                    a <<= 1;
+                }
+                table[i] = temp;
+            }
+            for (int i = 0; i < bytes.Length; ++i)
+            {
+                crc = (ushort)((crc << 8) ^ table[((crc >> 8) ^ (0xff & bytes[i]))]);
+            }
+            return crc;
 
         }
 

@@ -22,18 +22,11 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [BinaryElementList(CountProperty = nameof(NumberOfReadings), Type = typeof(SENSOR_GLUCOSE_READINGS_EXTENDED_Detail), ByteSize = 9)]
         public List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail> Details { get; set; } = new List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail>();
 
+
+
         public override void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             base.OnDeserialization(bytes, settings);
-            for (int i = 0; i < Details.Count; i++)
-            {
-                if (this.Timestamp.HasValue)
-                {
-                    Details[i].Timestamp = this.Timestamp.Value.AddMinutes((i * this.MinutesBetweenReadings));
-                }
-
-            }
-
         }
 
         public override string ToString()
@@ -144,6 +137,10 @@ namespace CGM.Communication.MiniMed.Responses.Events
 
         [BinaryElement(8, Length = 1)]
         public byte SensorStatus { get; set; }
+
+        public long Epoch { get { return ((DateTimeOffset)this.Timestamp.Value).ToUnixTimeMilliseconds(); } }
+
+        public string Reference { get; set; }
 
         //[BinaryElement(9, Length = 1)]
         //public byte ReadingStatus { get; set; }

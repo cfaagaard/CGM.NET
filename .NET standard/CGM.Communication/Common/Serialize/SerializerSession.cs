@@ -36,7 +36,7 @@ namespace CGM.Communication.Common.Serialize
             set { _encryptKey = value; }
         }
 
-
+        public bool NeedResetCommunication { get; set; }
 
 
         public byte[] EncryptIV
@@ -324,7 +324,7 @@ namespace CGM.Communication.Common.Serialize
                 if (this.PumpTime != null && this.PumpTime.OffSet.Length == 4)
                 {
                     AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
-                    ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet.GetInt32(0));
+                    ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet);
                     return msg;
                 }
 
@@ -343,7 +343,7 @@ namespace CGM.Communication.Common.Serialize
             if (this.PumpTime != null && this.PumpTime.OffSet.Length == 4)
             {
                 AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
-                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet.GetInt32(0));
+                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet);
                 return msg;
             }
             return null;

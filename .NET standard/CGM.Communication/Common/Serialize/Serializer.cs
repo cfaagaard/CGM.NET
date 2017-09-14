@@ -57,7 +57,21 @@ namespace CGM.Communication.Common.Serialize
                 var element = (BinaryElement)property.GetCustomAttribute(typeof(BinaryElement));
                 if (element != null)
                 {
-                    InfoElements.Add(property.Name, new SerializeInfoElement() { Element = element, Info = property });
+                    if (element.Direction == DirectionEnum.Reverse)
+                    {
+                        if (_bytes==null)
+                        {
+                            element.FieldOffset = 1000;
+                        }
+                        else
+                        {
+                            element.FieldOffset = _bytes.Length - element.Length - element.FieldOffset;
+                        }
+                        
+                    }
+                    var el = new SerializeInfoElement() { Element = element, Info = property };
+
+                    InfoElements.Add(property.Name, el);
                 }
                 PropertyInfos.Add(property);
             }
@@ -107,6 +121,14 @@ namespace CGM.Communication.Common.Serialize
         private List<AttributeList> GetLogics<T>(T s)
         {
             List<AttributeList> dic = new List<AttributeList>();
+
+            //SerializeInfo<T> serializeInfo = new SerializeInfo<T>(null);
+
+            //foreach (var item in serializeInfo.InfoElements.Values)
+            //{
+            //    dic.Add(new AttributeList() { Logic = item.Element, PropInfo = item.Info });
+            //}
+
             var properties = typeof(T).GetRuntimeProperties();
 
             foreach (var property in properties)
@@ -132,7 +154,7 @@ namespace CGM.Communication.Common.Serialize
 
         private byte[] SerializeInternal<T>(T s) where T : class
         {
-         
+
             var classtype = (BinaryType)typeof(T).GetTypeInfo().GetCustomAttribute(typeof(BinaryType));
             if (classtype != null)
             {
@@ -189,7 +211,7 @@ namespace CGM.Communication.Common.Serialize
                         }
 
 
-                        if (value==null && getvalue!=null)
+                        if (value == null && getvalue != null)
                         {
                             if (getvalue.GetType().GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinaryType)))
                             {
@@ -240,8 +262,13 @@ namespace CGM.Communication.Common.Serialize
                     var logicOrdered = logicAttributes.OrderBy(e => e.Logic.Order);
                     foreach (var item in logicOrdered)
                     {
-                        var element = (BinaryElement)item.PropInfo.GetCustomAttribute(typeof(BinaryElement));
-                        item.Logic.SetValue(temp, element.FieldOffset, item.PropInfo, s, _session);
+                        var element = serInfo.InfoElements.FirstOrDefault(e => e.Key == item.PropInfo.Name).Value;
+                        if (element!=null)
+                        {
+                            item.Logic.SetValue(temp, element.Element.FieldOffset, item.PropInfo, s, _session);
+                        }
+                      //  var element = (BinaryElement)item.PropInfo.GetCustomAttribute(typeof(BinaryElement));
+                       
                     }
                 }
 
@@ -267,46 +294,50 @@ namespace CGM.Communication.Common.Serialize
 
         }
 
-        public byte[] Join(List<byte[]> bytes)
-        {
-            if (bytes != null && bytes.Count > 0)
-            {
-                List<byte> newbytes = new List<byte>();
-                newbytes.AddRange(bytes[0]);
-                if (bytes.Count > 1)
-                {
-                    for (int i = 1; i < bytes.Count; i++)
-                    {
-                        List<byte> newlist = new List<byte>(bytes[i]);
+        //public byte[] Join(List<byte[]> bytes)
+        //{
+
+            
 
 
-                        var j = newlist.Count - 1;
-                        while (newlist[j] == 0)
-                        {
-                            --j;
-                        }
-                        var temp = new byte[j + 1];
+        //        if (bytes != null && bytes.Count > 0)
+        //    {
+        //        List<byte> newbytes = new List<byte>();
+        //        newbytes.AddRange(bytes[0]);
+        //        if (bytes.Count > 1)
+        //        {
+        //            for (int i = 1; i < bytes.Count; i++)
+        //            {
+        //                List<byte> newlist = new List<byte>(bytes[i]);
 
-                        Array.Copy(newlist.ToArray(), temp, j + 1);
 
-                        var list = temp.ToList();
-                        list.RemoveRange(0, 5);
-                        newbytes.AddRange(list);
-                    }
-                    newbytes[4] = (byte)(newbytes.Count - 5);
-                }
-                var data = newbytes.ToArray();
-                bool data_found = false;
-                byte[] new_data = data.Reverse().SkipWhile(point =>
-                {
-                    if (data_found) return false;
-                    if (point == 0x00) return true; else { data_found = true; return false; }
-                }).Reverse().ToArray();
+        //                var j = newlist.Count - 1;
+        //                while (newlist[j] == 0)
+        //                {
+        //                    --j;
+        //                }
+        //                var temp = new byte[j + 1];
 
-                return new_data;
-            }
-            return null;
-        }
+        //                Array.Copy(newlist.ToArray(), temp, j + 1);
+
+        //                var list = temp.ToList();
+        //                list.RemoveRange(0, 5);
+        //                newbytes.AddRange(list);
+        //            }
+        //            newbytes[4] = (byte)(newbytes.Count - 5);
+        //        }
+        //        var data = newbytes.ToArray();
+        //        bool data_found = false;
+        //        byte[] new_data = data.Reverse().SkipWhile(point =>
+        //        {
+        //            if (data_found) return false;
+        //            if (point == 0x00) return true; else { data_found = true; return false; }
+        //        }).Reverse().ToArray();
+ 
+        //        return new_data;
+        //    }
+        //    return null;
+        //}
 
 
 
@@ -314,7 +345,7 @@ namespace CGM.Communication.Common.Serialize
         {
             _byteLevels = new List<byte[]>();
 
-            T obj= DeserializeInternal<T>(bytes);
+            T obj = DeserializeInternal<T>(bytes);
             this._session.All.Add(obj);
             return obj;
         }
@@ -421,7 +452,7 @@ namespace CGM.Communication.Common.Serialize
 
                                 setvalue = EndianValue.ToArray().GetUInt16(0);
                             }
-                      
+
                             if (property.PropertyType == typeof(Int32))
                             {
                                 setvalue = EndianValue.ToArray().GetInt32(0);
@@ -437,7 +468,7 @@ namespace CGM.Communication.Common.Serialize
                                 setvalue = EndianValue.ToArray().GetInt64(0);
                             }
 
-                         
+
 
                             if (property.PropertyType == typeof(DateTime))
                             {
@@ -498,7 +529,7 @@ namespace CGM.Communication.Common.Serialize
                             }
 
                             var attributes = (IEnumerable<MessageType>)property.GetCustomAttributes(typeof(MessageType));
-                            
+
                             bool containssubtype = property.PropertyType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IBinaryType));
                             if (containssubtype || attributes.Count() > 0)
                             {
@@ -565,16 +596,16 @@ namespace CGM.Communication.Common.Serialize
                                 }
                                 if (SeriType != null)
                                 {
-                                    if (lengthEquals!=0 && lengthEquals!=value.Count)
-                                    {
-                                        throw new Exception($"Expected length {lengthEquals}. Is {value.Count}");
-                                    }
+                                    //if (lengthEquals != 0 && lengthEquals != value.Count)
+                                    //{
+                                    //    throw new Exception($"Expected length {lengthEquals}. Is {value.Count}");
+                                    //}
                                     var serializerMethodes = typeof(CGM.Communication.Common.Serialize.Serializer).GetRuntimeMethods();
                                     var generic0 = serializerMethodes.FirstOrDefault(e => e.Name == "DeserializeInternal");
                                     var generic = generic0.MakeGenericMethod(SeriType);
                                     setvalue = generic.Invoke(this, new object[] { value.ToArray() });
                                     var ctors = (IEnumerable<BinaryPropertyValueTransfer>)property.GetCustomAttributes(typeof(BinaryPropertyValueTransfer));
-                                    if (ctors.Count()>0)
+                                    if (ctors.Count() > 0)
                                     {
                                         foreach (var item in ctors)
                                         {
@@ -583,7 +614,7 @@ namespace CGM.Communication.Common.Serialize
 
                                             setvalue.GetType().GetProperty(item.ChildPropertyName).SetValue(setvalue, parentvalue);
                                         }
-                                        
+
                                     }
 
                                 }

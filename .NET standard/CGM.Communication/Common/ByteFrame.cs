@@ -13,5 +13,7 @@ namespace CGM.Communication.Common
 
         public string  Comment { get; set; }
 
+   
+
     }
 }

@@ -16,7 +16,7 @@ namespace CGM.Communication.MiniMed.Requests
 
         }
 
-        public ReadHistoryRequest(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType,long offset) : base(fromDateTime, toDateTime, historyDataType, offset)
+        public ReadHistoryRequest(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType,byte[] offset) : base(fromDateTime, toDateTime, historyDataType, offset)
         {
         }
 
@@ -37,7 +37,9 @@ namespace CGM.Communication.MiniMed.Requests
     {
         // PUMP_DATA: 2,SENSOR_DATA: 3,
         [BinaryElement(0)]
-        public byte HistoryDataType { get; set; }
+        public byte HistoryDataTypeRaw { get; set; }
+
+        public HistoryDataTypeEnum HistoryDataType { get { return (HistoryDataTypeEnum)HistoryDataTypeRaw; } }
 
         [BinaryElement(1)]
         public byte Unknown { get; set; }
@@ -64,26 +66,20 @@ namespace CGM.Communication.MiniMed.Requests
 
         }
 
-        public ReadHistoryInfoRequest(DateTime fromDateTime, DateTime toDateTime,HistoryDataTypeEnum historyDataType,long offset)
+        public ReadHistoryInfoRequest(DateTime fromDateTime, DateTime toDateTime,HistoryDataTypeEnum historyDataType,byte[] offset)
         {
             this.FromDateTime = fromDateTime;
             this.ToDateTime = toDateTime;
 
             this.FromRtc = fromDateTime.GetRtcBytes(offset);
-            //this.FromRtc = new byte[] { 0xea, 0x4e, 0x13, 0x84 };
-            
-            //this.ToRtc = toDateTime.GetRtcBytes(-1665586902).Reverse().ToArray();
-            //does this means "read to the last record on the pump"......?
             this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
-            this.HistoryDataType = (byte)historyDataType; // PUMP_DATA: 2,SENSOR_DATA: 3,
+            this.HistoryDataTypeRaw = (byte)historyDataType; // PUMP_DATA: 2,SENSOR_DATA: 3,
             this.Unknown = 0x04;
             this.Unknown3 = new byte[] { 0x00, 0x00 };
-            //this.Unknown2 = (new byte[] { 0xff, 0xff, 0xff, 0xff }).GetInt32(0);
         }
 
         public virtual void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            //this.From=new DateTimeDataType(FromRtc, settings.PumpTime.OffSet)
             this.FromDateTime = DateTimeExtension.GetDateTime(FromRtc, settings.PumpTime.OffSet);
             this.ToDateTime = DateTimeExtension.GetDateTime(ToRtc, settings.PumpTime.OffSet);
         }

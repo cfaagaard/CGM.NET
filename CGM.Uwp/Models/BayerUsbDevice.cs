@@ -151,7 +151,7 @@ namespace CGM.Uwp.Models
             }
 
             _device.InputReportReceived += _device_InputReportReceived;
-
+            
         }
 
         private void _device_InputReportReceived(HidDevice sender, HidInputReportReceivedEventArgs args)

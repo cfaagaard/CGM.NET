@@ -59,12 +59,43 @@ namespace CGM.Communication.Common
             }
         }
 
+        private byte[] MergeFrameBytes()
+        {
+            List<byte> newbytes = new List<byte>();
+            List<byte> start = new List<byte>();
+
+
+            foreach (var item in this.Frames)
+            {
+                List<byte> framebytes = new List<byte>();
+                framebytes.AddRange(item.Bytes);
+                if (start.Count==0)
+                {
+                    start.AddRange(framebytes.GetRange(0, 5));
+                }
+               
+                if (item.MoreBytes)
+                {
+                    newbytes.AddRange(framebytes.GetRange(5, framebytes.Count - 5));
+                }
+                else
+                {
+                    byte length = framebytes[4];
+                    newbytes.AddRange(framebytes.GetRange(5, length));
+                }
+            }
+            newbytes.InsertRange(0,start);
+            newbytes[4] = (byte)(newbytes.Count - 5);
+
+            return newbytes.ToArray();
+        }
+
         private void CreateMedtronicMessage()
         {
             Common.Serialize.Serializer serializer = new Common.Serialize.Serializer(_settings);
-
-            this.Bytes = serializer.Join(this.Frames.Select(e => e.Bytes).ToList());
+            this.Bytes = MergeFrameBytes();
             this.MedtronicMessage = serializer.Deserialize<AstmStart>(this.Bytes);
+           
         }
         public override string ToString()
         {

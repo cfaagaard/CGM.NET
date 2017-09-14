@@ -298,7 +298,8 @@ namespace CGM.Communication.MiniMed
                 {
                     //if in bad state.....
                     //await CloseAsync(cancelToken);
-                    throw new Exception("DeviceInfo not set.");
+                    this.Session.NeedResetCommunication = true;
+                    throw new Exception("Could not communicate with CNL. Please unplug CNL and plug it in again to reset CNL-communication. ");
                 }
                 else
                 {
@@ -608,8 +609,8 @@ namespace CGM.Communication.MiniMed
             var from = DateTime.Now.AddDays(-1 * days);
 
             from = from.AddDays(-1);
-            this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
-
+            //this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+            this.Session.PumpDataHistory.From = from;
             //this is not used yet. Defaults to 4*255 later in the code.
             this.Session.PumpDataHistory.To = DateTime.Now;
         }
@@ -633,20 +634,34 @@ namespace CGM.Communication.MiniMed
 
                 Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
 
-                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-                await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+                await StartReadHistoryByType(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
-                await StartReadHistoryInfoAsync(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-                await StartReadHistoryEvents(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+                await StartReadHistoryByType(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+
 
             }
         }
 
-        private async Task StartReadHistoryEvents(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
+        private async Task StartReadHistoryByType(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
+
+            await StartReadHistoryInfoAsync(from, to, historytype, cancelToken);
             await StartReadHistoryAsync(from, to, historytype, cancelToken);
+
+            await StartReadHistoryEvents(cancelToken);
+
+        }
+
+        private async Task StartReadHistoryEvents(CancellationToken cancelToken)
+        {
+       
             await StartMultiPacketAsync(new byte[] { 0x00, 0xff }, cancelToken);
             await EndMultiPacketAsync(new byte[] { 0x01, 0xff }, cancelToken);
+
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler !=null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
+            {
+                await StartReadHistoryEvents(cancelToken);
+            }
         }
 
 
@@ -654,6 +669,11 @@ namespace CGM.Communication.MiniMed
         {
             Logger.LogInformation($"ReadHistoryInfo: {historytype.ToString()}");
             await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(from, to, historytype), cancelToken);
+
+            if (Session.PumpDataHistory.MultiPacketHandlers.Count(e=>e.ReadInfoResponse.HistoryDataType==historytype)==0)
+            {
+                throw new Exception("Error reading historyInfo");
+            }
         }
 
         private async Task StartGetCarbRatio(CancellationToken cancelToken)
@@ -707,7 +727,10 @@ namespace CGM.Communication.MiniMed
 
             communicationBlock.TimeoutSeconds = (int)Math.Ceiling((Decimal)(expectedMessages / 4));
             //communicationBlock.LogDataRecieved = false;
-
+            if (communicationBlock.TimeoutSeconds<5)
+            {
+                communicationBlock.TimeoutSeconds = 5;
+            }
 
             Logger.LogInformation($"MultiPacket Start- expecting {expectedMessages} messages.");
             await StartCommunication(communicationBlock, cancelToken);
@@ -727,7 +750,7 @@ namespace CGM.Communication.MiniMed
             if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment != null)
             {
                 var segment = Session.PumpDataHistory.CurrentMultiPacketHandler.CurrentSegment;
-                Logger.LogInformation($"MultiPacket - got {segment.PumpStateHistory.Count} messages.");
+                Logger.LogInformation($"MultiPacket - got {segment.Packets.Count} messages.");
                 var list = segment.GetMissingSegments();
                 if (list.Count > 0)
                 {

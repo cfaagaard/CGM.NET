@@ -116,6 +116,9 @@ namespace CGM.Communication.Data.Nightscout
 
         private string _device;
 
+        [Newtonsoft.Json.JsonProperty("uniqueReference", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string UniqueReference { get; set; }
+
         /// <summary>sgv, mbg, cal, etc</summary>
         [Newtonsoft.Json.JsonProperty("device", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Device
@@ -148,6 +151,7 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
+
         private double? _mbg;
         [Newtonsoft.Json.JsonProperty("mbg", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Mbg
@@ -168,11 +172,13 @@ namespace CGM.Communication.Data.Nightscout
 
     public partial class Treatment
     {
-       
+
+        [Newtonsoft.Json.JsonProperty("reference", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Reference { get; set; }
+
         [JsonIgnore]
         public Notification Notification { get; set; } = new Notification();
 
-        public string Reference { get; set; }
     }
 }
 

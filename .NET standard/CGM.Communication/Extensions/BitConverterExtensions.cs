@@ -18,6 +18,8 @@ namespace CGM.Communication.Extensions
             return BitConverter.ToUInt32(bytes.Skip(startIndex).Take(4).Reverse().ToArray(), 0);
         }
 
+
+
         public static Int16 GetInt16BigE(this byte[] bytes, int startIndex)
         {
             return BitConverter.ToInt16(bytes.Skip(startIndex).Take(2).Reverse().ToArray(), 0);
@@ -33,6 +35,11 @@ namespace CGM.Communication.Extensions
             return BitConverter.ToInt64(bytes.Skip(startIndex).Take(8).Reverse().ToArray(), 0);
         }
 
+
+        public static UInt64 GetUInt64BigE(this byte[] bytes, int startIndex)
+        {
+            return BitConverter.ToUInt64(bytes.Skip(startIndex).Take(8).Reverse().ToArray(), 0);
+        }
 
         public static UInt16 GetUInt16(this byte[] bytes, int startIndex)
         {

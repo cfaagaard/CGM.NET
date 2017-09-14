@@ -24,7 +24,7 @@ namespace CGM.Communication.MiniMed.Requests
         public byte[] PumpMac { get; set; }
 
         [BinaryElement(28)]
-       [BinaryElementLogicCrc16Ciit]
+        [BinaryElementLogicCrc16Ciit]
         public byte[] Crc16citt { get; set; }
 
 

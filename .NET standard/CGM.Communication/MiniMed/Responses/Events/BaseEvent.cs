@@ -25,6 +25,17 @@ namespace CGM.Communication.MiniMed.Responses.Events
         public int Offset { get; set; }
         public DateTime? Timestamp { get { return DateTimeExtension.GetDateTime(this.Rtc, this.Offset); } }
 
+        private string _uniqueReference;
+        public string UniqueReference { get {
+
+                if (string.IsNullOrEmpty(_uniqueReference))
+                {
+                    //using this as unique "primarykey" for this event. RTC+eventtype. It should be unique......
+                    _uniqueReference = string.Format("{0}_{1}", this.Rtc.ToString(), this.EventTypeRaw.ToString());
+                }
+                return _uniqueReference;
+            } }
+
         [BinaryElement(11)]
         [MessageType(typeof(SENSOR_GLUCOSE_READINGS_EXTENDED_Event), nameof(EventType), EventTypeEnum.SENSOR_GLUCOSE_READINGS_EXTENDED)]
         [MessageType(typeof(BOLUS_WIZARD_ESTIMATE_Event), nameof(EventType), EventTypeEnum.BOLUS_WIZARD_ESTIMATE)]
@@ -37,6 +48,8 @@ namespace CGM.Communication.MiniMed.Responses.Events
         
         public byte[] AllBytes { get; set; }
         public byte[] AllBytesE { get; set; }
+
+        public int Index { get; set; }
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {

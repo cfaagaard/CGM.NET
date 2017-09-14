@@ -10,7 +10,7 @@ namespace CGM.Communication.MiniMed.Responses
     public class PumpTimeMessage : IBinaryType, IBinaryDeserializationSetting
     {
         [BinaryElement(0)]
-        public byte Unknown1 { get; set; }
+        public byte TimeSet { get; set; }
 
         [BinaryElement(1)]
         public byte[] Rtc { get; set; }

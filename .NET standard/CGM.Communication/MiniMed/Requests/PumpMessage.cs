@@ -27,6 +27,7 @@ namespace CGM.Communication.MiniMed.Requests
         public object Message { get; set; }
 
         [BinaryElement(1000, Length = 2)]
+        //[BinaryElement(0, Direction = DirectionEnum.Reverse, Length = 2)]
         [BinaryElementLogicCrc16Ciit]
         public byte[] Crc16citt { get; set; }
 
