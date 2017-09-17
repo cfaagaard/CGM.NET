@@ -66,22 +66,28 @@
      
 
 
-                            <StackPanel Orientation="Horizontal">
+                            <!--<StackPanel Orientation="Horizontal">
                                 <TextBlock  Margin="0,5,10,0"    x:Uid="Settings_history" Text="Include history (Beta)" Style="{StaticResource BodyTextStyle}"/>
                                 <ToggleSwitch  x:Uid="Settings_historyToggle"  IsOn="{x:Bind ViewModel.IncludeHistory, Mode=TwoWay}"/>
-                            </StackPanel>
+                            </StackPanel>-->
                             <StackPanel Orientation="Vertical" x:Name="numberofdays" >
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,0" x:Name="TheLastReading">
+                                <!--<StackPanel Orientation="Horizontal" Margin="0,0,0,0" x:Name="TheLastReading">
                                     <TextBlock   Margin="0,5,10,0"   x:Uid="Settings_OnlyFromTheLastReading" Text="Only from last reading (from NS))" Style="{StaticResource BodyTextStyle}"/>
                                     <ToggleSwitch  x:Uid="Settings_OnlyFromTheLastReadinge"  IsOn="{x:Bind ViewModel.OnlyFromTheLastReading, Mode=TwoWay}"/>
-                                </StackPanel>
+                                </StackPanel>-->
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock   Margin="0,5,10,0"   x:Uid="Settings_interval" Text="Number of days in history (Beta)" Style="{StaticResource BodyTextStyle}"/>
                                     <TextBox x:Name="txtHistoryDaysBack"  Text="{x:Bind ViewModel.HistoryDaysBack, Mode=TwoWay}"></TextBox>
                                 </StackPanel>
 
-
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock   Margin="0,5,10,0"   x:Uid="Settings_interval" Text="Clear history" Style="{StaticResource BodyTextStyle}"/>
+                                    <Button ToolTipService.ToolTip="Clear" Command="{x:Bind ViewModel.ClearHistoryCommand}" >Clear</Button>
+                                </StackPanel>
                             </StackPanel>
+
+
+                            
                             <Interactivity:Interaction.Behaviors>
                                 <Core:DataTriggerBehavior Binding="{Binding IncludeHistory, Mode=TwoWay}" Value="False">
                                     <Core:ChangePropertyAction TargetObject="{Binding ElementName=numberofdays}" PropertyName="Visibility" Value="Collapsed" />

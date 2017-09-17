@@ -16,7 +16,11 @@ namespace CGM.Communication.MiniMed.Requests
 
         }
 
-        public ReadHistoryRequest(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType,byte[] offset) : base(fromDateTime, toDateTime, historyDataType, offset)
+        public ReadHistoryRequest(DateTime fromDateTime, HistoryDataTypeEnum historyDataType,byte[] offset) : base(fromDateTime, historyDataType, offset)
+        {
+        }
+
+        public ReadHistoryRequest(int fromRtc, HistoryDataTypeEnum historyDataType) : base(fromRtc, historyDataType)
         {
         }
 
@@ -55,33 +59,31 @@ namespace CGM.Communication.MiniMed.Requests
 
         public DateTime? FromDateTime { get; set; }
 
-        public DateTime? ToDateTime { get; set; }
-
-
-        //public DateTimeDataType From { get; set; }
-        //public DateTimeDataType To { get; set; }
-
         public ReadHistoryInfoRequest()
         {
 
         }
 
-        public ReadHistoryInfoRequest(DateTime fromDateTime, DateTime toDateTime,HistoryDataTypeEnum historyDataType,byte[] offset)
+        public ReadHistoryInfoRequest(DateTime fromDateTime,HistoryDataTypeEnum historyDataType,byte[] offset):this(fromDateTime.GetRtcBytes(offset).GetInt32(0),historyDataType)
         {
             this.FromDateTime = fromDateTime;
-            this.ToDateTime = toDateTime;
-
             this.FromRtc = fromDateTime.GetRtcBytes(offset);
-            this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
-            this.HistoryDataTypeRaw = (byte)historyDataType; // PUMP_DATA: 2,SENSOR_DATA: 3,
+         
+       
+        }
+
+        public ReadHistoryInfoRequest(int fromRtc, HistoryDataTypeEnum historyDataType)
+        {
+            this.FromRtc =BitConverter.GetBytes(fromRtc);
+            this.HistoryDataTypeRaw = (byte)historyDataType; 
             this.Unknown = 0x04;
             this.Unknown3 = new byte[] { 0x00, 0x00 };
+            this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
         }
 
         public virtual void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            this.FromDateTime = DateTimeExtension.GetDateTime(FromRtc, settings.PumpTime.OffSet);
-            this.ToDateTime = DateTimeExtension.GetDateTime(ToRtc, settings.PumpTime.OffSet);
+            this.FromDateTime = settings.PumpTime.GetDateTime(FromRtc);
         }
 
 

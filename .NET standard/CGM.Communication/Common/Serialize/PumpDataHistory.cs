@@ -20,8 +20,8 @@ namespace CGM.Communication.Common.Serialize
       
         public List<MultiPacketHandler> MultiPacketHandlers { get; set; } = new List<MultiPacketHandler>();
 
-        public DateTime? From { get; set; }
-        public DateTime? To { get; set; }
+        //public DateTime? From { get; set; }
+        //public DateTime? To { get; set; }
 
         public PumpDataHistory(SerializerSession session)
         {
@@ -67,7 +67,11 @@ namespace CGM.Communication.Common.Serialize
 
         public void GetHistoryEvents()
         {
-            MultiPacketHandlers.ForEach(e => e.GetHistoryEvents());
+            if (MultiPacketHandlers!=null && MultiPacketHandlers.Count>0)
+            {
+                MultiPacketHandlers.ForEach(e => e.GetHistoryEvents());
+            }
+            
         }
 
         public override string ToString()

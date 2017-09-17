@@ -560,82 +560,92 @@ namespace CGM.Communication.MiniMed
         }
 
 
-        private async Task SetDates()
-        {
-            //last upload to nightscout
-            //should be an option
-            DateTime? lastSvgUploadDateTime = null;
-            double hours = 0;
-            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
-            {
-                lastSvgUploadDateTime = await uow.Nightscout.LastSvgUpload(this.Session.Settings.NightscoutApiUrl, this.Session.Settings.NightscoutSecretkey);
-            }
+        //private async Task SetDates()
+        //{
+        //    //last upload to nightscout
+        //    //should be an option
+        //    DateTime? lastSvgUploadDateTime = null;
+        //    double hours = 0;
+        //    using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+        //    {
+        //        lastSvgUploadDateTime = await uow.Nightscout.LastSvgUpload(this.Session.Settings.NightscoutApiUrl, this.Session.Settings.NightscoutSecretkey);
+        //    }
 
-            if (lastSvgUploadDateTime.HasValue)
-            {
-                hours = lastSvgUploadDateTime.Value.Subtract(DateTime.Now).TotalHours;
+        //    if (lastSvgUploadDateTime.HasValue)
+        //    {
+        //        hours = lastSvgUploadDateTime.Value.Subtract(DateTime.Now).TotalHours;
 
-            }
-            else
-            {
-                hours = -24;
-            }
+        //    }
+        //    else
+        //    {
+        //        hours = -24;
+        //    }
 
-            DateTime from = DateTime.Now.AddHours(hours);
+        //    DateTime from = DateTime.Now.AddHours(hours);
 
-            //in carelink upload (from wireshark dumps) it looks like it always defaults to midnight before the date set in readinfo
-            //maybe we do not need this. Test it.
-            from = from.AddDays(-1);
-            this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+        //    //in carelink upload (from wireshark dumps) it looks like it always defaults to midnight before the date set in readinfo
+        //    //maybe we do not need this. Test it.
+        //    from = from.AddDays(-1);
+        //    this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
 
-            //this is not used yet. Defaults to 4*255 later in the code.
-            this.Session.PumpDataHistory.To = DateTime.Now;
+        //    //this is not used yet. Defaults to 4*255 later in the code.
+        //    this.Session.PumpDataHistory.To = DateTime.Now;
 
-        }
+        //}
 
-        private void SetDatesDays(int days)
-        {
-            var from = DateTime.Now.AddDays(-1 * days);
+        //private void SetDatesDays(int days)
+        //{
+        //    var from = DateTime.Now.AddDays(-1 * days);
 
-            from = from.AddDays(-1);
-            //this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
-            this.Session.PumpDataHistory.From = from;
-            //this is not used yet. Defaults to 4*255 later in the code.
-            this.Session.PumpDataHistory.To = DateTime.Now;
-        }
+        //    from = from.AddDays(-1);
+        //    //this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
+        //    this.Session.PumpDataHistory.From = from;
+        //    //this is not used yet. Defaults to 4*255 later in the code.
+        //    this.Session.PumpDataHistory.To = DateTime.Now;
+
+
+        //    //new settings....
+        //    //testing
+
+            
+        //}
 
         private async Task StartReadHistory(CancellationToken cancelToken)
         {
-            if (Session.Settings.OtherSettings.OnlyFromTheLastReading)
-            {
-                await SetDates();
-            }
-            else
-            {
-                SetDatesDays(Session.Settings.OtherSettings.HistoryDaysBack);
-            }
+            //if (Session.Settings.OtherSettings.OnlyFromTheLastReading)
+            //{
+            //    await SetDates();
+            //}
+            //else
+            //{
+            //    SetDatesDays(Session.Settings.OtherSettings.HistoryDaysBack);
+            //}
 
 
-            if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
-            {
-                DateTime from = Session.PumpDataHistory.From.Value;
-                DateTime to = Session.PumpDataHistory.To.Value;
+            //if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
+            //{
+                //DateTime from = Session.PumpDataHistory.From.Value;
+                //DateTime to = Session.PumpDataHistory.To.Value;
 
-                Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
-
-                await StartReadHistoryByType(from, to, HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-
-                await StartReadHistoryByType(from, to, HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+                //Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
 
 
-            }
+
+                await StartReadHistoryByType(HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+
+                await StartReadHistoryByType(HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+
+
+            //}
         }
 
-        private async Task StartReadHistoryByType(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
+
+
+        private async Task StartReadHistoryByType(HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
 
-            await StartReadHistoryInfoAsync(from, to, historytype, cancelToken);
-            await StartReadHistoryAsync(from, to, historytype, cancelToken);
+            await StartReadHistoryInfoAsync(historytype, cancelToken);
+            await StartReadHistoryAsync(historytype, cancelToken);
 
             await StartReadHistoryEvents(cancelToken);
 
@@ -647,44 +657,26 @@ namespace CGM.Communication.MiniMed
             await StartMultiPacketAsync(new byte[] { 0x00, 0xff }, cancelToken);
             await EndMultiPacketAsync(new byte[] { 0x01, 0xff }, cancelToken);
 
-            //if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
-            //{
-            //    if (!cancelToken.IsCancellationRequested && !this._communicationBlock.Erorrs)
-            //    {
-            //        await StartReadHistoryEvents(cancelToken);
-            //    }
-            
-            //}
+            if (Session.PumpDataHistory.CurrentMultiPacketHandler != null && Session.PumpDataHistory.CurrentMultiPacketHandler.WaitingForSegment)
+            {
+                if (!cancelToken.IsCancellationRequested && !this._communicationBlock.Erorrs)
+                {
+                    await StartReadHistoryEvents(cancelToken);
+                }
+
+            }
         }
 
-
-        private async Task StartReadHistoryInfoAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
+        private async Task StartReadHistoryInfoAsync(HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
             Logger.LogInformation($"ReadHistoryInfo: {historytype.ToString()}");
-            await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(from, to, historytype), cancelToken);
+            await StartCommunicationStandardResponse(Session.GetReadHistoryInfo(historytype), cancelToken);
 
             if (Session.PumpDataHistory.MultiPacketHandlers.Count(e => e.ReadInfoResponse.HistoryDataType == historytype) == 0)
             {
                 throw new Exception("Error reading historyInfo");
             }
         }
-
-        //private async Task StartGetCarbRatio(CancellationToken cancelToken)
-        //{
-
-        //    DateTime lastReadDateTime = DateTime.Now;
-        //    Logger.LogInformation("ReadCarbRatio");
-        //    await StartCommunicationStandardResponse(Session.GetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST), cancelToken);
-        //}
-
-        //private async Task StartGetBgTargets(CancellationToken cancelToken)
-        //{
-
-        //    DateTime lastReadDateTime = DateTime.Now;
-        //    Logger.LogInformation("ReadCarbRatio");
-        //    await StartCommunicationStandardResponse(Session.GetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST), cancelToken);
-        //}
-
 
         private async Task StartGetSetting(AstmSendMessageType type, CancellationToken cancelToken)
         {
@@ -694,14 +686,14 @@ namespace CGM.Communication.MiniMed
             await StartCommunicationStandardResponse(Session.GetSetting(type), cancelToken);
         }
 
-        private async Task StartReadHistoryAsync(DateTime from, DateTime to, HistoryDataTypeEnum historytype, CancellationToken cancelToken)
+        private async Task StartReadHistoryAsync(HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
             Logger.LogInformation($"ReadHistory: {historytype.ToString()}");
 
             int expectedSize = this.Session.PumpDataHistory.GetSize(historytype);
 
             CommunicationBlock communicationBlock = new CommunicationBlock();
-            communicationBlock.Request = Session.GetReadHistory(from, to, historytype, expectedSize);
+            communicationBlock.Request = Session.GetReadHistory(historytype, expectedSize);
             communicationBlock.ExpectedResponses.Add(new SendMessageResponsePattern());
             communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
             communicationBlock.ExpectedResponses.Add(new RecieveMessageResponsePattern());
@@ -742,7 +734,7 @@ namespace CGM.Communication.MiniMed
                 communicationBlock.TimeoutSeconds = 5;
             }
 
-            Logger.LogInformation($"MultiPacket Start- expecting {expectedMessages} messages.");
+            Logger.LogInformation($"MultiPacket Start- expecting {expectedMessages} packets.");
             await StartCommunication(communicationBlock, cancelToken);
 
             //get  missing segments

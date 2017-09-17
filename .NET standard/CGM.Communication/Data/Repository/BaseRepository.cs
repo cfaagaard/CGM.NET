@@ -19,6 +19,12 @@ namespace CGM.Communication.Data.Repository
             _uow = uow;
         }
 
+        public void AddRange(IEnumerable<T> entities)
+        {
+            var s = _uow.Connection.InsertAll(entities);
+
+        }
+
         public void Add(T entity)
         {
             var s = _uow.Connection.Insert(entity);
@@ -32,6 +38,11 @@ namespace CGM.Communication.Data.Repository
         public void Remove(T entity)
         {
             var s = _uow.Connection.Delete(entity);
+        }
+
+        public void Clear()
+        {
+            var s = _uow.Connection.DeleteAll<T>();
         }
 
         private bool disposed = false;

@@ -53,7 +53,7 @@ namespace CGM.Communication.Data.Repository
 
         }
 
-        
+
 
         public async Task<SerializerSession> GetPumpDataAndUploadAsync(IDevice device, int uploaderBattery, CancellationToken cancelToken)
         {
@@ -66,12 +66,13 @@ namespace CGM.Communication.Data.Repository
                     if (!cancelToken.IsCancellationRequested && session.CanSaveSession)
                     {
                         await SaveSession(session);
+                        _uow.History.SaveHistory(session);
 
                         if (session.RadioChannel != 0x00)
                         {
                             try
                             {
-                                await _uow.Nightscout.UploadToNightScout(session, cancelToken).TimeoutAfter(5000);
+                                await _uow.Nightscout.UploadToNightScout(session, cancelToken).TimeoutAfter(15000);
                             }
                             catch (Exception ex)
                             {
@@ -79,7 +80,7 @@ namespace CGM.Communication.Data.Repository
                                 //no connection to azure website
                                 Logger.LogError($"Error in upload: {ex.Message}");
                             }
-                            
+
                         }
                     }
                 }
@@ -96,11 +97,9 @@ namespace CGM.Communication.Data.Repository
         public async Task SaveSession(SerializerSession session)
         {
             _uow.Device.AddUpdateSessionToDevice(session);
-
-
-
         }
 
-       
+
+
     }
 }

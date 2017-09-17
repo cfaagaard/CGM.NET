@@ -8,8 +8,8 @@ namespace CGM.Communication.Common.Serialize
 {
     public class Segment
     {
-        private Serializer _serializer;
-
+     
+        private MultiPacketHandler _handler;
         public List<byte> Block { get; set; }= new List<byte>();
 
         public ushort Datasize { get; set; }
@@ -22,9 +22,9 @@ namespace CGM.Communication.Common.Serialize
 
         public bool IsBlockDataCorrect { get; set; }
 
-        public Segment(byte[] block, Serializer serializer)
+        public Segment(byte[] block, MultiPacketHandler handler)
         {
-            _serializer = serializer;
+            _handler = handler;
 
             Block.AddRange(block);
 
@@ -63,8 +63,9 @@ namespace CGM.Communication.Common.Serialize
            
             try
             {
-                var eventmessage = _serializer.Deserialize<PumpEvent>(bytesMessage);
+                var eventmessage = _handler._seri.Deserialize<PumpEvent>(bytesMessage);
                 eventmessage.Index = start;
+                eventmessage.HistoryDataType = _handler.ReadInfoResponse.HistoryDataTypeRaw;
                 Events.Add(eventmessage);
 
                 int newstart = start + length;

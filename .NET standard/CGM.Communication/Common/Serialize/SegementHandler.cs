@@ -57,6 +57,15 @@ namespace CGM.Communication.Common.Serialize
                 return;
             }
 
+            //check length and packet number is ok
+
+            //var numbers=this.Packets.Select(e => e.PacketNumber);
+
+            //for (int i = 0; i < this.Packets.Count; i++)
+            //{
+
+            //}
+            
 
             foreach (var item in this.Packets.OrderBy(e => e.PacketNumber))
             {
@@ -65,11 +74,31 @@ namespace CGM.Communication.Common.Serialize
 
                 if (item.PacketNumber != this.Init.PacketsToFetch - 1)
                 {
-                    Bytes.AddRange(temp.GetRange(0, this.Init.PacketSize));
+                    if (temp.Count>= this.Init.PacketSize)
+                    {
+                        Bytes.AddRange(temp.GetRange(0, this.Init.PacketSize));
+                    }
+                    else
+                    {
+                        Logger.LogError($"Wrong length of bytes in packetnumber  {item.PacketNumber} (expected {temp.Count}/{ this.Init.PacketSize})");
+                        Errors = true;
+                        return;
+                    }
+                    
                 }
                 else
                 {
-                    Bytes.AddRange(temp.GetRange(0, this.Init.LastPacketSize));
+                    if (temp.Count >= this.Init.LastPacketSize)
+                    {
+                        Bytes.AddRange(temp.GetRange(0, this.Init.LastPacketSize));
+                    }
+                    else
+                    {
+                        Logger.LogError($"Wrong length of bytes in packetnumber  {item.PacketNumber} (expected {temp.Count}/{ this.Init.PacketSize})");
+                        Errors = true;
+                        return;
+                    }
+                    
                 }
             }
 
@@ -135,7 +164,7 @@ namespace CGM.Communication.Common.Serialize
             for (int i = 0; i < length; i++)
             {
                 var blockData = blockpayload.ToList().GetRange(i * block_size, block_size);
-                Segments.Add(new Segment(blockData.ToArray(), _handler._seri));
+                Segments.Add(new Segment(blockData.ToArray(), _handler));
             }
 
             this.Segments.Where(e => e.IsBlockDataCorrect).ToList().ForEach(e => e.GetEvents());

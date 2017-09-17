@@ -8,12 +8,15 @@ using System.Text;
 using CGM.Communication.Data;
 using CGM.Communication.Extensions;
 using System.Threading.Tasks;
+using System.Linq;
+using CGM.Communication.Log;
+using Microsoft.Extensions.Logging;
 
 namespace CGM.Communication.Common.Serialize
 {
     public class SerializerSession
     {
-
+        protected ILogger Logger = ApplicationLogging.CreateLogger<SerializerSession>();
         private char fieldDelimeter = ';';
         private char keyvalueDelimeter = ':';
 
@@ -298,31 +301,6 @@ namespace CGM.Communication.Common.Serialize
             return GetPumpEnvelope(0x80, AstmSendMessageType.HIGH_SPEED_MODE_COMMAND, new byte[] { 0x00 });
         }
 
-
-
-        //public AstmStart GetPumpTime()
-        //{
-
-        //    return GetPumpEnvelope(AstmSendMessageType.TIME_REQUEST);
-        //}
-
-        //public AstmStart GetCarbRatio()
-        //{
-
-        //    return GetPumpEnvelope(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST);
-        //}
-
-        //public AstmStart GetBgTargets()
-        //{
-
-        //    return GetPumpEnvelope(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST);
-        //}
-
-        //public AstmStart GetPumpData()
-        //{
-        //    return GetPumpEnvelope(AstmSendMessageType.READ_PUMP_STATUS_REQUEST);
-        //}
-
         public AstmStart GetSetting(AstmSendMessageType type)
         {
             return GetPumpEnvelope(type);
@@ -333,14 +311,17 @@ namespace CGM.Communication.Common.Serialize
             return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST, BitConverter.GetBytes(patternNumber));
         }
 
-        public AstmStart GetReadHistoryInfo(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType)
+        public AstmStart GetReadHistoryInfo(HistoryDataTypeEnum historyDataType)
         {
             try
             {
                 if (this.PumpTime != null && this.PumpTime.OffSet.Length == 4)
                 {
+                    int lastRtc = GetLastRtc(historyDataType);
+                    
+                    Logger.LogInformation($"Getting history for {historyDataType.ToString()} from {this.PumpTime.GetDateTime(BitConverter.GetBytes(lastRtc)).ToString()}");
                     AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_INFO_REQUEST);
-                    ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet);
+                    ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryInfoRequest(lastRtc, historyDataType);
                     return msg;
                 }
 
@@ -354,12 +335,28 @@ namespace CGM.Communication.Common.Serialize
         }
 
 
-        public AstmStart GetReadHistory(DateTime fromDateTime, DateTime toDateTime, HistoryDataTypeEnum historyDataType, int expectedSize)
+        private int GetLastRtc(HistoryDataTypeEnum historyDataType)
+        {
+            var lastRead = this.Settings.OtherSettings.LastRead.FirstOrDefault(e => e.DataType == (int)historyDataType);
+            int lastRtc = 0;
+            if (lastRead == null)
+            {
+                lastRtc = DateTime.Now.AddDays(-1 * this.Settings.OtherSettings.HistoryDaysBack).GetRtcBytes(this.PumpTime.OffSet).GetInt32(0);
+            }
+            else
+            {
+                lastRtc = lastRead.LastRtc;
+            }
+            return lastRtc;
+        }
+
+        public AstmStart GetReadHistory(HistoryDataTypeEnum historyDataType, int expectedSize)
         {
             if (this.PumpTime != null && this.PumpTime.OffSet.Length == 4)
             {
+                int lastRtc = GetLastRtc(historyDataType);
                 AstmStart msg = GetPumpEnvelope(AstmSendMessageType.READ_HISTORY_REQUEST);
-                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(fromDateTime, toDateTime, historyDataType, this.PumpTime.OffSet);
+                ((PumpEnvelope)((MedtronicMessage2)msg.Message2).Message).Message.Message = new ReadHistoryRequest(lastRtc,historyDataType);
                 return msg;
             }
             return null;

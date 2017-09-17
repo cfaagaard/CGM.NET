@@ -39,7 +39,11 @@ namespace CGM.Communication.Common.Serialize
 
         public void GetHistoryEvents()
         {
-            Segments.ForEach(e => e.GetHistoryEvents());
+            if (Segments!=null && Segments.Count>0)
+            {
+                Segments.ForEach(e => e.GetHistoryEvents());
+            }
+           
         }
 
         public List<PumpEvent> JoinAllEvents()

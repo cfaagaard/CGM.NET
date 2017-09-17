@@ -37,6 +37,15 @@ namespace CGM.Communication.MiniMed.Responses
             }
         }
 
+        public DateTime? GetDateTime(byte[] Rtc)
+        {
+            if (Rtc != null && this.OffSet != null)
+            {
+                return DateTimeExtension.GetDateTime(Rtc, this.OffSet);
+            }
+            return null;
+        }
+
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             settings.PumpTime = this;

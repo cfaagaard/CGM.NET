@@ -25,16 +25,8 @@ namespace CGM.Communication.MiniMed.Responses.Events
         public int Offset { get; set; }
         public DateTime? Timestamp { get { return DateTimeExtension.GetDateTime(this.Rtc, this.Offset); } }
 
-        private string _uniqueReference;
-        public string UniqueReference { get {
 
-                if (string.IsNullOrEmpty(_uniqueReference))
-                {
-                    //using this as unique "primarykey" for this event. RTC+eventtype. It should be unique......
-                    _uniqueReference = string.Format("{0}_{1}", this.Rtc.ToString(), this.EventTypeRaw.ToString());
-                }
-                return _uniqueReference;
-            } }
+
 
         [BinaryElement(11)]
         [MessageType(typeof(SENSOR_GLUCOSE_READINGS_EXTENDED_Event), nameof(EventType), EventTypeEnum.SENSOR_GLUCOSE_READINGS_EXTENDED)]
@@ -43,23 +35,41 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [MessageType(typeof(ALARM_NOTIFICATION_Event), nameof(EventType), EventTypeEnum.ALARM_NOTIFICATION)]
         [MessageType(typeof(BG_READING_Event), nameof(EventType), EventTypeEnum.BG_READING)]
         [MessageType(typeof(BaseEvent))]
-        [BinaryPropertyValueTransfer(ChildPropertyName = nameof(Timestamp),ParentPropertyName = nameof(Timestamp))]
+        [BinaryPropertyValueTransfer(ChildPropertyName = nameof(Timestamp), ParentPropertyName = nameof(Timestamp))]
         public BaseEvent Message { get; set; }
-        
+
         public byte[] AllBytes { get; set; }
         public byte[] AllBytesE { get; set; }
-
+        public string BytesAsString { get; set; }
         public int Index { get; set; }
+
+        private string _key;
+        public string Key
+        {
+            get
+            {
+
+                if (string.IsNullOrEmpty(_key))
+                {
+                    string bytes = BytesAsString.Remove(20, 12);
+                    _key = string.Format("{0}_{1}", HistoryDataType, bytes);
+                }
+                return _key;
+            }
+        }
+
+        public int HistoryDataType { get; set; }
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             this.AllBytes = bytes;
             this.AllBytesE = bytes.Reverse().ToArray();
+            this.BytesAsString = BitConverter.ToString(AllBytes);
         }
 
         public override string ToString()
         {
-            if (this.Message!=null)
+            if (this.Message != null)
             {
                 return $"{Timestamp.Value} - {EventType.ToString()} - {this.Message.ToString()}";
             }
@@ -67,7 +77,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
             {
                 return $"{Timestamp.Value} - {EventType.ToString()}";
             }
-        
+
         }
 
     }

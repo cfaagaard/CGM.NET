@@ -15,44 +15,76 @@ namespace CGM.Communication.Extensions
 
         public static byte[] JoinToArray(this List<byte[]> bytes)
         {
-            if (bytes != null && bytes.Count > 0)
+            List<byte> newbytes = new List<byte>();
+            List<byte> start = new List<byte>();
+
+
+            foreach (var item in bytes)
             {
-                List<byte> newbytes = new List<byte>();
-                newbytes.AddRange(bytes[0]);
-                if (bytes.Count > 1)
+                List<byte> framebytes = new List<byte>();
+                framebytes.AddRange(item);
+                if (start.Count == 0)
                 {
-                    for (int i = 1; i < bytes.Count; i++)
-                    {
-                        List<byte> newlist = new List<byte>(bytes[i]);
-
-
-                        var j = newlist.Count - 1;
-                        while (newlist[j] == 0)
-                        {
-                            --j;
-                        }
-                        var temp = new byte[j + 1];
-
-                        Array.Copy(newlist.ToArray(), temp, j + 1);
-
-                        var list = temp.ToList();
-                        list.RemoveRange(0, 5);
-                        newbytes.AddRange(list);
-                    }
-                    newbytes[4] = (byte)(newbytes.Count - 5);
+                    start.AddRange(framebytes.GetRange(0, 5));
                 }
-                var data = newbytes.ToArray();
-                bool data_found = false;
-                byte[] new_data = data.Reverse().SkipWhile(point =>
-                {
-                    if (data_found) return false;
-                    if (point == 0x00) return true; else { data_found = true; return false; }
-                }).Reverse().ToArray();
 
-                return new_data;
+                if (item[5]==0x3c)
+                {
+                    newbytes.AddRange(framebytes.GetRange(5, framebytes.Count - 5));
+                }
+                else
+                {
+                    byte length = framebytes[4];
+                    newbytes.AddRange(framebytes.GetRange(5, length));
+                }
             }
-            return null;
+            newbytes.InsertRange(0, start);
+            newbytes[4] = (byte)(newbytes.Count - 5);
+
+            return newbytes.ToArray();
         }
+
+
+        //public static byte[] JoinToArray2(this List<byte[]> bytes)
+        //{
+        //    if (bytes != null && bytes.Count > 0)
+        //    {
+        //        List<byte> newbytes = new List<byte>();
+        //        newbytes.AddRange(bytes[0]);
+        //        if (bytes.Count > 1)
+        //        {
+        //            for (int i = 1; i < bytes.Count; i++)
+        //            {
+        //                List<byte> newlist = new List<byte>(bytes[i]);
+
+
+        //                var j = newlist.Count - 1;
+        //                while (newlist[j] == 0)
+        //                {
+        //                    --j;
+        //                }
+        //                var temp = new byte[j + 1];
+
+        //                Array.Copy(newlist.ToArray(), temp, j + 1);
+
+        //                var list = temp.ToList();
+        //                list.RemoveRange(0, 5);
+        //                newbytes.AddRange(list);
+        //            }
+        //            newbytes[4] = (byte)(newbytes.Count - 5);
+        //        }
+        //        var data = newbytes.ToArray();
+        //        bool data_found = false;
+        //        byte[] new_data = data.Reverse().SkipWhile(point =>
+        //        {
+        //            if (data_found) return false;
+        //            if (point == 0x00) return true; else { data_found = true; return false; }
+        //        }).Reverse().ToArray();
+
+        //        return new_data;
+        //    }
+        //    return null;
+        //}
 
         public static IEnumerable<List<byte>> SplitList(this List<byte> list, int nSize)
         {

@@ -183,17 +183,31 @@ namespace CGM.Uwp.ViewModels
 
         public ICommand SwitchThemeCommand { get; private set; }
         public ICommand GetDevicesCommand { get; private set; }
+
+        public ICommand ClearHistoryCommand { get; private set; }
+
         public SettingsViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
             SwitchThemeCommand = new RelayCommand(async () => { await ThemeSelectorService.SwitchThemeAsync(); });
             this.GetDevicesCommand = new RelayCommand(() => this.GetDevices());
+
+            this.ClearHistoryCommand = new RelayCommand(() => this.ClearHistory());
             using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
             {
                 _setting = uow.Setting.GetSettings();
             }
             GetDevices();
             this.LocalPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+        }
+
+        private void ClearHistory()
+        {
+            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+            {
+                uow.History.ResetHistory();
+            }
+            _dialogService.ShowMessage("History has been cleared.","Clear history");
         }
 
         private void GetDevices()

@@ -12,7 +12,7 @@ namespace CGM.Communication.Data.Repository
     public class CgmUnitOfWork : IDisposable
     {
         protected ILogger Logger = ApplicationLogging.CreateLogger<BaseRepository<CgmUnitOfWork>>();
-        private int _currentDBVersion = 10;
+        private int _currentDBVersion = 12;
         public static string DatabaseName { get { return @"CgmData.db"; } }
 
         private SQLiteConnection _connection;
@@ -24,6 +24,11 @@ namespace CGM.Communication.Data.Repository
         public NightscoutRepository Nightscout { get; set; }
         public PumpRepository Pump { get; set; }
         public CommunicationMessageRepository CommunicationMessage { get; set; }
+        public HistoryStatusRepository HistoryStatus { get; set; }
+
+
+        public HistoryRepository History { get; set; }
+
         public CgmUnitOfWork(string databasePath)
         {
            string path= Path.Combine(databasePath, DatabaseName);
@@ -34,6 +39,8 @@ namespace CGM.Communication.Data.Repository
             Nightscout = new NightscoutRepository(this);
             Pump = new PumpRepository(this);
             CommunicationMessage = new CommunicationMessageRepository(this);
+            History = new HistoryRepository(this);
+            HistoryStatus = new HistoryStatusRepository(this);
         }
 
         public CgmUnitOfWork():this("")
@@ -46,9 +53,8 @@ namespace CGM.Communication.Data.Repository
 
             _connection.CreateTable<Device>();
             _connection.CreateTable<Setting>();
-            //_connection.CreateTable<CommunicationMessage>();
-            //_connection.CreateTable<CommunicationMessageTemp>();
-
+            _connection.CreateTable<History>();
+            _connection.CreateTable<HistoryStatus>();
             string sql = "INSERT INTO Setting(SettingId,DatabaseVersion) VALUES(1,0);";
 
             var command = _connection.CreateCommand(sql);
@@ -60,11 +66,8 @@ namespace CGM.Communication.Data.Repository
         {
             this.Device.ReCreateTable(exportPath);
             this.Setting.ReCreateTable(exportPath);
-            //this.CommunicationMessage.ReCreateTable(exportPath);
-
-            //this.Connection.DropTable<CommunicationMessageTemp>();
-            //this.Connection.CreateTable<CommunicationMessageTemp>();
-
+            this.History.ReCreateTable(exportPath);
+            this.HistoryStatus.ReCreateTable(exportPath);
         }
 
         public void CheckDatabaseVersion(string exportPath)
