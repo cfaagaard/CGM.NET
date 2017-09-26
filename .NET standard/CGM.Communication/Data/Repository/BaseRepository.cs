@@ -25,6 +25,11 @@ namespace CGM.Communication.Data.Repository
 
         }
 
+        public List<T> ToList()
+        {
+            return _uow.Connection.Table<T>().ToList();
+        }
+
         public void Add(T entity)
         {
             var s = _uow.Connection.Insert(entity);

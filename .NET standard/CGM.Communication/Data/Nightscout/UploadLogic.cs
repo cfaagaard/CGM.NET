@@ -21,7 +21,7 @@ using CGM.Communication.Data.Repository;
 namespace CGM.Communication.Data.Nightscout
 {
 
-    
+
 
     public class UploadLogic
     {
@@ -79,20 +79,20 @@ namespace CGM.Communication.Data.Nightscout
 
             List<PumpEvent> eventsToHandle = new List<PumpEvent>();
 
-            using (CgmUnitOfWork uow=new CgmUnitOfWork())
+            using (CgmUnitOfWork uow = new CgmUnitOfWork())
             {
-               var NewEvents= uow.History.GetHistoryWithNoStatus(eventFilter,HistoryStatusTypeEnum.NightScout);
-            
+                var NewEvents = uow.History.GetHistoryWithNoStatus(eventFilter, HistoryStatusTypeEnum.NightScout);
 
-                if (NewEvents.Count>0)
+
+                if (NewEvents.Count > 0)
                 {
                     Serializer serializer = new Serializer(Session);
-                   
+
                     foreach (var item in NewEvents)
                     {
                         var pumpevent = serializer.Deserialize<PumpEvent>(item.HistoryBytes.GetBytes());
                         pumpevent.HistoryDataType = item.HistoryDataType;
-                       eventsToHandle.Add(pumpevent);
+                        eventsToHandle.Add(pumpevent);
                     }
 
 
@@ -101,7 +101,7 @@ namespace CGM.Communication.Data.Nightscout
 
             CreateDeviceStatus();
 
-            if (eventsToHandle.Count>0)
+            if (eventsToHandle.Count > 0)
             {
                 //Logger.LogInformation($"Found {eventsToHandle.Count} new pump-events.");
 
@@ -112,19 +112,13 @@ namespace CGM.Communication.Data.Nightscout
                 CannulaChanged(eventsToHandle);
                 BgReadings(eventsToHandle);
 
+              // await RemoveAlreadyUploaded(cancelToken);
                 await UploadElements(cancelToken);
             }
             else
             {
                 Logger.LogInformation($"No new pump-events.");
             }
-
-
-            //await CreateUploads(cancelToken);
-
-           
-
-
         }
 
 
@@ -178,68 +172,96 @@ namespace CGM.Communication.Data.Nightscout
         //    }
 
         //}
+        private async Task RemoveAlreadyUploaded(CancellationToken cancelToken)
+        {
+          
+                List<HistoryStatus> status = new List<HistoryStatus>();
+                using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                {
+                    status = uow.HistoryStatus.ToList();
+                }
+            if (Entries.Count > 0)
+            {
+                var query =
+                  from comp in this.Entries
+                  join entry in status on comp.Key equals entry.Key
+                  select comp;
+                query.ToList().ForEach(e => this.Entries.Remove(e));
+             
+            }
+            if (Treatments.Count > 0)
+            {
+                var query =
+                  from comp in this.Treatments
+                  join entry in status on comp.Key equals entry.Key
+                  select comp;
 
+                query.ToList().ForEach(e => this.Treatments.Remove(e));
+            }
+
+        }
         private async Task UploadElements(CancellationToken cancelToken)
         {
             if (Entries.Count > 0)
             {
                 try
                 {
+
                     await _client.AddEntriesAsync(Entries, cancelToken);
                     Logger.LogInformation($"Entries uploaded to Nightscout. ({Entries.Count})");
                     //log uploads
-                    using (CgmUnitOfWork uow=new CgmUnitOfWork())
+                    using (CgmUnitOfWork uow = new CgmUnitOfWork())
                     {
-                        uow.HistoryStatus.AddKeys(Entries.Select(e => e.Key).ToList(),HistoryStatusTypeEnum.NightScout,0);
+                        uow.HistoryStatus.AddKeys(Entries.Select(e => e.Key).ToList(), HistoryStatusTypeEnum.NightScout, 0);
                     }
-                    
+
                 }
                 catch (Exception)
                 {
 
                     throw;
                 }
-         
+
             }
 
 
 
-                if (this.Treatments.Count > 0)
+            if (this.Treatments.Count > 0)
+            {
+                try
                 {
-                    try
+                    await _client.AddTreatmentsAsync(this.Treatments, cancelToken);
+                    Logger.LogInformation($"Treatments uploaded to Nightscout. ({Treatments.Count})");
+                    using (CgmUnitOfWork uow = new CgmUnitOfWork())
                     {
-                        await _client.AddTreatmentsAsync(this.Treatments, cancelToken);
-                        Logger.LogInformation($"Treatments uploaded to Nightscout. ({Treatments.Count})");
-                        using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                        uow.HistoryStatus.AddKeys(Treatments.Select(e => e.Key).ToList(), HistoryStatusTypeEnum.NightScout, 0);
+                    }
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+
+
+                if (!string.IsNullOrEmpty(Session.Settings.NotificationUrl) && Session.Settings.OtherSettings.SendEventsToNotificationUrl)
+                {
+                    var notif = this.Treatments.Where(e => !string.IsNullOrEmpty(e.Notification.Type)).Select(e => e.Notification);
+                    if (notif.Count() > 0)
+                    {
+                        NotificationClient client = new NotificationClient(Session.Settings.NotificationUrl);
+                        foreach (var item in notif)
                         {
-                            uow.HistoryStatus.AddKeys(Treatments.Select(e => e.Key).ToList(), HistoryStatusTypeEnum.NightScout, 0);
+                            await client.AddNotificationAsync(item, cancelToken);
                         }
+                        Logger.LogInformation($"Notifications sent. ({notif.Count()})");
                     }
-                    catch (Exception)
-                    {
-
-                        throw;
-                    }
-
-
-
-                    if (!string.IsNullOrEmpty(Session.Settings.NotificationUrl) && Session.Settings.OtherSettings.SendEventsToNotificationUrl)
-                    {
-                        var notif = this.Treatments.Where(e => !string.IsNullOrEmpty(e.Notification.Type)).Select(e => e.Notification);
-                        if (notif.Count() > 0)
-                        {
-                            NotificationClient client = new NotificationClient(Session.Settings.NotificationUrl);
-                            foreach (var item in notif)
-                            {
-                                await client.AddNotificationAsync(item, cancelToken);
-                            }
-                            Logger.LogInformation($"Notifications sent. ({notif.Count()})");
-                        }
-
-                    }
-
 
                 }
+
+
+            }
 
 
             if (this.DeviceStatus != null && !string.IsNullOrEmpty(this.DeviceStatus.Device))
@@ -319,7 +341,7 @@ namespace CGM.Communication.Data.Nightscout
             {
                 foreach (var item in events)
                 {
-                    var treatment = CreateCgmSensorChanged(item.Timestamp.Value,item.Key);
+                    var treatment = CreateCgmSensorChanged(item.Timestamp.Value, item.Key);
                     treatment.Notification.Date = item.Timestamp.Value.ToString();
                     treatment.Notification.Type = EventTypeEnum.GLUCOSE_SENSOR_CHANGE.ToString();
                     treatment.Notification.Text = EventTypeEnum.GLUCOSE_SENSOR_CHANGE.ToString();
@@ -336,7 +358,7 @@ namespace CGM.Communication.Data.Nightscout
             {
                 foreach (var item in events)
                 {
-                    var treatment = CreateInsulinChanged(item.Timestamp.Value,item.Key);
+                    var treatment = CreateInsulinChanged(item.Timestamp.Value, item.Key);
                     treatment.Notification.Date = item.Timestamp.Value.ToString();
                     treatment.Notification.Type = EventTypeEnum.CANNULA_FILL_DELIVERED.ToString();
                     treatment.Notification.Text = EventTypeEnum.CANNULA_FILL_DELIVERED.ToString();
@@ -354,7 +376,7 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     var msg = (ALARM_NOTIFICATION_Event)item.Message;
 
-                    var announcement = CreateAnnouncement($"{msg.AlarmTypeName.ToString()}", msg.Timestamp.Value, "Alert",item.Key);
+                    var announcement = CreateAnnouncement($"{msg.AlarmTypeName.ToString()}", msg.Timestamp.Value, "Alert", item.Key);
                     //announcement.Notification.Date = msg.Timestamp.Value.ToString();
                     //announcement.Notification.Type = EventTypeEnum.ALARM_NOTIFICATION.ToString();
                     //announcement.Notification.Text = msg.AlarmTypeName.ToString();
@@ -375,7 +397,7 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     var msg = (BOLUS_WIZARD_ESTIMATE_Event)item.Message;
 
-                    CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(Constants.Dateformat),item.Key);
+                    CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(Constants.Dateformat), item.Key);
 
                 }
             }
@@ -393,15 +415,15 @@ namespace CGM.Communication.Data.Nightscout
                 foreach (var msg in sensorReadings)
                 {
 
-                    var reading= (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)msg.Message;
-                    //reading.Details.Reverse();
+                    var reading = (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)msg.Message;
+                    reading.Details.Reverse();
                     for (int i = 0; i < reading.Details.Count; i++)
                     {
                         if (reading.Timestamp.HasValue)
                         {
                             var read = reading.Details[i];
                             read.Timestamp = reading.Timestamp.Value.AddMinutes((i * reading.MinutesBetweenReadings));
-                            await CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false,msg.Key + read.BytesAsString);
+                            await CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
 
                         }
                     }
@@ -409,7 +431,7 @@ namespace CGM.Communication.Data.Nightscout
                 }
 
 
-               
+
 
                 ////Get from nightscout
                 //List<Entry> entries = new List<Entry>();
@@ -431,7 +453,7 @@ namespace CGM.Communication.Data.Nightscout
 
                 //var missingReadings = orderedDetails.Except(query.ToList()).ToList();
 
-      
+
 
                 //foreach (var reading in missingReadings.OrderBy(e => e.Timestamp))
                 //{
@@ -503,12 +525,12 @@ namespace CGM.Communication.Data.Nightscout
                 foreach (var item in bGReadings)
                 {
                     //.Select(e => (BG_READING_Event)e.Message)
-                    CreateBgReading((BG_READING_Event)item.Message,item.Key);
+                    CreateBgReading((BG_READING_Event)item.Message, item.Key);
                 }
             }
         }
 
-        protected async Task CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists,string key)
+        protected async Task CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key)
         {
 
             string serialNum = _session.Device.SerialNumberFull;
@@ -544,7 +566,7 @@ namespace CGM.Communication.Data.Nightscout
             {
                 if (Session.Settings.OtherSettings.HandleAlert776)
                 {
-                    if (entry.Sgv==776)
+                    if (entry.Sgv == 776)
                     {
                         //this is done to match the pumps diagram. Testing.....
                         entry.Sgv = 400;
@@ -555,7 +577,7 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     CreateSgvEntryAlert(entry);
                 }
-                
+
             }
 
 
@@ -620,7 +642,7 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
-        private void CreateCorrectionBolus(double insulin, double carbs, string reference, string dateTime,string key)
+        private void CreateCorrectionBolus(double insulin, double carbs, string reference, string dateTime, string key)
         {
             Treatment treatment = new Treatment();
             treatment.Insulin = insulin;// message.BolusEstimate;
@@ -645,7 +667,7 @@ namespace CGM.Communication.Data.Nightscout
             //}
         }
 
-        private void CreateNote(string note, string datestring,string key)
+        private void CreateNote(string note, string datestring, string key)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Note";
@@ -665,7 +687,7 @@ namespace CGM.Communication.Data.Nightscout
                 var date = entry.Date.Value.GetDateTime();
                 //var note = $"{alert.ToString()} - ({entry.DateString})";
                 var note = $"{alert.ToString()}";
-                CreateAnnouncement(note, date, "Alert",entry.Key);
+                CreateAnnouncement(note, date, "Alert", entry.Key);
 
             }
 
@@ -684,7 +706,7 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
-        private Treatment CreateCgmSensorChanged(DateTime createdAt,string key)
+        private Treatment CreateCgmSensorChanged(DateTime createdAt, string key)
         {
 
             Treatment treatment = new Treatment();
@@ -707,7 +729,7 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
-        private Treatment CreateInsulinChanged(DateTime createdAt,string key)
+        private Treatment CreateInsulinChanged(DateTime createdAt, string key)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Insulin Change";
@@ -719,7 +741,7 @@ namespace CGM.Communication.Data.Nightscout
             return treatment;
         }
 
-        private Treatment CreateCannulaChanged(DateTime createdAt,string key)
+        private Treatment CreateCannulaChanged(DateTime createdAt, string key)
         {
 
 
@@ -733,11 +755,11 @@ namespace CGM.Communication.Data.Nightscout
             return treatment;
         }
 
-        private Treatment CreateBgReading(BG_READING_Event bgEvent,string key)
+        private Treatment CreateBgReading(BG_READING_Event bgEvent, string key)
         {
 
-            
-                Treatment treatment = new Treatment();
+
+            Treatment treatment = new Treatment();
             treatment.EventType = "BG Check";
             treatment.GlucoseType = "Finger";
             treatment.Key = key;
@@ -760,6 +782,6 @@ namespace CGM.Communication.Data.Nightscout
             return treatment;
         }
 
-        
+
     }
 }
