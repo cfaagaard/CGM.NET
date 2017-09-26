@@ -78,7 +78,7 @@ namespace CGM.Communication.MiniMed
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartPumpTimeAsync(cancelToken));
             tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
-          
+
             if (_setting.OtherSettings.IncludeHistory)
             {
                 tasks.Add(() => StartReadHistory(cancelToken));
@@ -96,7 +96,7 @@ namespace CGM.Communication.MiniMed
 
         public async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
         {
-           
+
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartBasalPatternAsync(cancelToken));
             tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_CHARACTERISTICS_REQUEST, cancelToken));
@@ -249,17 +249,17 @@ namespace CGM.Communication.MiniMed
 
             Logger.LogInformation($"Pumpsession-time: {elapsedTime}");
 
-            try
-            {
-                if (Session.PumpDataHistory.MultiPacketHandlers != null && Session.PumpDataHistory.MultiPacketHandlers.Count > 0)
-                {
-                    Session.PumpDataHistory.GetHistoryEvents();
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e.Message);
-            }
+            //try
+            //{
+            //    if (Session.PumpDataHistory.MultiPacketHandlers != null && Session.PumpDataHistory.MultiPacketHandlers.Count > 0)
+            //    {
+            //        Session.PumpDataHistory.GetHistoryEvents();
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Logger.LogError(e.Message);
+            //}
 
             return Session;
         }
@@ -607,7 +607,7 @@ namespace CGM.Communication.MiniMed
         //    //new settings....
         //    //testing
 
-            
+
         //}
 
         private async Task StartReadHistory(CancellationToken cancelToken)
@@ -624,16 +624,16 @@ namespace CGM.Communication.MiniMed
 
             //if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
             //{
-                //DateTime from = Session.PumpDataHistory.From.Value;
-                //DateTime to = Session.PumpDataHistory.To.Value;
+            //DateTime from = Session.PumpDataHistory.From.Value;
+            //DateTime to = Session.PumpDataHistory.To.Value;
 
-                //Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
+            //Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
 
 
 
-                await StartReadHistoryByType(HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
+            await StartReadHistoryByType(HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
 
-                await StartReadHistoryByType(HistoryDataTypeEnum.PUMP_DATA, cancelToken);
+            await StartReadHistoryByType(HistoryDataTypeEnum.PUMP_DATA, cancelToken);
 
 
             //}

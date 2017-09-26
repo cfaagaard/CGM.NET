@@ -23,6 +23,8 @@ namespace CGM.Communication.Data
         public int TimeoutSeconds { get; set; } = 5;
 
         public List<LastPumpRead> LastRead { get; set; } = new List<LastPumpRead>();
+
+        public bool HandleAlert776 { get; set; } = true;
     }
 
     public class LastPumpRead

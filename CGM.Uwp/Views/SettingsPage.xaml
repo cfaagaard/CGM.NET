@@ -48,6 +48,11 @@
 
                                 <TextBlock Margin="0,5,0,0"   x:Uid="Settings_key" Text="NightscoutApiKey" Style="{StaticResource BodyTextStyle}"/>
                                 <TextBox  Text="{x:Bind ViewModel.NightscoutApiKey, Mode=TwoWay}"></TextBox>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock  Margin="0,5,10,0"    x:Uid="Settings_HandleAlert776" Text="Convert Alert776 to 400 (sgv) entry" Style="{StaticResource BodyTextStyle}"/>
+                                    <ToggleSwitch  x:Uid="Settings_HandleAlert776"  IsOn="{x:Bind ViewModel.HandleAlert776, Mode=TwoWay}"/>
+                                </StackPanel>
                             </StackPanel>
 
                             
@@ -66,10 +71,7 @@
      
 
 
-                            <!--<StackPanel Orientation="Horizontal">
-                                <TextBlock  Margin="0,5,10,0"    x:Uid="Settings_history" Text="Include history (Beta)" Style="{StaticResource BodyTextStyle}"/>
-                                <ToggleSwitch  x:Uid="Settings_historyToggle"  IsOn="{x:Bind ViewModel.IncludeHistory, Mode=TwoWay}"/>
-                            </StackPanel>-->
+
                             <StackPanel Orientation="Vertical" x:Name="numberofdays" >
                                 <!--<StackPanel Orientation="Horizontal" Margin="0,0,0,0" x:Name="TheLastReading">
                                     <TextBlock   Margin="0,5,10,0"   x:Uid="Settings_OnlyFromTheLastReading" Text="Only from last reading (from NS))" Style="{StaticResource BodyTextStyle}"/>

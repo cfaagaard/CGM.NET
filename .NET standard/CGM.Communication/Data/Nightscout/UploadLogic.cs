@@ -354,7 +354,7 @@ namespace CGM.Communication.Data.Nightscout
                 {
                     var msg = (ALARM_NOTIFICATION_Event)item.Message;
 
-                    var announcement = CreateAnnouncement($"{msg.AlarmTypeName.ToString()} - ({msg.Timestamp.Value.ToString()})", msg.Timestamp.Value, "Alert",item.Key);
+                    var announcement = CreateAnnouncement($"{msg.AlarmTypeName.ToString()}", msg.Timestamp.Value, "Alert",item.Key);
                     //announcement.Notification.Date = msg.Timestamp.Value.ToString();
                     //announcement.Notification.Type = EventTypeEnum.ALARM_NOTIFICATION.ToString();
                     //announcement.Notification.Text = msg.AlarmTypeName.ToString();
@@ -394,13 +394,14 @@ namespace CGM.Communication.Data.Nightscout
                 {
 
                     var reading= (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)msg.Message;
+                    //reading.Details.Reverse();
                     for (int i = 0; i < reading.Details.Count; i++)
                     {
                         if (reading.Timestamp.HasValue)
                         {
                             var read = reading.Details[i];
                             read.Timestamp = reading.Timestamp.Value.AddMinutes((i * reading.MinutesBetweenReadings));
-                            await CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false,msg.Key);
+                            await CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false,msg.Key + read.BytesAsString);
 
                         }
                     }
@@ -541,7 +542,20 @@ namespace CGM.Communication.Data.Nightscout
             }
             else
             {
-                CreateSgvEntryAlert(entry);
+                if (Session.Settings.OtherSettings.HandleAlert776)
+                {
+                    if (entry.Sgv==776)
+                    {
+                        //this is done to match the pumps diagram. Testing.....
+                        entry.Sgv = 400;
+                        this.Entries.Add(entry);
+                    }
+                }
+                else
+                {
+                    CreateSgvEntryAlert(entry);
+                }
+                
             }
 
 
@@ -649,8 +663,8 @@ namespace CGM.Communication.Data.Nightscout
                 var alert = (Alerts)entry.Sgv.Value;
 
                 var date = entry.Date.Value.GetDateTime();
-                var note = $"{alert.ToString()} - ({entry.DateString})";
-
+                //var note = $"{alert.ToString()} - ({entry.DateString})";
+                var note = $"{alert.ToString()}";
                 CreateAnnouncement(note, date, "Alert",entry.Key);
 
             }

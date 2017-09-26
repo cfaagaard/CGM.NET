@@ -174,6 +174,17 @@ namespace CGM.Uwp.ViewModels
             }
         }
 
+        public bool HandleAlert776
+        {
+            get { return _setting.OtherSettings.HandleAlert776; }
+            set
+            {
+                _setting.OtherSettings.HandleAlert776 = value;
+                this.RaisePropertyChanged(nameof(HandleAlert776));
+                SaveSetting();
+            }
+        }
+
         public ObservableCollection<DeviceItemViewModel> Devices { get; set; } = new ObservableCollection<DeviceItemViewModel>();
 
 
