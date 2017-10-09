@@ -23,6 +23,7 @@ namespace CGM.Communication.MiniMed.Model
         Device_Alarm_111 = 111,
         Device_Alarm_113 = 113,
         Device_Alarm_58 = 58,
+        Device_Alarm_Button_Pressed_3minutes=61,
         Device_Alarm_70 = 70,
         Device_Alarm_73 = 73,
         Device_Alarm_84 = 84,
@@ -37,14 +38,14 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Alarm_787 = 787,
         Sensor_Alarm_788 = 788, //"BG not received."
         Sensor_Alarm_789 = 789,
-        Sensor_Alarm_790 = 790,
-        Sensor_Alarm_791 = 791,
+        Sensor_Alarm_790 = 790, //
+        Sensor_Alarm_791 = 791, //question: did the sensor blink when connected
         Sensor_Alarm_795 = 795,
         Sensor_Alarm_797 = 797,
         Sensor_Alarm_798 = 798,
-        Sensor_Alarm_799 = 799,
+        Sensor_Alarm_799 = 799, //sensor found will alert when to calibrate
         Sensor_Alert_Calibrate_Now_775 = 775,
-        Sensor_Alert_Calibration_Error_776 = 776,
+        //Sensor_Alert_Calibration_Error_776 = 776,
         Sensor_Alert_Calibration_Reminder_869 = 869,
         Sensor_Alert_Change_Sensor_777 = 777,
         //Sensor_Alert_Change_Sensor_778 = 778,

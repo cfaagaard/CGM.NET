@@ -76,6 +76,7 @@ namespace CGM.Communication.Data.Nightscout
             eventFilter.Add((int)EventTypeEnum.GLUCOSE_SENSOR_CHANGE);
             eventFilter.Add((int)EventTypeEnum.CANNULA_FILL_DELIVERED);
             eventFilter.Add((int)EventTypeEnum.BG_READING);
+            eventFilter.Add((int)EventTypeEnum.AIRPLANE_MODE);
 
             List<PumpEvent> eventsToHandle = new List<PumpEvent>();
 
@@ -111,13 +112,32 @@ namespace CGM.Communication.Data.Nightscout
                 SensorChange(eventsToHandle);
                 CannulaChanged(eventsToHandle);
                 BgReadings(eventsToHandle);
-
-              // await RemoveAlreadyUploaded(cancelToken);
+                OtherReadings(eventsToHandle);
+                // await RemoveAlreadyUploaded(cancelToken);
                 await UploadElements(cancelToken);
             }
             else
             {
                 Logger.LogInformation($"No new pump-events.");
+            }
+        }
+
+        private void OtherReadings(List<PumpEvent> eventsToHandle)
+        {
+            var events = eventsToHandle.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.AIRPLANE_MODE);
+            int count = events.Count();
+            if (count > 0)
+            {
+                foreach (var item in events)
+                {
+                    string status = "On";
+                    if (item.Message.AllBytes[0] == 0x00)
+                    {
+                        status = "Off";
+                    }
+                    CreateNote(string.Format("{0} ({1})", EventTypeEnum.AIRPLANE_MODE.ToString(), status), item.Timestamp.Value, item.Key);
+
+                }
             }
         }
 
@@ -174,12 +194,12 @@ namespace CGM.Communication.Data.Nightscout
         //}
         private async Task RemoveAlreadyUploaded(CancellationToken cancelToken)
         {
-          
-                List<HistoryStatus> status = new List<HistoryStatus>();
-                using (CgmUnitOfWork uow = new CgmUnitOfWork())
-                {
-                    status = uow.HistoryStatus.ToList();
-                }
+
+            List<HistoryStatus> status = new List<HistoryStatus>();
+            using (CgmUnitOfWork uow = new CgmUnitOfWork())
+            {
+                status = uow.HistoryStatus.ToList();
+            }
             if (Entries.Count > 0)
             {
                 var query =
@@ -187,7 +207,7 @@ namespace CGM.Communication.Data.Nightscout
                   join entry in status on comp.Key equals entry.Key
                   select comp;
                 query.ToList().ForEach(e => this.Entries.Remove(e));
-             
+
             }
             if (Treatments.Count > 0)
             {
@@ -396,8 +416,10 @@ namespace CGM.Communication.Data.Nightscout
                 foreach (var item in wizards)
                 {
                     var msg = (BOLUS_WIZARD_ESTIMATE_Event)item.Message;
-
-                    CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(Constants.Dateformat), item.Key);
+                    if (msg.FinalEstimate.INSULIN!=0 || msg.CARB_INPUT.CARB!=0)
+                    {
+                        CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(Constants.Dateformat), item.Key);
+                    }
 
                 }
             }
@@ -416,13 +438,14 @@ namespace CGM.Communication.Data.Nightscout
                 {
 
                     var reading = (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)msg.Message;
-                    reading.Details.Reverse();
+                    //reading.Details.Reverse();
                     for (int i = 0; i < reading.Details.Count; i++)
                     {
                         if (reading.Timestamp.HasValue)
                         {
                             var read = reading.Details[i];
-                            read.Timestamp = reading.Timestamp.Value.AddMinutes((i * reading.MinutesBetweenReadings));
+                            var readingRtc = msg.Rtc - (i * reading.MinutesBetweenReadings * 60);
+                            read.Timestamp = DateTimeExtension.GetDateTime(readingRtc, msg.Offset);// reading.Timestamp.Value.AddMinutes((i * reading.MinutesBetweenReadings*-1));
                             await CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
 
                         }
@@ -566,12 +589,35 @@ namespace CGM.Communication.Data.Nightscout
             {
                 if (Session.Settings.OtherSettings.HandleAlert776)
                 {
-                    if (entry.Sgv == 776)
+                    switch (entry.Sgv)
                     {
-                        //this is done to match the pumps diagram. Testing.....
-                        entry.Sgv = 400;
-                        this.Entries.Add(entry);
+                        case 776:
+                            entry.Sgv = 401;
+                            this.Entries.Add(entry);
+                            break;
+                        case 777:
+                            entry.Sgv = 39;
+                            this.Entries.Add(entry);
+                            break;
+                        default:
+                            CreateSgvEntryAlert(entry);
+                            break;
                     }
+                    //if (entry.Sgv == 776)
+                    //{
+                    //    //this is done to match the pumps diagram. Testing.....
+                    //    entry.Sgv = 400;
+                    //    this.Entries.Add(entry);
+                    //}
+                    //else
+                    //{
+                    //    CreateSgvEntryAlert(entry);
+                    //}
+                    //if (entry.Sgv==777)
+                    //{
+                    //    entry.Sgv = 40;
+                    //    this.Entries.Add(entry);
+                    //}
                 }
                 else
                 {
@@ -667,11 +713,11 @@ namespace CGM.Communication.Data.Nightscout
             //}
         }
 
-        private void CreateNote(string note, string datestring, string key)
+        private void CreateNote(string note, DateTime createdAt, string key)
         {
             Treatment treatment = new Treatment();
             treatment.EventType = "Note";
-            treatment.Created_at = datestring;
+            treatment.Created_at = createdAt.ToString(Constants.Dateformat); ;
             treatment.Notes = note;
             treatment.Key = key;
             Treatments.Add(treatment);
