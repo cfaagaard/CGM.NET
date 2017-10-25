@@ -6,6 +6,7 @@ namespace CGM.Communication.MiniMed.Model
 {
     public enum Alerts : Int16
     {
+        Electric_Malfunction_Found_25=25,
         Alert_Before_High_817 = 817,
         Alert_Before_Low_805 = 805,
         Alert_On_High_816 = 816,
@@ -45,10 +46,10 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Alarm_798 = 798,
         Sensor_Alarm_799 = 799, //sensor found will alert when to calibrate
         Sensor_Alert_Calibrate_Now_775 = 775,
-        //Sensor_Alert_Calibration_Error_776 = 776,
+        Sensor_Alert_Calibration_Error_776 = 776,
         Sensor_Alert_Calibration_Reminder_869 = 869,
         Sensor_Alert_Change_Sensor_777 = 777,
-        //Sensor_Alert_Change_Sensor_778 = 778,
+        Sensor_Alert_Change_Sensor_778 = 778,
         Sensor_Alert_Lost_Sensor_780 = 780,
         Sensor_Alert_Lost_Sensor_781 = 781,
         Sensor_Alert_Low_Transmitter_870 = 870,
@@ -56,6 +57,17 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Alert_Sensor_End_794 = 794,
         Sensor_Alert_Sensor_Error_801 = 801,
         Sensor_Alert_Weak_Signal_796 = 796,
+        Suspend_Before_Low_Alarm, _patient_unresponsive, _medical_device_emergency_812 = 812,
+        Suspend_Before_Low_Alarm_811 = 811,
+        Suspend_Before_Low_Alarm_patient_unresponsive_medical_device_emergency_812 = 812,
+        Suspend_Before_Low_Alarm_quiet_810 = 810,
+        Suspend_On_Low_Alarm_809 = 809,
+        No_Warning_0 = 0,
+    }
+
+    public enum SgvAlert: Int16
+    {
+        Sensor_Cal_Error_772=772,
         Sensor_Cal_Needed_770 = 770,
         Sensor_Cal_Pending_778 = 778,
         Sensor_Change_Cal_Error_779 = 779,
@@ -67,15 +79,8 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Reading_High_776 = 776,
         Sensor_Reading_Low_777 = 777,
         Sensor_Time_Unknown_780 = 780,
-        Suspend_Before_Low_Alarm, _patient_unresponsive, _medical_device_emergency_812 = 812,
-        Suspend_Before_Low_Alarm_811 = 811,
-        Suspend_Before_Low_Alarm_patient_unresponsive_medical_device_emergency_812 = 812,
-        Suspend_Before_Low_Alarm_quiet_810 = 810,
-        Suspend_On_Low_Alarm_809 = 809,
-        No_Warning_0 = 0,
-
-
     }
+
     //Sensor_Alert_Change_774 = 774,
     //ShallWarmup_780= 780
     //pazan

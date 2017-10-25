@@ -728,7 +728,7 @@ namespace CGM.Communication.Data.Nightscout
         {
             if (entry.Sgv.HasValue)
             {
-                var alert = (Alerts)entry.Sgv.Value;
+                var alert = (SgvAlert)entry.Sgv.Value;
 
                 var date = entry.Date.Value.GetDateTime();
                 //var note = $"{alert.ToString()} - ({entry.DateString})";
