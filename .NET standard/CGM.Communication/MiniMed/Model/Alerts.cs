@@ -19,7 +19,7 @@ namespace CGM.Communication.MiniMed.Model
         Battery_Depleted_11 = 11,
         Battery_Out_Limit_Exceeded_6 = 6,
         Device_Alarm_100 = 100,
-        Device_Alarm_109 = 109,
+        Device_Alarm_109 = 109, //change cannula/insulin 
         Device_Alarm_110 = 110,
         Device_Alarm_111 = 111,
         Device_Alarm_113 = 113,
@@ -57,7 +57,7 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Alert_Sensor_End_794 = 794,
         Sensor_Alert_Sensor_Error_801 = 801,
         Sensor_Alert_Weak_Signal_796 = 796,
-        Suspend_Before_Low_Alarm, _patient_unresponsive, _medical_device_emergency_812 = 812,
+        //Suspend_Before_Low_Alarm, _patient_unresponsive, _medical_device_emergency_812 = 812,
         Suspend_Before_Low_Alarm_811 = 811,
         Suspend_Before_Low_Alarm_patient_unresponsive_medical_device_emergency_812 = 812,
         Suspend_Before_Low_Alarm_quiet_810 = 810,

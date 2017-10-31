@@ -148,7 +148,7 @@ namespace CGM.Uwp.Tasks
         protected override void ResetCommunication(SerializerSession session)
         {
             base.ResetCommunication(session);
-            //Windows.ApplicationModel.Core.CoreApplication.re.Exit();
+           Task.Run(()=> Windows.ApplicationModel.Core.CoreApplication.RequestRestartAsync(""));
         }
     }
 }

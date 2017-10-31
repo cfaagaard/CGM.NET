@@ -106,8 +106,8 @@ namespace CGM.Communication.Data.Nightscout
             {
                 //Logger.LogInformation($"Found {eventsToHandle.Count} new pump-events.");
 
-                await MissingReadings(eventsToHandle);
-                await MissingWizard(eventsToHandle);
+                MissingReadings(eventsToHandle);
+                MissingWizard(eventsToHandle);
                 MissingAlerts(eventsToHandle);
                 SensorChange(eventsToHandle);
                 CannulaChanged(eventsToHandle);
@@ -406,26 +406,26 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
-        private async Task MissingWizard(IEnumerable<PumpEvent> allEvents)
+        private void MissingWizard(List<PumpEvent> allEvents)
         {
             //BOLUS_WIZARD_ESTIMATE_Event
-            var wizards = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.BOLUS_WIZARD_ESTIMATE);
+            var wizards = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.BOLUS_WIZARD_ESTIMATE).ToList();
             int count = wizards.Count();
             if (count > 0)
             {
                 foreach (var item in wizards)
                 {
                     var msg = (BOLUS_WIZARD_ESTIMATE_Event)item.Message;
-                    if (msg.FinalEstimate.INSULIN!=0 || msg.CARB_INPUT.CARB!=0)
+                    if (msg.FinalEstimate.INSULIN != 0 || msg.CARB_INPUT.CARB != 0)
                     {
                         CreateCorrectionBolus(msg.FinalEstimate.INSULIN, msg.CARB_INPUT.CARB, item.Rtc.ToString(), item.Timestamp.Value.ToString(Constants.Dateformat), item.Key);
                     }
-
+                    allEvents.Remove(item);
                 }
             }
         }
 
-        private async Task MissingReadings(IEnumerable<PumpEvent> allEvents)
+        private void MissingReadings(List<PumpEvent> allEvents)
         {
 
             var sensorReadings = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.SENSOR_GLUCOSE_READINGS_EXTENDED).ToList();
@@ -446,11 +446,11 @@ namespace CGM.Communication.Data.Nightscout
                             var read = reading.Details[i];
                             var readingRtc = msg.Rtc - (i * reading.MinutesBetweenReadings * 60);
                             read.Timestamp = DateTimeExtension.GetDateTime(readingRtc, msg.Offset);// reading.Timestamp.Value.AddMinutes((i * reading.MinutesBetweenReadings*-1));
-                            await CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
+                            CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
 
                         }
                     }
-
+                    allEvents.Remove(msg);
                 }
 
 
@@ -553,7 +553,7 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
-        protected async Task CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key)
+        protected void CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key)
         {
 
             string serialNum = _session.Device.SerialNumberFull;
