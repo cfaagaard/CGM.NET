@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CGM.Communication", ".NET standard\CGM.Communication\CGM.Communication.csproj", "{6A92D27A-DCA1-4500-A2EA-09B43178FEAF}"
 EndProject
@@ -54,9 +54,9 @@ Global
 		{6A92D27A-DCA1-4500-A2EA-09B43178FEAF}.Release|x86.ActiveCfg = Release|Any CPU
 		{6A92D27A-DCA1-4500-A2EA-09B43178FEAF}.Release|x86.Build.0 = Release|Any CPU
 		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|ARM.ActiveCfg = Debug|x86
-		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|ARM.Build.0 = Debug|x86
-		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|ARM.Deploy.0 = Debug|x86
+		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|ARM.ActiveCfg = Debug|ARM
+		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|ARM.Build.0 = Debug|ARM
+		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|ARM.Deploy.0 = Debug|ARM
 		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|x64.ActiveCfg = Debug|x64
 		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|x64.Build.0 = Debug|x64
 		{E501C137-FD90-43E0-9CE4-238D0490EE8D}.Debug|x64.Deploy.0 = Debug|x64
