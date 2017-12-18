@@ -114,7 +114,7 @@ namespace CGM.Communication.Data.Nightscout
                 BgReadings(eventsToHandle);
                 OtherReadings(eventsToHandle);
                 // await RemoveAlreadyUploaded(cancelToken);
-                await UploadElements(cancelToken);
+               await UploadElements(cancelToken);
             }
             else
             {

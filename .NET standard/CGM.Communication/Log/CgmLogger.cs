@@ -64,7 +64,7 @@ namespace CGM.Communication.Log
             {
                 using (var sw = new StreamWriter(stream))
                 {
-                    sw.WriteLine(message);
+                    sw.WriteLineAsync(message);
                 }
             }
         }

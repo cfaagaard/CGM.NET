@@ -6,6 +6,7 @@ using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace CGM.Communication.Extensions
@@ -103,7 +104,7 @@ namespace CGM.Communication.Extensions
 
         //    string ENCRYPTION_ALGORITHM = "AES";
         //    int KEY_SIZE = 256;
-            
+
 
         //    // select the digest algorithm.
         //    // if you change the digest algorithm, you must change DECRYPTION_ALGORITHM
@@ -149,6 +150,48 @@ namespace CGM.Communication.Extensions
             IBufferedCipher cipher = CipherUtilities.GetCipher("AES/CFB/NoPadding");
             cipher.Init(forEncryption, aesIVKeyParam);
             return cipher.DoFinal(cmessage);
+        }
+
+        public static byte[] CryptMessage2(this byte[] cmessage, bool forEncryption, byte[] m_Key, byte[] iVector)
+        {
+
+            using (Aes aesAlg = Aes.Create())
+            {
+
+
+                aesAlg.Key = m_Key;
+                aesAlg.IV = iVector;
+                aesAlg.Mode = CipherMode.CFB;
+                aesAlg.Padding = PaddingMode.None;
+
+                if (forEncryption)
+                {
+                    ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                    using (MemoryStream msEncrypt = new MemoryStream())
+                    {
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        {
+                            csEncrypt.Write(cmessage, 0, cmessage.Length);
+                            csEncrypt.FlushFinalBlock();
+                            return msEncrypt.ToArray();
+
+                        }
+                    }
+                }
+                else
+                {
+                    using (ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV))
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        using (CryptoStream cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
+                        {
+                            cs.Write(cmessage, 0, cmessage.Length); //here is the exception thrown
+                            cs.FlushFinalBlock();
+                            return ms.ToArray();
+                        }
+                    }
+                }
+            }
         }
 
         public static DateTime? GetDateTimeBigE(this byte[] bytes, int startIndex)

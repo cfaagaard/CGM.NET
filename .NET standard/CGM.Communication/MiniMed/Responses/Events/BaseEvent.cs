@@ -34,6 +34,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [MessageType(typeof(CANNULA_FILL_DELIVERED_Event), nameof(EventType), EventTypeEnum.CANNULA_FILL_DELIVERED)]
         [MessageType(typeof(ALARM_NOTIFICATION_Event), nameof(EventType), EventTypeEnum.ALARM_NOTIFICATION)]
         [MessageType(typeof(BG_READING_Event), nameof(EventType), EventTypeEnum.BG_READING)]
+        [MessageType(typeof(PLGM_CONTROLLER_STATE_Event), nameof(EventType), EventTypeEnum.PLGM_CONTROLLER_STATE)]
         [MessageType(typeof(BaseEvent))]
         [BinaryPropertyValueTransfer(ChildPropertyName = nameof(Timestamp), ParentPropertyName = nameof(Timestamp))]
         public BaseEvent Message { get; set; }

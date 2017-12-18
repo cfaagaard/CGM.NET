@@ -51,7 +51,7 @@ namespace CGM.Communication.Data.Repository
         public void Sync(List<History> histories, int datatype)
         {
             var query = _uow.Connection.Table<History>().Where(e => e.HistoryDataType == datatype).ToList();
-
+  
 
             var SyncQuery =
                    from comp in histories
@@ -87,12 +87,14 @@ namespace CGM.Communication.Data.Repository
                 //keep only the last 5 days (ca. 5*400 =2000 events)
                 
             }
+
             Delete(2000, datatype);
+         
         }
 
         private void Delete(int keepCount, int dataType)
         {
-            string sql = "Delete from History where HistoryDataType={0} AND key NOT IN (Select key from History where HistoryDataType={0} order by Rtc asc limit {1});";
+            string sql = "Delete from History where HistoryDataType={0} AND key NOT IN (Select key from History where HistoryDataType={0} order by Rtc desc limit {1});";
             string exeSql = string.Format(sql, dataType, keepCount);
             var count = _uow.Connection.Execute(exeSql);
         }
