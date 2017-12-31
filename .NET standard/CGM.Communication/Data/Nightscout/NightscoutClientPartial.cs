@@ -179,6 +179,12 @@ namespace CGM.Communication.Data.Nightscout
         [JsonIgnore]
         public Notification Notification { get; set; } = new Notification();
 
+
+        [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Duration { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("percent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Percent { get; set; }
     }
 }
 

@@ -77,6 +77,7 @@ namespace CGM.Communication.Data.Nightscout
             eventFilter.Add((int)EventTypeEnum.CANNULA_FILL_DELIVERED);
             eventFilter.Add((int)EventTypeEnum.BG_READING);
             eventFilter.Add((int)EventTypeEnum.AIRPLANE_MODE);
+            eventFilter.Add((int)EventTypeEnum.TEMP_BASAL_PROGRAMMED);
 
             List<PumpEvent> eventsToHandle = new List<PumpEvent>();
 
@@ -109,17 +110,58 @@ namespace CGM.Communication.Data.Nightscout
                 MissingReadings(eventsToHandle);
                 MissingWizard(eventsToHandle);
                 MissingAlerts(eventsToHandle);
+                MissingTempBasalProgrammed(eventsToHandle);
                 SensorChange(eventsToHandle);
                 CannulaChanged(eventsToHandle);
                 BgReadings(eventsToHandle);
                 OtherReadings(eventsToHandle);
+
+                await UploadElements(cancelToken);
+
                 // await RemoveAlreadyUploaded(cancelToken);
-               await UploadElements(cancelToken);
             }
             else
             {
                 Logger.LogInformation($"No new pump-events.");
             }
+        }
+
+        private void MissingTempBasalProgrammed(IEnumerable<PumpEvent> allEvents)
+        {
+            //            {
+            //                "_id": {
+            //                    "$oid": "5a4847f21e4bdb11f5ac62e1"
+            //                },
+            //    "enteredBy": "",
+            //    "eventType": "Temp Basal",
+            //    "glucose": 15.2,
+            //    "reason": "",
+            //    "glucoseType": "Sensor",
+            //    "duration": 30,
+            //    "percent": 100,
+            //    "units": "mmol",
+            //    "created_at": "2017-12-31T02:14:10.012Z"
+            //}
+
+            var events = allEvents.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.TEMP_BASAL_PROGRAMMED);
+            int count = events.Count();
+            if (count > 0)
+            {
+                foreach (var item in events)
+                {
+                   
+                    var treatment = CreateTempBasalProgrammed(item.Timestamp.Value, item.Key);
+                    var msg = (TEMP_BASAL_PROGRAMMED_Event)item.Message;
+
+                    treatment.Duration = msg.Duration.ToString();
+                    treatment.Percent = msg.Percentage.ToString();
+                    
+                    //treatment.Notification.Date = item.Timestamp.Value.ToString();
+                    //treatment.Notification.Type = EventTypeEnum.TEMP_BASAL_PROGRAMMED.ToString();
+                    //treatment.Notification.Text = EventTypeEnum.TEMP_BASAL_PROGRAMMED.ToString();
+                }
+            }
+
         }
 
         private void OtherReadings(List<PumpEvent> eventsToHandle)
@@ -775,6 +817,20 @@ namespace CGM.Communication.Data.Nightscout
 
         }
 
+        private Treatment CreateTempBasalProgrammed(DateTime createdAt, string key)
+        {
+
+
+            Treatment treatment = new Treatment();
+            treatment.EventType = "Temp Basal";
+            treatment.Created_at = createdAt.ToString(Constants.Dateformat);
+            ////treatment.EnteredBy = $"ref:${treatment.EventType}";
+            treatment.Key = key;
+            Treatments.Add(treatment);
+
+            return treatment;
+        }
+
         private Treatment CreateInsulinChanged(DateTime createdAt, string key)
         {
             Treatment treatment = new Treatment();
@@ -809,16 +865,16 @@ namespace CGM.Communication.Data.Nightscout
             treatment.EventType = "BG Check";
             treatment.GlucoseType = "Finger";
             treatment.Key = key;
-            //if (bgEvent.BgUnits==BgUnitEnum.MMOL_L)
-            //{
-            //    treatment.Glucose = bgEvent.BgValueInMmol.ToString();
-            //    treatment.Units = "mmol";
-            //}
-            //else
-            //{
-            treatment.Glucose = bgEvent.BgValueInMg.ToString();
-            treatment.Units = "mg/dl";
-            //}
+            if (bgEvent.BgUnits == BgUnitEnum.MMOL_L)
+            {
+                treatment.Glucose = bgEvent.BgValueInMmol.ToString();
+                treatment.Units = "mmol";
+            }
+            else
+            {
+                treatment.Glucose = bgEvent.BgValueInMg.ToString();
+                treatment.Units = "mg/dl";
+            }
 
 
             treatment.Created_at = bgEvent.Timestamp.Value.ToString(Constants.Dateformat);
