@@ -3,7 +3,7 @@ Beta version of Nightscout-uploader for the 600-series pump on:
 
 * Windows 10
 * Raspberry Pi 3 (with Windows Iot)
-* Windows Phone 10.
+
 
 See [wiki](https://github.com/cfaagaard/CGM.NET/wiki) for further guidance.
 
