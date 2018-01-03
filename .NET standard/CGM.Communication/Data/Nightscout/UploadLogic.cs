@@ -480,103 +480,22 @@ namespace CGM.Communication.Data.Nightscout
                 {
 
                     var reading = (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)msg.Message;
-                    //reading.Details.Reverse();
+           
                     for (int i = 0; i < reading.Details.Count; i++)
                     {
-                        if (reading.Timestamp.HasValue)
-                        {
-                            var read = reading.Details[i];
-                            var readingRtc = msg.Rtc - (i * reading.MinutesBetweenReadings * 60);
-                            read.Timestamp = DateTimeExtension.GetDateTime(readingRtc, msg.Offset);// reading.Timestamp.Value.AddMinutes((i * reading.MinutesBetweenReadings*-1));
-                            CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
+                        var read = reading.Details[i];
+                        CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
+                        //if (reading.Timestamp.HasValue)
+                        //{
+                        //    var read = reading.Details[i];
+                            //var readingRtc = msg.Rtc - (i * reading.MinutesBetweenReadings * 60);
+                            //read.Timestamp = DateTimeExtension.GetDateTime(readingRtc, msg.Offset);// reading.Timestamp.Value.AddMinutes((i * reading.MinutesBetweenReadings*-1));
+                        //    CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
 
-                        }
+                        //}
                     }
                     allEvents.Remove(msg);
                 }
-
-
-
-
-                ////Get from nightscout
-                //List<Entry> entries = new List<Entry>();
-                //var from = orderedDetails.First().Timestamp.Value;
-                //var to = orderedDetails.Last().Timestamp.Value;
-
-                ////gt - from this data (include this date)
-                ////lt - to this date (NOT including this date). So we add a day to the "to"-date from the reading
-                //to = to.AddDays(1);
-                //string findStr = $"find[dateString][$gt]={from.ToString("yyyy-MM-dd")}&find[dateString][$lt]={to.ToString("yyyy-MM-dd")}&find[type]=sgv";
-
-                //var allTodayEntries = await _client.EntriesAsync(findStr, 0);
-
-
-                //var query =
-                //       from comp in orderedDetails
-                //       join entry in allTodayEntries on comp.Epoch.ToString() equals entry.Key
-                //       select comp;
-
-                //var missingReadings = orderedDetails.Except(query.ToList()).ToList();
-
-
-
-                //foreach (var reading in missingReadings.OrderBy(e => e.Timestamp))
-                //{
-
-                //    await CreateEntrySgv(reading.Amount, reading.Timestamp.Value.ToString(dateformat), reading.Epoch, reading.Trend.ToString(), false);
-                //}
-
-
-                //List<CompareEvents> compares = new List<CompareEvents>();
-
-                //foreach (var pumpevent in sensorReadings)
-                //{
-                //    var firstdate = pumpevent.Timestamp.Value;
-                //    var reading = (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)pumpevent.Message;
-                //    for (int i = 0; i < reading.Details.Count; i++)
-                //    {
-                //        //if (reading.Details[i].Amount <= 400)
-                //        //{
-                //        var readDateTime = firstdate.AddMinutes(i * -5);
-                //        compares.Add(new CompareEvents(reading.Details[i], readDateTime));
-                //        //}
-                //    }
-                //}
-
-
-
-
-
-                //todo another query by dates would be better. a between query.... but nightscout restapi do not have this...or it does not work.
-                //var numberOfDays = to.Value.Subtract(from.Value).Days;
-                //List<Entry> entries = new List<Entry>();
-
-                //for (int i = 0; i <= numberOfDays; i++)
-                //{
-                //    DateTime getdate = from.Value.AddDays(i);
-
-                //    var allTodayEntries = await _client.EntriesAsync($"find[type]=sgv&find[dateString][$gte]={getdate.ToString("yyyy-MM-dd")}", 1000);
-                //    entries.AddRange(allTodayEntries);
-                //}
-
-
-                //var allTodayEntries = await _client.EntriesAsync($"find[type]=sgv", 1000);
-                //entries.AddRange(allTodayEntries);
-
-                //var query =
-                //   from comp in compares
-                //   join entry in entries on comp.DateString equals entry.DateString
-                //   select comp;
-
-                //var missingReadings = compares.Except(query.ToList()).ToList();
-
-                //if (missingReadings.Count>0)
-                //{
-                //    gotReadingFromEvent = true;
-                //}
-
-
-
             }
         }
 

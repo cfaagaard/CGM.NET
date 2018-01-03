@@ -16,25 +16,18 @@ namespace CGM.Communication.MiniMed.Responses.Events
         public byte NumberOfReadings { get; set; }
 
         [BinaryElement(2)]
-        public byte PredictedSg { get; set; }
+        public UInt16 PredictedSg { get; set; }
 
-        [BinaryElement(3)]
+        [BinaryElement(4)]
         [BinaryElementList(CountProperty = nameof(NumberOfReadings), Type = typeof(SENSOR_GLUCOSE_READINGS_EXTENDED_Detail), ByteSize = 9)]
         public List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail> Details { get; set; } = new List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail>();
-
-
-
-        public override void OnDeserialization(byte[] bytes, SerializerSession settings)
-        {
-            base.OnDeserialization(bytes, settings);
-        }
 
         public override string ToString()
         {
             string returnstr = "";
             if (Details.Count >= 1)
             {
-                returnstr = $"{this.Timestamp.Value.ToString()} - {Details[0].ToString()}"; ;
+                returnstr = $"#:{NumberOfReadings} - {Details[0].ToString()}"; ;
             }
             return returnstr;
         }
@@ -44,21 +37,11 @@ namespace CGM.Communication.MiniMed.Responses.Events
 
     public class SENSOR_GLUCOSE_READINGS_EXTENDED_Detail : BaseEvent
     {
+
         [BinaryElement(0, Length = 1)]
-        public byte PREDICTED_SENSOR_GLUCOSE_AMOUNT_RAW { get; set; }
-
-        public int PREDICTED_SENSOR_GLUCOSE_AMOUNT
-        {
-            get
-            {
-                return ((SgvRaw1 & 3) << 8) | PREDICTED_SENSOR_GLUCOSE_AMOUNT_RAW;
-            }
-        }
-
-        [BinaryElement(1, Length = 1)]
         public byte SgvRaw1 { get; set; }
 
-        [BinaryElement(2, Length = 1)]
+        [BinaryElement(1, Length = 1)]
         public byte SgvRaw2 { get; set; }
 
 
@@ -73,15 +56,15 @@ namespace CGM.Communication.MiniMed.Responses.Events
         //[BinaryElement(3, Length = 2)]
         //public Int16 VCNTR { get; set; }
 
-        [BinaryElement(3, Length = 2)]
+        [BinaryElement(2, Length = 2)]
         public Int16 IsigRaw { get; set; }
 
         public double Isig { get { return (double)this.IsigRaw / 100; } }
 
-        [BinaryElement(5, Length = 1)]
+        [BinaryElement(4, Length = 1)]
         public byte Uknown2 { get; set; }
 
-        [BinaryElement(6, Length = 2)]
+        [BinaryElement(5, Length = 2)]
         public Int16 RateOfChangeRaw { get; set; }
 
         public double RateOfChange { get { return (double)this.RateOfChangeRaw / 100; } }
@@ -91,14 +74,18 @@ namespace CGM.Communication.MiniMed.Responses.Events
             get
 
             {
-                if (Amount<=400)
+                if (RateOfChangeRaw == 0 && this.PredictedSg == 0)
+                {
+                    return SgvTrend.NotComputable;
+                }
+                else
                 {
                     //maybe there is a max
                     if (RateOfChangeRaw > 300)
                     {
                         return SgvTrend.DoubleUp;
                     }
-                    if (RateOfChangeRaw <= 300 && RateOfChangeRaw >= 100 )
+                    if (RateOfChangeRaw <= 300 && RateOfChangeRaw >= 100)
                     {
                         return SgvTrend.SingleUp;
                     }
@@ -109,7 +96,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
                     }
 
 
-                    if (RateOfChangeRaw <= 50 && RateOfChangeRaw >= -50 )
+                    if (RateOfChangeRaw <= 50 && RateOfChangeRaw >= -50)
                     {
                         return SgvTrend.Flat;
                     }
@@ -118,7 +105,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
                     {
                         return SgvTrend.FortyFiveDown;
                     }
-                    if (RateOfChangeRaw <= -101 && RateOfChangeRaw >= -300 )
+                    if (RateOfChangeRaw <= -101 && RateOfChangeRaw >= -300)
                     {
                         return SgvTrend.SingleDown;
                     }
@@ -130,17 +117,19 @@ namespace CGM.Communication.MiniMed.Responses.Events
                 }
                 return SgvTrend.NotComputable;
 
-               
+
 
             }
         }
 
-        [BinaryElement(8, Length = 1)]
+        [BinaryElement(7, Length = 1)]
         public byte SensorStatus { get; set; }
 
         public long Epoch { get { return ((DateTimeOffset)this.Timestamp.Value).ToUnixTimeMilliseconds(); } }
 
         public string Reference { get; set; }
+
+        public UInt16 PredictedSg { get; set; }
 
         //[BinaryElement(9, Length = 1)]
         //public byte ReadingStatus { get; set; }
@@ -165,7 +154,8 @@ namespace CGM.Communication.MiniMed.Responses.Events
 
         public override string ToString()
         {
-            return $"{Amount}/{Isig}/{RateOfChange}/{PREDICTED_SENSOR_GLUCOSE_AMOUNT_RAW}/{Trend}";
+            //return $"{Amount}/{Isig}/{RateOfChange}/{PREDICTED_SENSOR_GLUCOSE_AMOUNT_RAW}/{Trend}";
+            return $"{this.Timestamp.Value.ToString()} - {Amount}/{Isig}/{RateOfChange}/{PredictedSg}/{Trend}";
         }
     }
 }

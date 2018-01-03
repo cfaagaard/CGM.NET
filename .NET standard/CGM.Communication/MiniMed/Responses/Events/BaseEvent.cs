@@ -67,6 +67,20 @@ namespace CGM.Communication.MiniMed.Responses.Events
             this.AllBytes = bytes;
             this.AllBytesE = bytes.Reverse().ToArray();
             this.BytesAsString = BitConverter.ToString(AllBytes);
+            if (this.Message.GetType().Equals(typeof(SENSOR_GLUCOSE_READINGS_EXTENDED_Event)))
+            {
+                var reading = (SENSOR_GLUCOSE_READINGS_EXTENDED_Event)this.Message;
+                for (int i = 0; i < reading.Details.Count; i++)
+                {
+                    if (reading.Timestamp.HasValue)
+                    {
+                        var read = reading.Details[i];
+                        var readingRtc = this.Rtc - (i * reading.MinutesBetweenReadings * 60);
+                        read.Timestamp = DateTimeExtension.GetDateTime(readingRtc, this.Offset);
+                        read.PredictedSg = reading.PredictedSg;
+                    }
+                }
+            }
         }
 
         public override string ToString()
