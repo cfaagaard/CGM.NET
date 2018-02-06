@@ -35,7 +35,7 @@ namespace CGM.Communication.MiniMed.Model
         No_Delivery_7 = 7,
         No_Delivery_After_Estimate_8 = 8,
         No_Reservoir_66 = 66,
-        Sensor_Alarm_786 = 786,
+        Sensor_Alarm_786 = 786, //no calibration
         Sensor_Alarm_787 = 787,
         Sensor_Alarm_788 = 788, //"BG not received."
         Sensor_Alarm_789 = 789,

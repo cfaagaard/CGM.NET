@@ -484,7 +484,8 @@ namespace CGM.Communication.Data.Nightscout
                     for (int i = 0; i < reading.Details.Count; i++)
                     {
                         var read = reading.Details[i];
-                        CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key);
+                        
+                        CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key,read.PredictedSg);
                         //if (reading.Timestamp.HasValue)
                         //{
                         //    var read = reading.Details[i];
@@ -514,7 +515,7 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
-        protected void CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key)
+        protected void CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key,ushort prediction)
         {
 
             string serialNum = _session.Device.SerialNumberFull;
@@ -526,6 +527,8 @@ namespace CGM.Communication.Data.Nightscout
             entry.DateString = dateString;
             entry.Device = string.Format("medtronic-640g://{0}", serialNum);
             entry.Key = key;
+           
+           // entry.Noise
             if (entry.Sgv <= 400)
             {
                 this.Entries.Add(entry);
