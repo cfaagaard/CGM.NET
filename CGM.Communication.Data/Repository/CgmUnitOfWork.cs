@@ -12,7 +12,7 @@ namespace CGM.Communication.Data.Repository
     public class CgmUnitOfWork : IDisposable
     {
         protected ILogger Logger = ApplicationLogging.CreateLogger<BaseRepository<CgmUnitOfWork>>();
-        private int _currentDBVersion = 12;
+        private int _currentDBVersion = 1;
         public static string DatabaseName { get { return @"CgmData.db"; } }
 
         private SQLiteConnection _connection;
@@ -52,13 +52,17 @@ namespace CGM.Communication.Data.Repository
         {
 
             _connection.CreateTable<Device>();
-            _connection.CreateTable<Setting>();
+            _connection.CreateTable<SqliteSetting>();
             _connection.CreateTable<History>();
             _connection.CreateTable<HistoryStatus>();
-            string sql = "INSERT INTO Setting(SettingId,DatabaseVersion) VALUES(1,0);";
 
-            var command = _connection.CreateCommand(sql);
-            var count = command.ExecuteNonQuery();
+            var setting=Setting.GetSettings();
+            setting.DatabaseVersion = 1;
+            Setting.Update(setting);
+            //string sql = "INSERT INTO SqliteSetting(SettingId,DatabaseVersion) VALUES(1);";
+
+            //var command = _connection.CreateCommand(sql);
+            //var count = command.ExecuteNonQuery();
 
         }
 
@@ -72,7 +76,7 @@ namespace CGM.Communication.Data.Repository
 
         public void CheckDatabaseVersion(string exportPath)
         {
-            string sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='Setting';";
+            string sql = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='SqliteSetting';";
 
            var command= _connection.CreateCommand(sql);
             var count=command.ExecuteScalar<int>();

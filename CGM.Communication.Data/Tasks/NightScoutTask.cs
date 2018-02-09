@@ -1,4 +1,5 @@
-﻿using CGM.Communication.Common.Serialize;
+﻿using CGM.Communication.Common;
+using CGM.Communication.Common.Serialize;
 using CGM.Communication.Data;
 using CGM.Communication.Data.Repository;
 using CGM.Communication.Interfaces;
@@ -38,7 +39,7 @@ namespace CGM.Communication.Tasks
             using (Data.Repository.CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 _setting= uow.Setting.GetSettings();
-                Intervalseconds = _setting.OtherSettings.IntervalSeconds;
+                Intervalseconds = _setting.IntervalSeconds;
             }
 
             SetUpTimer(DateTime.Now.AddSeconds(2));
@@ -97,7 +98,7 @@ namespace CGM.Communication.Tasks
             {
                 using (CgmUnitOfWork uow = new CgmUnitOfWork())
                 {
-                    if (_setting.OtherSettings.UploadToNightscout)
+                    if (_setting.UploadToNightscout)
                     {
                         session = await uow.Pump.GetPumpDataAndUploadAsync(_device, GetBattery(), _token);
                     }

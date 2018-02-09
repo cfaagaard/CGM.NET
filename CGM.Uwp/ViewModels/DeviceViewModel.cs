@@ -1,4 +1,5 @@
-﻿using CGM.Communication.Common.Serialize;
+﻿using CGM.Communication.Common;
+using CGM.Communication.Common.Serialize;
 using CGM.Communication.Data;
 using CGM.Communication.Log;
 using CGM.Communication.MiniMed.Responses;
@@ -247,7 +248,7 @@ namespace CGM.Uwp.ViewModels
                         using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
                         {
                             settings = uow.Setting.GetSettings();
-                            if (this.IsConnected && settings.OtherSettings.AutoStartTask)
+                            if (this.IsConnected && settings.AutoStartTask)
                             {
                                 this.On = true;
                             }

@@ -181,6 +181,23 @@ namespace CGM.Communication.Data.Nightscout
 
                 }
             }
+
+            //var events = eventsToHandle.Where(e => e.EventType == MiniMed.Infrastructur.EventTypeEnum.);
+            //int count = events.Count();
+            //if (count > 0)
+            //{
+            //    foreach (var item in events)
+            //    {
+            //        string status = "On";
+            //        if (item.Message.AllBytes[0] == 0x00)
+            //        {
+            //            status = "Off";
+            //        }
+            //        CreateNote(string.Format("{0} ({1})", EventTypeEnum.AIRPLANE_MODE.ToString(), status), item.Timestamp.Value, item.Key);
+
+            //    }
+            //}
+
         }
 
 
@@ -307,7 +324,7 @@ namespace CGM.Communication.Data.Nightscout
 
 
 
-                if (!string.IsNullOrEmpty(Session.Settings.NotificationUrl) && Session.Settings.OtherSettings.SendEventsToNotificationUrl)
+                if (!string.IsNullOrEmpty(Session.Settings.NotificationUrl) && Session.Settings.SendEventsToNotificationUrl)
                 {
                     var notif = this.Treatments.Where(e => !string.IsNullOrEmpty(e.Notification.Type)).Select(e => e.Notification);
                     if (notif.Count() > 0)
@@ -443,7 +460,25 @@ namespace CGM.Communication.Data.Nightscout
                     //announcement.Notification.Type = EventTypeEnum.ALARM_NOTIFICATION.ToString();
                     //announcement.Notification.Text = msg.AlarmTypeName.ToString();
 
+                    if (msg.AlarmTypeName==Alerts.Suspend_Before_Low_Alarm_quiet_810
+                        || msg.AlarmTypeName == Alerts.Suspend_Before_Low_Alarm_811
+                         || msg.AlarmTypeName == Alerts.Suspend_On_Low_Alarm_809
+                        )
+                    {
+                        var treatment = CreateTempBasalProgrammed(item.Timestamp.Value, item.Key);
 
+                        treatment.Duration = "60";
+                        treatment.absolute = "0";
+                    }
+
+                    if (msg.AlarmTypeName == Alerts.Basal_Delivery_Resumed_Alert_quiet_806
+                        || msg.AlarmTypeName == Alerts.Basal_Delivery_Resumed_Alert_glucose_still_low_maximum_suspend_reached_814
+                        || msg.AlarmTypeName == Alerts.Basal_Delivery_Resumed_Alert_maximum_suspend_reached_808)
+                    {
+                        var treatment = CreateTempBasalProgrammed(item.Timestamp.Value, item.Key);
+
+                        treatment.Duration = "0";
+                    }
                 }
             }
         }
@@ -485,7 +520,7 @@ namespace CGM.Communication.Data.Nightscout
                     {
                         var read = reading.Details[i];
                         
-                        CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key,read.PredictedSg);
+                        CreateEntrySgv(read.Amount, read.Timestamp.Value.ToString(dateformat), read.Epoch, read.Trend.ToString(), false, msg.Key,read.PredictedSg,read.Isig);
                         //if (reading.Timestamp.HasValue)
                         //{
                         //    var read = reading.Details[i];
@@ -515,7 +550,7 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
-        protected void CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key,ushort prediction)
+        protected void CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key,ushort prediction,double isig)
         {
 
             string serialNum = _session.Device.SerialNumberFull;
@@ -527,7 +562,8 @@ namespace CGM.Communication.Data.Nightscout
             entry.DateString = dateString;
             entry.Device = string.Format("medtronic-640g://{0}", serialNum);
             entry.Key = key;
-           
+            entry.Isig = isig;
+
            // entry.Noise
             if (entry.Sgv <= 400)
             {
@@ -551,7 +587,7 @@ namespace CGM.Communication.Data.Nightscout
             }
             else
             {
-                if (Session.Settings.OtherSettings.HandleAlert776)
+                if (Session.Settings.HandleAlert776)
                 {
                     switch (entry.Sgv)
                     {
@@ -696,8 +732,13 @@ namespace CGM.Communication.Data.Nightscout
 
                 var date = entry.Date.Value.GetDateTime();
                 //var note = $"{alert.ToString()} - ({entry.DateString})";
-                var note = $"{alert.ToString()}";
-                CreateAnnouncement(note, date, "Alert", entry.Key);
+                string msg = $"{alert.ToString()}";
+                if (entry.Isig.HasValue)
+                {
+                    msg = $"{alert.ToString()} <br> ISIG:{entry.Isig.ToString()}";
+                }
+                //var note = $"{alert.ToString()}";
+                CreateAnnouncement(msg, date, "Alert", entry.Key);
 
             }
 

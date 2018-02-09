@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using CGM.Communication.Extensions;
 using CGM.Communication.MiniMed.Responses.Patterns;
 using CGM.Communication.Common.Serialize;
-using CGM.Communication.Tasks;
+
 
 namespace CGM.Communication
 {

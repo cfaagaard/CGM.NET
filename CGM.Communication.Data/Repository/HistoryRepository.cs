@@ -6,6 +6,7 @@ using SQLite;
 using CGM.Communication.Common.Serialize;
 using System.Threading.Tasks;
 using CGM.Communication.MiniMed.Infrastructur;
+using CGM.Communication.Common;
 
 namespace CGM.Communication.Data.Repository
 {
@@ -111,7 +112,7 @@ namespace CGM.Communication.Data.Repository
             var values = Enum.GetValues(typeof(HistoryDataTypeEnum)).Cast<HistoryDataTypeEnum>();
 
             var settings = _uow.Setting.GetSettings();
-            settings.OtherSettings.LastRead = new List<LastPumpRead>();
+            settings.LastRead = new List<LastPumpRead>();
             _uow.Setting.Update(settings);
         }
 
@@ -120,11 +121,11 @@ namespace CGM.Communication.Data.Repository
             var values = Enum.GetValues(typeof(HistoryDataTypeEnum)).Cast<HistoryDataTypeEnum>();
 
             var settings = _uow.Setting.GetSettings();
-            settings.OtherSettings.LastRead = new List<LastPumpRead>();
+            settings.LastRead = new List<LastPumpRead>();
             foreach (var value in values)
             {
                 int rtc = GetMaxRtc((int)value);
-                settings.OtherSettings.LastRead.Add(new LastPumpRead() { DataType = (int)value, LastRtc = rtc });
+                settings.LastRead.Add(new LastPumpRead() { DataType = (int)value, LastRtc = rtc });
 
             }
             _uow.Setting.Update(settings);

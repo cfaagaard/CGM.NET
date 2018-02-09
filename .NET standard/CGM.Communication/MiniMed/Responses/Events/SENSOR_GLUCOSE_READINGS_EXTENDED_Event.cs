@@ -1,6 +1,10 @@
 ﻿using CGM.Communication.Common.Serialize;
 using CGM.Communication.MiniMed.DataTypes;
 using CGM.Communication.MiniMed.Model;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -44,13 +48,15 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [BinaryElement(1, Length = 1)]
         public byte SgvRaw2 { get; set; }
 
-
+        private int _amount;
         public int Amount
         {
             get
             {
-                return ((SgvRaw1 & 3) << 8) | SgvRaw2;
+                _amount=((SgvRaw1 & 3) << 8) | SgvRaw2;
+                return _amount;
             }
+            set { _amount = value; }
         }
 
         //[BinaryElement(3, Length = 2)]
@@ -59,7 +65,12 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [BinaryElement(2, Length = 2)]
         public Int16 IsigRaw { get; set; }
 
-        public double Isig { get { return (double)this.IsigRaw / 100; } }
+        private double _isig;
+        public double Isig { get { _isig=(double)this.IsigRaw / 100;
+                return _isig;
+            }
+            set { _isig = value; }
+        }
 
         [BinaryElement(4, Length = 1)]
         public byte Uknown2 { get; set; }
@@ -67,65 +78,96 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [BinaryElement(5, Length = 2)]
         public Int16 RateOfChangeRaw { get; set; }
 
-        public double RateOfChange { get { return (double)this.RateOfChangeRaw / 100; } }
+        private double _rateOfChange;
+        public double RateOfChange { get { _rateOfChange=(double)this.RateOfChangeRaw / 100;
+                return _rateOfChange;
+            }
+            set { _rateOfChange = value; }
+        }
 
+
+        private SgvAlert? sgvAlert;
+        [BsonRepresentation(BsonType.String)]
+        public SgvAlert? Alert
+        {
+            get {
+                if (this.Amount>700)
+                {
+                    sgvAlert = (SgvAlert)this.Amount;
+                }
+                return sgvAlert; }
+            set { sgvAlert = value; }
+        }
+
+
+        private SgvTrend _trend;
+        // [JsonConverter(typeof(StringEnumConverter))]
+        [BsonRepresentation(BsonType.String)]
         public SgvTrend Trend
         {
             get
 
             {
+                _trend = SgvTrend.NotComputable;
                 if (RateOfChangeRaw == 0 && this.PredictedSg == 0)
                 {
-                    return SgvTrend.NotComputable;
+                    _trend= SgvTrend.NotComputable;
                 }
                 else
                 {
                     //maybe there is a max
                     if (RateOfChangeRaw > 300)
                     {
-                        return SgvTrend.DoubleUp;
+                        _trend = SgvTrend.DoubleUp;
                     }
                     if (RateOfChangeRaw <= 300 && RateOfChangeRaw >= 100)
                     {
-                        return SgvTrend.SingleUp;
+                        _trend = SgvTrend.SingleUp;
                     }
 
                     if (RateOfChangeRaw <= 101 && RateOfChangeRaw >= 51)
                     {
-                        return SgvTrend.FortyFiveUp;
+                        _trend = SgvTrend.FortyFiveUp;
                     }
 
 
                     if (RateOfChangeRaw <= 50 && RateOfChangeRaw >= -50)
                     {
-                        return SgvTrend.Flat;
+                        _trend = SgvTrend.Flat;
                     }
 
                     if (RateOfChangeRaw <= -51 && RateOfChangeRaw >= -100)
                     {
-                        return SgvTrend.FortyFiveDown;
+                        _trend = SgvTrend.FortyFiveDown;
                     }
                     if (RateOfChangeRaw <= -101 && RateOfChangeRaw >= -300)
                     {
-                        return SgvTrend.SingleDown;
+                        _trend = SgvTrend.SingleDown;
                     }
                     //maybe there is a max
                     if (RateOfChangeRaw < -300)
                     {
-                        return SgvTrend.DoubleDown;
+                        _trend = SgvTrend.DoubleDown;
                     }
                 }
-                return SgvTrend.NotComputable;
+                return _trend;
 
 
 
             }
+            set { _trend = value; }
         }
 
         [BinaryElement(7, Length = 1)]
         public byte SensorStatus { get; set; }
 
-        public long Epoch { get { return ((DateTimeOffset)this.Timestamp.Value).ToUnixTimeMilliseconds(); } }
+
+        private long _epoch;
+        public long Epoch { get { _epoch=((DateTimeOffset)this.Timestamp.Value).ToUnixTimeMilliseconds();
+                return _epoch;
+            }
+            set { _epoch = value; }
+        }
 
         public string Reference { get; set; }
 

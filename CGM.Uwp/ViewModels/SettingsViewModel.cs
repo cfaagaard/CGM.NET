@@ -1,16 +1,14 @@
 using System;
 using System.Windows.Input;
-
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-
 using CGM.Uwp.Services;
-
 using Windows.ApplicationModel;
 using CGM.Communication.Data;
 using System.Collections.ObjectModel;
 using GalaSoft.MvvmLight.Views;
 using System.Collections.Generic;
+using CGM.Communication.Common;
 
 namespace CGM.Uwp.ViewModels
 {
@@ -88,10 +86,10 @@ namespace CGM.Uwp.ViewModels
        
         public bool  IncludeHistory
         {
-            get { return _setting.OtherSettings.IncludeHistory; }
+            get { return _setting.IncludeHistory; }
             set
             {
-                _setting.OtherSettings.IncludeHistory = value;
+                _setting.IncludeHistory = value;
                 RaisePropertyChanged(nameof(IncludeHistory));
                 SaveSetting();
             }
@@ -99,10 +97,10 @@ namespace CGM.Uwp.ViewModels
 
         public bool SendEventsToNotificationUrl
         {
-            get { return _setting.OtherSettings.SendEventsToNotificationUrl; }
+            get { return _setting.SendEventsToNotificationUrl; }
             set
             {
-                _setting.OtherSettings.SendEventsToNotificationUrl = value;
+                _setting.SendEventsToNotificationUrl = value;
                 this.RaisePropertyChanged(nameof(SendEventsToNotificationUrl));
                 SaveSetting();
             }
@@ -110,10 +108,10 @@ namespace CGM.Uwp.ViewModels
 
         public int HistoryDaysBack
         {
-            get { return _setting.OtherSettings.HistoryDaysBack; }
+            get { return _setting.HistoryDaysBack; }
             set
             {
-                _setting.OtherSettings.HistoryDaysBack = value;
+                _setting.HistoryDaysBack = value;
                 this.RaisePropertyChanged(nameof(HistoryDaysBack));
                 SaveSetting();
             }
@@ -121,20 +119,20 @@ namespace CGM.Uwp.ViewModels
 
         public int IntervalSeconds
         {
-            get { return _setting.OtherSettings.IntervalSeconds; }
+            get { return _setting.IntervalSeconds; }
             set
             {
-                _setting.OtherSettings.IntervalSeconds = value;
+                _setting.IntervalSeconds = value;
                 this.RaisePropertyChanged(nameof(IntervalSeconds));
                 SaveSetting();
             }
         }
         public int TimeoutSeconds
         {
-            get { return _setting.OtherSettings.TimeoutSeconds; }
+            get { return _setting.TimeoutSeconds; }
             set
             {
-                _setting.OtherSettings.TimeoutSeconds = value;
+                _setting.TimeoutSeconds = value;
                 this.RaisePropertyChanged(nameof(TimeoutSeconds));
                 SaveSetting();
             }
@@ -143,10 +141,10 @@ namespace CGM.Uwp.ViewModels
 
         public bool AutoStartTask
         {
-            get { return _setting.OtherSettings.AutoStartTask; }
+            get { return _setting.AutoStartTask; }
             set
             {
-                _setting.OtherSettings.AutoStartTask = value;
+                _setting.AutoStartTask = value;
                 this.RaisePropertyChanged(nameof(AutoStartTask));
                 SaveSetting();
             }
@@ -154,10 +152,10 @@ namespace CGM.Uwp.ViewModels
 
         public bool OnlyFromTheLastReading
         {
-            get { return _setting.OtherSettings.OnlyFromTheLastReading; }
+            get { return _setting.OnlyFromTheLastReading; }
             set
             {
-                _setting.OtherSettings.OnlyFromTheLastReading = value;
+                _setting.OnlyFromTheLastReading = value;
                 this.RaisePropertyChanged(nameof(OnlyFromTheLastReading));
                 SaveSetting();
             }
@@ -165,10 +163,10 @@ namespace CGM.Uwp.ViewModels
 
         public bool UploadToNightscout
         {
-            get { return _setting.OtherSettings.UploadToNightscout; }
+            get { return _setting.UploadToNightscout; }
             set
             {
-                _setting.OtherSettings.UploadToNightscout = value;
+                _setting.UploadToNightscout = value;
                 this.RaisePropertyChanged(nameof(UploadToNightscout));
                 SaveSetting();
             }
@@ -176,10 +174,10 @@ namespace CGM.Uwp.ViewModels
 
         public bool HandleAlert776
         {
-            get { return _setting.OtherSettings.HandleAlert776; }
+            get { return _setting.HandleAlert776; }
             set
             {
-                _setting.OtherSettings.HandleAlert776 = value;
+                _setting.HandleAlert776 = value;
                 this.RaisePropertyChanged(nameof(HandleAlert776));
                 SaveSetting();
             }

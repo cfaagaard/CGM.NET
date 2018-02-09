@@ -16,29 +16,19 @@ using CGM.Communication.Common;
 using CGM.Communication.MiniMed.Requests.Standard;
 using CGM.Communication.MiniMed.Responses.Patterns;
 using System.Linq;
-using CGM.Communication.Data.Repository;
 using CGM.Communication.MiniMed.Infrastructur;
 using System.Diagnostics;
-using CGM.Communication.Data;
 
 namespace CGM.Communication.MiniMed
 {
     public class MiniMedContext : BaseContext
     {
-        private Setting _setting;
+        private IStateRepository _stateRepository;
 
-        public MiniMedContext(IDevice device) : base(device)
-        {
-            using (Data.Repository.CgmUnitOfWork uow = new CgmUnitOfWork())
-            {
-                _setting = uow.Setting.GetSettings();
-
-            }
-        }
-
-        public MiniMedContext(IDevice device, SerializerSession session) : base(device)
+        public MiniMedContext(IDevice device, SerializerSession session, IStateRepository stateRepository) : base(device)
         {
             this.Session = session;
+            _stateRepository = stateRepository;
         }
 
 
@@ -79,7 +69,7 @@ namespace CGM.Communication.MiniMed
             tasks.Add(() => StartPumpTimeAsync(cancelToken));
             tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
 
-            if (_setting.OtherSettings.IncludeHistory)
+            if (Session.Settings.IncludeHistory)
             {
                 tasks.Add(() => StartReadHistory(cancelToken));
             }
@@ -272,7 +262,7 @@ namespace CGM.Communication.MiniMed
 
             Logger.LogInformation("Getting CNL deviceInformation");
             CommunicationBlock block = new CommunicationBlock();
-            block.TimeoutSeconds = _setting.OtherSettings.TimeoutSeconds;
+            block.TimeoutSeconds = Session.Settings.TimeoutSeconds;;
             block.Request = new AstmStart("X");
             //block.Request = new AstmStart("W");
             //expected responses for the request
@@ -293,10 +283,11 @@ namespace CGM.Communication.MiniMed
                 else
                 {
                     //Get previous saved parameters Or set this session if device do not exsist
-                    using (CgmUnitOfWork uow = new CgmUnitOfWork())
-                    {
-                        uow.Device.GetOrSetSessionAndSettings(Session);
-                    }
+                    _stateRepository.GetOrSetSessionAndSettings(Session);
+                    //using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                    //{
+                    //    uow.Device.GetOrSetSessionAndSettings(Session);
+                    //}
                 }
             }
 
@@ -359,10 +350,11 @@ namespace CGM.Communication.MiniMed
                 else
                 {
                     //save macs
-                    using (CgmUnitOfWork uow = new CgmUnitOfWork())
-                    {
-                        uow.Device.AddUpdateSessionToDevice(Session);
-                    }
+                    _stateRepository.AddUpdateSessionToDevice(Session);
+                    //using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                    //{
+                    //    uow.Device.AddUpdateSessionToDevice(Session);
+                    //}
                 }
 
             }
@@ -386,10 +378,11 @@ namespace CGM.Communication.MiniMed
                 {
                     Logger.LogInformation($"Got LinkKey: {BitConverter.ToString(this.Session.LinkKey)}");
                     //save LinkKey
-                    using (CgmUnitOfWork uow = new CgmUnitOfWork())
-                    {
-                        uow.Device.AddUpdateSessionToDevice(Session);
-                    }
+                    _stateRepository.AddUpdateSessionToDevice(Session);
+                    //using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                    //{
+                    //    uow.Device.AddUpdateSessionToDevice(Session);
+                    //}
                 }
 
             }
@@ -487,10 +480,11 @@ namespace CGM.Communication.MiniMed
                 this.Session.RadioChannelConfirmed = true;
                 Logger.LogInformation($"Connected on radiochannel {this.Session.RadioChannel.ToString()}. ({this.Session.RadioRSSI}%)");
                 //save LinkKey
-                using (CgmUnitOfWork uow = new CgmUnitOfWork())
-                {
-                    uow.Device.AddUpdateSessionToDevice(Session);
-                }
+                _stateRepository.AddUpdateSessionToDevice(Session);
+                //using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                //{
+                //    uow.Device.AddUpdateSessionToDevice(Session);
+                //}
             }
 
 
@@ -559,101 +553,22 @@ namespace CGM.Communication.MiniMed
             }
         }
 
-
-        //private async Task SetDates()
-        //{
-        //    //last upload to nightscout
-        //    //should be an option
-        //    DateTime? lastSvgUploadDateTime = null;
-        //    double hours = 0;
-        //    using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
-        //    {
-        //        lastSvgUploadDateTime = await uow.Nightscout.LastSvgUpload(this.Session.Settings.NightscoutApiUrl, this.Session.Settings.NightscoutSecretkey);
-        //    }
-
-        //    if (lastSvgUploadDateTime.HasValue)
-        //    {
-        //        hours = lastSvgUploadDateTime.Value.Subtract(DateTime.Now).TotalHours;
-
-        //    }
-        //    else
-        //    {
-        //        hours = -24;
-        //    }
-
-        //    DateTime from = DateTime.Now.AddHours(hours);
-
-        //    //in carelink upload (from wireshark dumps) it looks like it always defaults to midnight before the date set in readinfo
-        //    //maybe we do not need this. Test it.
-        //    from = from.AddDays(-1);
-        //    this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
-
-        //    //this is not used yet. Defaults to 4*255 later in the code.
-        //    this.Session.PumpDataHistory.To = DateTime.Now;
-
-        //}
-
-        //private void SetDatesDays(int days)
-        //{
-        //    var from = DateTime.Now.AddDays(-1 * days);
-
-        //    from = from.AddDays(-1);
-        //    //this.Session.PumpDataHistory.From = new DateTime(from.Year, from.Month, from.Day, 23, 59, 59);
-        //    this.Session.PumpDataHistory.From = from;
-        //    //this is not used yet. Defaults to 4*255 later in the code.
-        //    this.Session.PumpDataHistory.To = DateTime.Now;
-
-
-        //    //new settings....
-        //    //testing
-
-
-        //}
-
         private async Task StartReadHistory(CancellationToken cancelToken)
         {
-            //if (Session.Settings.OtherSettings.OnlyFromTheLastReading)
-            //{
-            //    await SetDates();
-            //}
-            //else
-            //{
-            //    SetDatesDays(Session.Settings.OtherSettings.HistoryDaysBack);
-            //}
-
-
-            //if (Session.PumpDataHistory.From.HasValue && Session.PumpDataHistory.To.HasValue)
-            //{
-            //DateTime from = Session.PumpDataHistory.From.Value;
-            //DateTime to = Session.PumpDataHistory.To.Value;
-
-            //Logger.LogInformation($"Getting history from {from.ToString()} to {to.ToString()}");
-
-
-
             await StartReadHistoryByType(HistoryDataTypeEnum.SENSOR_DATA, cancelToken);
-
             await StartReadHistoryByType(HistoryDataTypeEnum.PUMP_DATA, cancelToken);
-
-
-            //}
         }
-
-
 
         private async Task StartReadHistoryByType(HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {
-
             await StartReadHistoryInfoAsync(historytype, cancelToken);
             await StartReadHistoryAsync(historytype, cancelToken);
-
             await StartReadHistoryEvents(cancelToken);
 
         }
 
         private async Task StartReadHistoryEvents(CancellationToken cancelToken)
         {
-
             await StartMultiPacketAsync(new byte[] { 0x00, 0xff }, cancelToken);
             await EndMultiPacketAsync(new byte[] { 0x01, 0xff }, cancelToken);
 

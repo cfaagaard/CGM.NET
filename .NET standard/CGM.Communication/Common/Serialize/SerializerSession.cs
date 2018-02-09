@@ -5,7 +5,6 @@ using CGM.Communication.MiniMed.Requests;
 using CGM.Communication.MiniMed.Responses;
 using System.Collections.Generic;
 using System.Text;
-using CGM.Communication.Data;
 using CGM.Communication.Extensions;
 using System.Threading.Tasks;
 using System.Linq;
@@ -122,7 +121,7 @@ namespace CGM.Communication.Common.Serialize
             this.Options = options;
         }
 
-        internal void NewSession()
+        public void NewSession()
         {
             this.SessionVariables = new SessionVariables();
             this.Status = new List<PumpStatusMessage>();
@@ -337,11 +336,11 @@ namespace CGM.Communication.Common.Serialize
 
         private int GetLastRtc(HistoryDataTypeEnum historyDataType)
         {
-            var lastRead = this.Settings.OtherSettings.LastRead.FirstOrDefault(e => e.DataType == (int)historyDataType);
+            var lastRead = this.Settings.LastRead.FirstOrDefault(e => e.DataType == (int)historyDataType);
             int lastRtc = 0;
             if (lastRead == null)
             {
-                lastRtc = DateTime.Now.AddDays(-1 * this.Settings.OtherSettings.HistoryDaysBack).GetRtcBytes(this.PumpTime.OffSet).GetInt32(0);
+                lastRtc = DateTime.Now.AddDays(-1 * this.Settings.HistoryDaysBack).GetRtcBytes(this.PumpTime.OffSet).GetInt32(0);
             }
             else
             {

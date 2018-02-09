@@ -167,7 +167,20 @@ namespace CGM.Communication.Data.Nightscout
             }
         }
 
-
+        private double? _isig;
+        [Newtonsoft.Json.JsonProperty("Isig", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public double? Isig
+        {
+            get { return _isig; }
+            set
+            {
+                if (_isig != value)
+                {
+                    _isig = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
     }
 
     public partial class Treatment
@@ -185,6 +198,9 @@ namespace CGM.Communication.Data.Nightscout
 
         [Newtonsoft.Json.JsonProperty("percent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Percent { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("absolute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string absolute { get; set; }
     }
 }
 

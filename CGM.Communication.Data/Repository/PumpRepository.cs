@@ -29,29 +29,33 @@ namespace CGM.Communication.Data.Repository
             _uow = uow;
         }
 
-        public async Task<SerializerSession> GetPumpSessionAsync(IDevice device, CancellationToken cancelToken)
+        public async Task<SerializerSession> GetPumpSessionAsync(IDevice device,   CancellationToken cancelToken)
         {
             if (device == null)
             {
                 throw new ArgumentException("No device found");
             }
-            MiniMed.MiniMedContext context = new MiniMed.MiniMedContext(device);
+
+            IStateRepository stateRepository = new SessionStateRepository();
+            SerializerSession session = new SerializerSession();
+
+            MiniMed.MiniMedContext context = new MiniMed.MiniMedContext(device,session,stateRepository);
 
             return await context.GetPumpSessionAsync(cancelToken);
 
         }
 
-        public async Task<SerializerSession> GetOnlyCnlSessionAsync(IDevice device, CancellationToken cancelToken)
-        {
-            if (device == null)
-            {
-                throw new ArgumentException("No device found");
-            }
-            MiniMed.MiniMedContext context = new MiniMed.MiniMedContext(device);
+        //public async Task<SerializerSession> GetOnlyCnlSessionAsync(IDevice device, CancellationToken cancelToken)
+        //{
+        //    if (device == null)
+        //    {
+        //        throw new ArgumentException("No device found");
+        //    }
+        //    MiniMed.MiniMedContext context = new MiniMed.MiniMedContext(device);
 
-            return await context.GetOnlyCnlSessionAsync(cancelToken);
+        //    return await context.GetOnlyCnlSessionAsync(cancelToken);
 
-        }
+        //}
 
 
 
@@ -65,7 +69,7 @@ namespace CGM.Communication.Data.Repository
                     session.UploaderBattery = uploaderBattery;
                     if (!cancelToken.IsCancellationRequested && session.CanSaveSession)
                     {
-                        await SaveSession(session);
+                        SaveSession(session);
                         _uow.History.SaveHistory(session);
 
                         if (session.RadioChannel != 0x00)
@@ -94,7 +98,7 @@ namespace CGM.Communication.Data.Repository
 
         }
 
-        public async Task SaveSession(SerializerSession session)
+        public void SaveSession(SerializerSession session)
         {
             _uow.Device.AddUpdateSessionToDevice(session);
         }

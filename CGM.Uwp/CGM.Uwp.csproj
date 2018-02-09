@@ -251,8 +251,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\.NET standard\CGM.Communication\CGM.Communication.csproj">
-      <Project>{2dc1f5f0-e3fb-4f67-80fa-1a961af3f36a}</Project>
+      <Project>{6a92d27a-dca1-4500-a2ea-09b43178feaf}</Project>
       <Name>CGM.Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CGM.Communication.Data\CGM.Communication.Data.csproj">
+      <Project>{3281e62c-550f-493f-a945-65aae327ea3a}</Project>
+      <Name>CGM.Communication.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

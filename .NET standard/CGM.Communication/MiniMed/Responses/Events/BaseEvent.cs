@@ -1,6 +1,10 @@
 ﻿using CGM.Communication.Common.Serialize;
 using CGM.Communication.Extensions;
 using CGM.Communication.MiniMed.Infrastructur;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +17,15 @@ namespace CGM.Communication.MiniMed.Responses.Events
     {
         [BinaryElement(0)]
         public byte EventTypeRaw { get; set; }
-        public EventTypeEnum EventType { get { return (EventTypeEnum)EventTypeRaw; } }
+
+        private EventTypeEnum _eventType;
+
+        [BsonRepresentation(BsonType.String)]
+        public EventTypeEnum EventType { get { _eventType=(EventTypeEnum)EventTypeRaw;
+                return _eventType;
+            }
+            set { _eventType = value; }
+        }
         [BinaryElement(1)]
         public byte Source { get; set; }
 
@@ -40,8 +52,15 @@ namespace CGM.Communication.MiniMed.Responses.Events
         [BinaryPropertyValueTransfer(ChildPropertyName = nameof(Timestamp), ParentPropertyName = nameof(Timestamp))]
         public BaseEvent Message { get; set; }
 
+
+        [BsonIgnore]
+        [JsonIgnore]
         public byte[] AllBytes { get; set; }
+
+        [BsonIgnore]
+        [JsonIgnore]
         public byte[] AllBytesE { get; set; }
+        [BsonId]
         public string BytesAsString { get; set; }
         public int Index { get; set; }
 
@@ -110,10 +129,14 @@ namespace CGM.Communication.MiniMed.Responses.Events
     [BinaryType(IsLittleEndian = false)]
     public class BaseEvent : IBinaryType, IBinaryDeserializationSetting
     {
-
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime? Timestamp { get; set; }
 
+        [BsonIgnore]
+        [JsonIgnore]
         public byte[] AllBytes { get; set; }
+        [BsonIgnore]
+        [JsonIgnore]
         public byte[] AllBytesE { get; set; }
         public string BytesAsString { get; set; }
         public virtual void OnDeserialization(byte[] bytes, SerializerSession settings)

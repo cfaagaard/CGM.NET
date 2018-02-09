@@ -76,7 +76,7 @@ namespace CGM.Communication.MiniMed
 
             if (TimeoutSeconds==0)
             {
-                TimeoutSeconds = session.Settings.OtherSettings.TimeoutSeconds;
+                TimeoutSeconds = session.Settings.TimeoutSeconds;
                 //Logger.LogInformation($"Timeout in Seconds: {TimeoutSeconds}");
             }
 
