@@ -29,18 +29,11 @@ namespace CGM.Data.Mongo
             
         }
 
-        private async Task InsertSensorData(List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail> events)
+        private async Task InsertGlucoseReadingsDetail(List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail> events)
         {
             string collectionname = "600GlucoseReadingsDetail";
             var coll=_db.GetCollection<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail>(collectionname);
-            //if (coll==null)
-            //{
-            //   await _db.CreateCollectionAsync(collectionname);
-            //}
-
             coll.InsertMany(events);
-
-
         }
 
 

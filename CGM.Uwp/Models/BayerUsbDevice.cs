@@ -16,16 +16,6 @@ using GalaSoft.MvvmLight.Messaging;
 namespace CGM.Uwp.Models
 {
 
-
-
-    //public class DisconnectedDevice
-    //{
-
-    //}
-    //public class ConnectedDevice
-    //{
-
-    //}
     public class BayerUsbDevice : INotifyPropertyChanged, IDevice
     {
         //private int _vendorIdFilter = 0x1a79;

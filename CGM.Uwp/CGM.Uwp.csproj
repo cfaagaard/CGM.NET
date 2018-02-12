@@ -243,7 +243,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CGM.Communication\CGM.Communication.csproj">
-      <Project>{a4b5f67e-611d-4de7-b32b-2f94a25cb358}</Project>
+      <Project>{fc2989ac-0e19-4848-99b0-093fce688b00}</Project>
       <Name>CGM.Communication</Name>
     </ProjectReference>
     <ProjectReference Include="..\CGM.Data.Nightscout\CGM.Data.Nightscout.csproj">
