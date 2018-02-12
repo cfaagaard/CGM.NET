@@ -1,4 +1,6 @@
 # Introduction
+
+STATUS: the project is being refactored right now. Do not use this code... yet.
 Beta version of Nightscout-uploader for the 600-series pump on:
 
 * Windows 10

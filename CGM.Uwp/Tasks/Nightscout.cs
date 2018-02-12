@@ -2,7 +2,6 @@
 using CGM.Communication.Interfaces;
 using CGM.Communication.Log;
 using CGM.Communication.MiniMed.Responses;
-using CGM.Communication.Tasks;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,6 +15,7 @@ using CGM.Uwp.Models;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
 using System.Net.NetworkInformation;
+using CGM.LocalClient;
 
 namespace CGM.Uwp.Tasks
 {

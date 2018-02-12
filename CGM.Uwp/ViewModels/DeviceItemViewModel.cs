@@ -1,4 +1,6 @@
-﻿using CGM.Communication.Data;
+﻿
+using CMG.Data.Sqlite;
+using CMG.Data.Sqlite.Repository;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
@@ -56,7 +58,7 @@ namespace CGM.Uwp.ViewModels
                     {
                         if (confirmed)
                         {
-                            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+                            using (CgmUnitOfWork uow = new CgmUnitOfWork())
                             {
                                 uow.Device.Remove(_device);
                             }

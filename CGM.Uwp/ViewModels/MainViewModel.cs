@@ -15,8 +15,6 @@ using Windows.UI.Xaml;
 using CGM.Uwp.Log;
 using GalaSoft.MvvmLight.Messaging;
 using CGM.Uwp.Helpers;
-using CGM.Communication.MiniMed.Responses;
-using CGM.Communication.Tasks;
 using CGM.Uwp.Tasks;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;

@@ -12,6 +12,7 @@ using GalaSoft.MvvmLight.Messaging;
 using CGM.Uwp.Tasks;
 using Microsoft.Extensions.Logging;
 using Windows.Foundation.Metadata;
+using CMG.Data.Sqlite.Repository;
 
 namespace CGM.Uwp
 {
@@ -53,7 +54,7 @@ namespace CGM.Uwp
             
             ApplicationLogging.LoggerFactory.AddEventAggregatorLog();
 
-            using (Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+            using (CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 uow.CheckDatabaseVersion(DataPath);
                 uow.Setting.CheckSettings();

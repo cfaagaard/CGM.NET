@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CGM.Communication\CGM.Communication.csproj" />
+    <ProjectReference Include="..\CGM.Data.Nightscout\CGM.Data.Nightscout.csproj" />
+    <ProjectReference Include="..\CGM.Data.Sqlite\CGM.Data.Sqlite.csproj" />
+  </ItemGroup>
+
+</Project>

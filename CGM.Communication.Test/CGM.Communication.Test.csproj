@@ -177,13 +177,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\.NET standard\CGM.Communication\CGM.Communication.csproj">
-      <Project>{6A92D27A-DCA1-4500-A2EA-09B43178FEAF}</Project>
+    <ProjectReference Include="..\CGM.Communication\CGM.Communication.csproj">
+      <Project>{FC2989AC-0E19-4848-99B0-093FCE688B00}</Project>
       <Name>CGM.Communication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CGM.Communication.Data\CGM.Communication.Data.csproj">
-      <Project>{3281e62c-550f-493f-a945-65aae327ea3a}</Project>
-      <Name>CGM.Communication.Data</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

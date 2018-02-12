@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CGM.Communication.Test.USB;
-using CGM.Communication.Data.Repository;
 using System.Threading.Tasks;
 using System.Threading;
 using CGM.Communication.Test.LogToOutput;
@@ -11,6 +10,13 @@ namespace CGM.Communication.Test
     [TestClass]
     public class UnitTest1
     {
+
+        [TestMethod]
+        public void TimeTest()
+        {
+
+        }
+
         [TestMethod]
         public void GetCnlInformation()
         {
@@ -29,16 +35,19 @@ namespace CGM.Communication.Test
             var _tokenSource = new CancellationTokenSource();
             var _token = _tokenSource.Token;
 
+
+
+
             //unit of work to get information
-            using (CgmUnitOfWork uow = new CgmUnitOfWork())
-            {
-                //Check sqlite database version, should be done at the begin of every run to make sure database is aval and correct version.
-                uow.CheckDatabaseVersion(AppContext.BaseDirectory);
+            //using (CgmUnitOfWork uow = new CgmUnitOfWork())
+            //{
+            //    //Check sqlite database version, should be done at the begin of every run to make sure database is aval and correct version.
+            //    uow.CheckDatabaseVersion(AppContext.BaseDirectory);
 
-                //Getting info from pump. The session class contain all info necessary for communicating with the pump and all the results. 
-                Common.Serialize.SerializerSession session = await uow.Pump.GetPumpSessionAsync(device, _token);
+            //    //Getting info from pump. The session class contain all info necessary for communicating with the pump and all the results. 
+            //    //Common.Serialize.SerializerSession session = await uow.Pump.GetPumpSessionAsync(device, _token);
 
-            }
+            //}
         }
     }
 }

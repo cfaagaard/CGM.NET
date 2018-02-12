@@ -15,7 +15,6 @@ using CGM.Uwp.Services;
 using CGM.Uwp.Views;
 using Microsoft.Extensions.Logging;
 using CGM.Communication.Log;
-using CGM.Communication.Tasks;
 using CGM.Uwp.Tasks;
 
 namespace CGM.Uwp.ViewModels

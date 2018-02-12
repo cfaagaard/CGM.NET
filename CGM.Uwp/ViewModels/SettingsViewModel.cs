@@ -4,11 +4,12 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using CGM.Uwp.Services;
 using Windows.ApplicationModel;
-using CGM.Communication.Data;
 using System.Collections.ObjectModel;
 using GalaSoft.MvvmLight.Views;
 using System.Collections.Generic;
 using CGM.Communication.Common;
+using CMG.Data.Sqlite.Repository;
+using CMG.Data.Sqlite;
 
 namespace CGM.Uwp.ViewModels
 {
@@ -30,7 +31,7 @@ namespace CGM.Uwp.ViewModels
             set { Set(ref _appDescription, value); }
         }
 
-        private Setting _setting;
+        private Configuration _setting;
 
         public string NightscoutUrl
         {
@@ -202,7 +203,7 @@ namespace CGM.Uwp.ViewModels
             this.GetDevicesCommand = new RelayCommand(() => this.GetDevices());
 
             this.ClearHistoryCommand = new RelayCommand(() => this.ClearHistory());
-            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+            using (CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 _setting = uow.Setting.GetSettings();
             }
@@ -212,7 +213,7 @@ namespace CGM.Uwp.ViewModels
 
         private void ClearHistory()
         {
-            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+            using (CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 uow.History.ResetHistory();
             }
@@ -223,7 +224,7 @@ namespace CGM.Uwp.ViewModels
         {
             this.Devices.Clear();
             List<Device> devices=new List<Device>();
-            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+            using (CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 devices = uow.Device.GetAllDevices();
             }
@@ -251,7 +252,7 @@ namespace CGM.Uwp.ViewModels
 
         private void SaveSetting()
         {
-            using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+            using (CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 uow.Setting.Update(_setting);
             }

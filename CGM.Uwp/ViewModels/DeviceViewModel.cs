@@ -1,11 +1,11 @@
 ﻿using CGM.Communication.Common;
 using CGM.Communication.Common.Serialize;
-using CGM.Communication.Data;
 using CGM.Communication.Log;
 using CGM.Communication.MiniMed.Responses;
 using CGM.Uwp.Helpers;
 using CGM.Uwp.Models;
 using CGM.Uwp.Tasks;
+using CMG.Data.Sqlite.Repository;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Views;
@@ -244,8 +244,8 @@ namespace CGM.Uwp.ViewModels
                     () =>
                     {
                         this.IsConnected = device.IsConnected;
-                        Setting settings;
-                        using (CGM.Communication.Data.Repository.CgmUnitOfWork uow = new Communication.Data.Repository.CgmUnitOfWork())
+                        Configuration settings;
+                        using (CgmUnitOfWork uow = new CgmUnitOfWork())
                         {
                             settings = uow.Setting.GetSettings();
                             if (this.IsConnected && settings.AutoStartTask)
