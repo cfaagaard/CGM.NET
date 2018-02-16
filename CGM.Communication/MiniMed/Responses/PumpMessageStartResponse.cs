@@ -45,9 +45,9 @@ namespace CGM.Communication.MiniMed.Responses
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            if (Message is PumpGeneral)
+            if (settings.SessionSystem.InsertMessages && Message is PumpGeneral)
             {
-                settings.GeneralMessages.Add(this);
+                settings.SessionSystem.GeneralMessages.Add(this);
             }
             //if (Message is PumpStateHistory)
             //{

@@ -32,19 +32,18 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(44)]
         public byte[] Crc16citt { get; set; }
 
+        public int RadioRSSIPercentage { get { return (((int)RadioRSSI & 0x00FF) * 100) / 0xA8; } }
+
+
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             if (bytes.Length > 43)
             {
 
-                settings.RadioChannel = this.RadioChannel;
-                settings.RadioRSSI = this.RadioRSSIPercentage;
-
+                settings.SessionCommunicationParameters.RadioChannel = this.RadioChannel;
+                settings.SessionCommunicationParameters.RadioRSSI = this.RadioRSSIPercentage;
             }
-
         }
-
-        public int RadioRSSIPercentage { get { return (((int)RadioRSSI & 0x00FF) * 100) / 0xA8;  } }
 
         public override string ToString()
         {

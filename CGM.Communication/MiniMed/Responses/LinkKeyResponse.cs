@@ -12,7 +12,7 @@ namespace CGM.Communication.MiniMed.Responses
         public byte[] Key { get; set; }
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            settings.LinkKey = Key;
+            settings.SessionCommunicationParameters.LinkKey = Key;
         }
     }
 }

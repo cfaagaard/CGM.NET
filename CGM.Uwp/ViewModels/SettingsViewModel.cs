@@ -173,6 +173,28 @@ namespace CGM.Uwp.ViewModels
             }
         }
 
+        public bool MongoUpload
+        {
+            get { return _setting.MongoUpload; }
+            set
+            {
+                _setting.MongoUpload = value;
+                this.RaisePropertyChanged(nameof(MongoUpload));
+                SaveSetting();
+            }
+        }
+
+        public string MongoDbUrl
+        {
+            get { return _setting.MongoDbUrl; }
+            set
+            {
+                _setting.MongoDbUrl = value;
+                SaveSetting();
+                this.RaisePropertyChanged(nameof(MongoDbUrl));
+            }
+        }
+
         public bool HandleAlert776
         {
             get { return _setting.HandleAlert776; }

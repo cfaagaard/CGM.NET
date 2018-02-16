@@ -185,7 +185,10 @@ namespace CGM.Uwp.ViewModels
     if (session != null)
     {
         _session = session;
-        this.NextRunDateTime = session.NextRun;
+        if (session.SessionSystem.NextRun.HasValue)
+        {
+            this.NextRunDateTime = session.SessionSystem.NextRun;
+        }
         if (session.PumpTime != null && session.PumpTime.PumpDateTime.HasValue)
         {
             var tDif = session.PumpTime.PumpDateTime.Value.Subtract(DateTime.Now);
@@ -194,6 +197,7 @@ namespace CGM.Uwp.ViewModels
 
             this.PumpTime = string.Format("{0} ({1})", session.PumpTime.PumpDateTime.Value.ToString("HH:mm"), difference);
         }
+
     }
 });
         }

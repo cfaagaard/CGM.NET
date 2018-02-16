@@ -45,7 +45,7 @@ namespace CGM.Communication.MiniMed.Responses
 
             }
 
-            settings.CarbRatio=this;
+            settings.PumpSettings.CarbRatio =this;
         }
 
         public override string ToString()

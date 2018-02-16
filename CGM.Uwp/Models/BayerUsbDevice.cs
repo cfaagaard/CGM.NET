@@ -15,17 +15,6 @@ using GalaSoft.MvvmLight.Messaging;
 
 namespace CGM.Uwp.Models
 {
-
-
-
-    //public class DisconnectedDevice
-    //{
-
-    //}
-    //public class ConnectedDevice
-    //{
-
-    //}
     public class BayerUsbDevice : INotifyPropertyChanged, IDevice
     {
         //private int _vendorIdFilter = 0x1a79;
@@ -141,19 +130,6 @@ namespace CGM.Uwp.Models
 
         }
 
-        private async Task Init()
-        {
-
-            _device = await HidDevice.FromIdAsync(Id, Windows.Storage.FileAccessMode.ReadWrite);
-            if (_device == null)
-            {
-                throw new Exception($"Could not find device: {Id}");
-            }
-
-            _device.InputReportReceived += _device_InputReportReceived;
-            
-        }
-
         private void _device_InputReportReceived(HidDevice sender, HidInputReportReceivedEventArgs args)
         {
 
@@ -191,7 +167,6 @@ namespace CGM.Uwp.Models
         private void InputWatcher_Added(DeviceWatcher sender, Windows.Devices.Enumeration.DeviceInformation args)
         {
             SetDevice();
-
         }
 
 
@@ -201,16 +176,38 @@ namespace CGM.Uwp.Models
             var devices = await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(aqs);
             foreach (var item in devices)
             {
-                DeviceInfo = item;
-                Id = item.Id;
-                Logger.LogInformation($"Device found: {DeviceInfo.Name}");
-                var initTask = Init();
-                await Task.WhenAll(initTask);
+                _device = await HidDevice.FromIdAsync(item.Id, Windows.Storage.FileAccessMode.ReadWrite);
+                if (_device == null)
+                {
 
-                break;
+                    //no--- no 2.4--"\\\\?\\HID#VID_1A79&PID_6300#6&33f175f6&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}"
+                    //yes-- 2.4 ----"\\\\?\\HID#VID_1A79&PID_6210#6&21757738&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}"
+                    //yes-- 2.4 ----"\\\\?\\HID#VID_1A79&PID_6210#6&c51bede&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}"
+                    if (item.Id.Contains("PID_6210"))
+                    {
+                        Logger.LogError($"Could not find device: {item.Id}");
+                    }
+                    else
+                    {
+                        Logger.LogError($"The USB device is not a correct version. Please use a 'Contour Link USB Device - version 2.4'.");
+                    }
+                    return;
+                }
+                else
+                {
+                    DeviceInfo = item;
+                    Id = item.Id;
+                    Logger.LogInformation($"Device found: {DeviceInfo.Name}");
+                    _device.InputReportReceived += _device_InputReportReceived;
+                    break;
+                }
             }
-            await Task.Delay(3000);
-            Messenger.Default.Send<BayerUsbDevice>(this);
+            if (!string.IsNullOrEmpty(Id))
+            {
+                await Task.Delay(3000);
+                Messenger.Default.Send<BayerUsbDevice>(this);
+            }
+           
         }
 
     }

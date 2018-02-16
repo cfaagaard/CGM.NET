@@ -51,7 +51,7 @@ namespace CGM.Uwp
             }
             string DataPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
             ApplicationLogging.LoggerFactory.AddCgmLog(DataPath);
-            
+           
             ApplicationLogging.LoggerFactory.AddEventAggregatorLog();
 
             using (CgmUnitOfWork uow = new CgmUnitOfWork())

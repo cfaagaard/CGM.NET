@@ -15,10 +15,16 @@ namespace CGM.Communication.Common.Serialize
     {
         private SerializerSession _session;
 
-        public MultiPacketHandler CurrentMultiPacketHandler { get; set; }
+        public List<PumpEvent> PumpEvents { get; set; } = new List<PumpEvent>();
+        public List<PumpEvent> SensorEvents { get; set; } = new List<PumpEvent>();
 
-      
-        public List<MultiPacketHandler> MultiPacketHandlers { get; set; } = new List<MultiPacketHandler>();
+        public List<PumpEvent> PumpEventsNew { get; set; } = new List<PumpEvent>();
+        public List<PumpEvent> SensorEventsNew { get; set; } = new List<PumpEvent>();
+
+        internal MultiPacketHandler CurrentMultiPacketHandler { get; set; }
+
+
+        internal List<MultiPacketHandler> MultiPacketHandlers { get; set; } = new List<MultiPacketHandler>();
 
         //public DateTime? From { get; set; }
         //public DateTime? To { get; set; }
@@ -65,11 +71,29 @@ namespace CGM.Communication.Common.Serialize
             this.CurrentMultiPacketHandler = packet;// this.MultiPacketHandlers[_session.SessionVariables.GetCurrentMultiPacketIndex()]; // MultiPacketHandlers.FirstOrDefault(e => e.ReadInfoResponse.HistoryDataType == (HistoryDataTypeEnum)request.HistoryDataType);
         }
 
-        public void GetHistoryEvents()
+        internal void ExtractHistoryEvents()
         {
             if (MultiPacketHandlers!=null && MultiPacketHandlers.Count>0)
             {
-                MultiPacketHandlers.ForEach(e => e.GetHistoryEvents());
+                foreach (var item in MultiPacketHandlers)
+                {
+                    item.GetHistoryEvents();
+                    var events=item.JoinAllEvents();
+                    switch (item.ReadInfoResponse.HistoryDataType)
+                    {
+                        
+                        case HistoryDataTypeEnum.Pump:
+                            this.PumpEvents.AddRange(events);
+                            break;
+                        case HistoryDataTypeEnum.Sensor:
+                            this.SensorEvents.AddRange(events);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                //MultiPacketHandlers.ForEach(e => e.GetHistoryEvents());
             }
             
         }
@@ -83,11 +107,11 @@ namespace CGM.Communication.Common.Serialize
             return "(No dates)";
         }
 
-        public List<PumpEvent> JoinAllEvents()
-        {
-            List<PumpEvent> all = new List<PumpEvent>();
-            MultiPacketHandlers.ForEach(e => all.AddRange(e.JoinAllEvents()));
-            return all.OrderBy(e => e.Timestamp).ToList(); ;
-        }
+        //public List<PumpEvent> JoinAllEvents()
+        //{
+        //    List<PumpEvent> all = new List<PumpEvent>();
+        //    MultiPacketHandlers.ForEach(e => all.AddRange(e.JoinAllEvents()));
+        //    return all.OrderBy(e => e.Timestamp).ToList(); ;
+        //}
     }
 }

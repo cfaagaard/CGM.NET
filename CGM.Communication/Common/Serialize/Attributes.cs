@@ -127,14 +127,14 @@ namespace CGM.Communication.Common.Serialize
 
             //ForEncryption = bytes[1] == 0x00;
 
-            if (settings.EncryptKey == null || settings.EncryptIV == null)
+            if (settings.SessionCommunicationParameters.EncryptKey == null || settings.SessionCommunicationParameters.EncryptIV == null)
             {
                 throw new Exception("Missing encryptKey/IV in serializationsettings.");
             }
 
             var temp = bytes.ToList().GetRange(fieldOffset, Length).ToArray();
 
-            var crp = temp.CryptMessage(ForEncryption, settings.EncryptKey, settings.EncryptIV);
+            var crp = temp.CryptMessage(ForEncryption, settings.SessionCommunicationParameters.EncryptKey, settings.SessionCommunicationParameters.EncryptIV);
 
             for (int i = 0; i < crp.Length; i++)
             {

@@ -27,23 +27,16 @@ namespace  CMG.Data.Sqlite.Repository
 
         public void SaveHistory(SerializerSession session)
         {
-            if (session.PumpDataHistory.MultiPacketHandlers!=null && session.PumpDataHistory.MultiPacketHandlers.Count>0)
+            if (session.PumpDataHistory!=null)
             {
-                session.PumpDataHistory.GetHistoryEvents();
-                foreach (var handler in session.PumpDataHistory.MultiPacketHandlers)
+                if (session.PumpDataHistory.PumpEvents.Count>0)
                 {
-                    List<History> all = new List<History>();
-                    foreach (var segment in handler.Segments)
-                    {
-                        if (segment.Events.Count > 0)
-                        {
-                            var allHistory = segment.Events.Select(e => new History(e));
-                            all.AddRange(allHistory);
-                        }
-                    }
-                    this.Sync(all.ToList(), handler.ReadInfoResponse.HistoryDataTypeRaw);
+                    this.Sync(session.PumpDataHistory.PumpEvents.Select(e => new History(e)).ToList(), (int)HistoryDataTypeEnum.Pump);
                 }
-
+                if (session.PumpDataHistory.SensorEvents.Count > 0)
+                {
+                    this.Sync(session.PumpDataHistory.SensorEvents.Select(e => new History(e)).ToList(), (int)HistoryDataTypeEnum.Sensor);
+                }
                 SaveLastReadHistoryInSettings();
             }
 

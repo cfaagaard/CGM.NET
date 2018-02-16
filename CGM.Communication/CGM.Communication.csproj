@@ -34,6 +34,7 @@
     <Compile Remove="Common\Serialize\Class1.cs" />
     <Compile Remove="Common\Serialize\loz.cs" />
     <Compile Remove="Common\Serialize\LZOCompressor.cs" />
+    <Compile Remove="Common\Serialize\SessionOptions.cs" />
     <Compile Remove="MiniMed\ContextOptions.cs" />
     <Compile Remove="MiniMed\Model\Session.cs" />
   </ItemGroup>

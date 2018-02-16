@@ -59,7 +59,7 @@ namespace CGM.Communication.MiniMed.Responses
                     
                 }
 
-                settings.PumpPatterns.Add(this);
+                settings.PumpSettings.PumpPatterns.Add(this);
             }
         }
 

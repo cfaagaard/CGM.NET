@@ -4,6 +4,7 @@ using System.Text;
 using CGM.Communication.Extensions;
 using System.Text.RegularExpressions;
 using CGM.Communication.MiniMed.Requests;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace CGM.Communication.MiniMed.Responses
 {
@@ -12,7 +13,7 @@ namespace CGM.Communication.MiniMed.Responses
     {
         [BinaryElement(0)]
         public string Value { get; set; }
-
+        [BsonId]
         public string SerialNumberFull { get; set; }
 
         public string RFID { get; set; }
@@ -38,7 +39,7 @@ namespace CGM.Communication.MiniMed.Responses
 
             if (settings!=null)
             {
-                settings.Device = this;
+                settings.SessionDevice.Device = this;
             }
            
         }

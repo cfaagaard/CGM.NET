@@ -10,5 +10,6 @@ namespace CGM.Communication.Interfaces
    
         void GetOrSetSessionAndSettings(SerializerSession session);
         void AddUpdateSessionToDevice(SerializerSession session);
+        void SaveSession(SerializerSession session);
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using CGM.Communication.Common.Serialize;
 
-namespace  CMG.Data.Sqlite.Repository
+namespace CMG.Data.Sqlite.Repository
 {
     public class SessionStateRepository : CGM.Communication.Interfaces.IStateRepository
     {
@@ -20,6 +20,18 @@ namespace  CMG.Data.Sqlite.Repository
             using (CgmUnitOfWork uow = new CgmUnitOfWork())
             {
                 uow.Device.GetOrSetSessionAndSettings(session);
+            }
+        }
+
+        public void SaveSession(SerializerSession session)
+        {
+            if (session != null)
+            {
+                using (CgmUnitOfWork uow = new CgmUnitOfWork())
+                {
+                    uow.Device.AddUpdateSessionToDevice(session);
+                    uow.History.SaveHistory(session);
+                }
             }
         }
     }

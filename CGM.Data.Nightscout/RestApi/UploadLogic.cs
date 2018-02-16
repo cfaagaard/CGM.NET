@@ -355,7 +355,7 @@ namespace CGM.Data.Nightscout.RestApi
         protected void CreateEntrySgv(int sgvValue, string dateString, long epoch, string direction, bool checkIfExists, string key, ushort prediction, double isig)
         {
 
-            string serialNum = _session.Device.SerialNumberFull;
+            string serialNum = _session.SessionDevice.Device.SerialNumberFull;
             Entry entry = new Entry();
             entry.Date = epoch;
             entry.Direction = direction;
@@ -437,7 +437,7 @@ namespace CGM.Data.Nightscout.RestApi
         {
 
             PumpStatusMessage message = this.LastStatusMessage;
-            string serialNum = _session.Device.SerialNumberFull;
+            string serialNum = _session.SessionDevice.Device.SerialNumberFull;
             DateTime create = _session.PumpTime.PumpDateTime.Value;
 
             this.DeviceStatus = new DeviceStatus();

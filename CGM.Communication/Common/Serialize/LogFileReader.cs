@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CGM.Communication.Extensions;
+using System.Linq;
 
 namespace CGM.Communication.Common.Serialize
 {
@@ -21,6 +22,18 @@ namespace CGM.Communication.Common.Serialize
             Messages = new ByteMessageCollection(_session);
             var lines = System.IO.File.ReadAllLines(path);
             int nr = 1;
+
+           var parameter= lines.FirstOrDefault(e => e.Contains("; RadioChannel:"));
+            if (parameter!=null)
+            {
+                int start = parameter.IndexOf(';')+2;
+                parameter = parameter.Substring(start).Trim();
+                _session.SetParametersByString(parameter);
+            }
+            else
+            {
+                throw new Exception("Parameter string in logfile.Line should start with 'RadioChannel'.");
+            }
             //6/1/2017 12:02:23 AM; 00-00-00-00-01-58
             foreach (var item in lines)
             {
@@ -33,10 +46,15 @@ namespace CGM.Communication.Common.Serialize
                         Messages.Add(bytestr.GetBytes(), nr, split[0]);
                         nr += 1;
                     }
-
+                    else
+                    {
+               
+                    }
+                  
                 }
 
             }
+            _session.PumpDataHistory.ExtractHistoryEvents();
         }
     }
 }

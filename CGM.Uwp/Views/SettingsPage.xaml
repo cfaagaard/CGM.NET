@@ -53,6 +53,16 @@
                                     <TextBlock  Margin="0,5,10,0"    x:Uid="Settings_HandleAlert776" Text="Convert Alert776 to 400 (sgv) entry" Style="{StaticResource BodyTextStyle}"/>
                                     <ToggleSwitch  x:Uid="Settings_HandleAlert776"  IsOn="{x:Bind ViewModel.HandleAlert776, Mode=TwoWay}"/>
                                 </StackPanel>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock  Margin="0,5,10,0"    x:Uid="Settings_MongoUpload" Text="Upload to MongoDb" Style="{StaticResource BodyTextStyle}"/>
+                                    <ToggleSwitch  x:Uid="Settings_MongoUploadToggle"  IsOn="{x:Bind ViewModel.MongoUpload, Mode=TwoWay}"/>
+                                </StackPanel>
+
+                                <StackPanel x:Name="MongoText">
+                                    <TextBlock Margin="0,5,0,0"   Text="MongoDbUrl"  x:Uid="Settings_MongoDbUrl" Style="{StaticResource BodyTextStyle}"/>
+                                    <TextBox Text="{x:Bind ViewModel.MongoDbUrl, Mode=TwoWay}"></TextBox>
+                                </StackPanel>
                             </StackPanel>
 
                             
@@ -78,7 +88,7 @@
                                     <ToggleSwitch  x:Uid="Settings_OnlyFromTheLastReadinge"  IsOn="{x:Bind ViewModel.OnlyFromTheLastReading, Mode=TwoWay}"/>
                                 </StackPanel>-->
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock   Margin="0,5,10,0"   x:Uid="Settings_interval" Text="Number of days in history (Beta)" Style="{StaticResource BodyTextStyle}"/>
+                                    <TextBlock   Margin="0,5,10,0"   x:Uid="Settings_interval" Text="Number of days in history" Style="{StaticResource BodyTextStyle}"/>
                                     <TextBox x:Name="txtHistoryDaysBack"  Text="{x:Bind ViewModel.HistoryDaysBack, Mode=TwoWay}"></TextBox>
                                 </StackPanel>
 

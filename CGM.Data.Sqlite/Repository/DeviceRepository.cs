@@ -8,7 +8,7 @@ using CGM.Communication.Common.Serialize;
 using CGM.Communication.MiniMed.Responses;
 using CGM.Communication.Extensions;
 
-namespace  CMG.Data.Sqlite.Repository
+namespace CMG.Data.Sqlite.Repository
 {
     public class DeviceRepository : BaseRepository<Device>
     {
@@ -48,59 +48,61 @@ namespace  CMG.Data.Sqlite.Repository
 
         public void GetOrSetSessionAndSettings(SerializerSession session)
         {
-            Device device = _uow.Device.GetBySerialNumber(session.Device.SerialNumber);
-            if (device != null)
+            if (!string.IsNullOrEmpty(session.SessionDevice.Device.SerialNumber))
             {
-                if (!string.IsNullOrEmpty(device.LinkMac))
+                Device device = _uow.Device.GetBySerialNumber(session.SessionDevice.Device.SerialNumber);
+                if (device != null)
                 {
-                    session.LinkMac = device.LinkMac.GetBytes();
+                    if (!string.IsNullOrEmpty(device.LinkMac))
+                    {
+                        session.SessionCommunicationParameters.LinkMac = device.LinkMac.GetBytes();
+                    }
+                    if (!string.IsNullOrEmpty(device.LinkKey))
+                    {
+                        session.SessionCommunicationParameters.LinkKey = device.LinkKey.GetBytes();
+                    }
+
+                    if (!string.IsNullOrEmpty(device.PumpMac))
+                    {
+                        session.SessionCommunicationParameters.PumpMac = device.PumpMac.GetBytes();
+                    }
+
+
+                    session.SessionCommunicationParameters.RadioChannel = byte.Parse(device.RadioChannel);
+
+                    session.SessionDevice.Device.ModelNumber = device.Name;
+                    session.SessionDevice.Device.SerialNumber = device.SerialNumber;
+                    session.SessionDevice.Device.SerialNumberFull = device.SerialNumberFull;
+
                 }
-                if (!string.IsNullOrEmpty(device.LinkKey))
+                else
                 {
-                    session.LinkKey = device.LinkKey.GetBytes();
+                    //Insert the device
+                    Device dev = MapToDevice(session.SessionDevice.Device);
+                    _uow.Device.Add(dev);
                 }
-
-                if (!string.IsNullOrEmpty(device.PumpMac))
-                {
-                    session.PumpMac = device.PumpMac.GetBytes();
-                }
-
-
-                session.RadioChannel = byte.Parse(device.RadioChannel);
-
-                session.Device.ModelNumber = device.Name;
-                session.Device.SerialNumber = device.SerialNumber;
-                session.Device.SerialNumberFull = device.SerialNumberFull;
-
             }
-            else
-            {
-                //Insert the device
-                Device dev = MapToDevice(session.Device);
-                _uow.Device.Add(dev);
-            }
-
             session.Settings = _uow.Setting.GetSettings();
         }
 
         public bool AddUpdateSessionToDevice(SerializerSession session)
         {
 
-            Device dev = MapToDevice(session.Device);
-            if (session.LinkMac != null)
+            Device dev = MapToDevice(session.SessionDevice.Device);
+            if (session.SessionCommunicationParameters.LinkMac != null)
             {
-                dev.LinkMac = BitConverter.ToString(session.LinkMac);
+                dev.LinkMac = BitConverter.ToString(session.SessionCommunicationParameters.LinkMac);
             }
-            if (session.PumpMac != null)
+            if (session.SessionCommunicationParameters.PumpMac != null)
             {
-                dev.PumpMac = BitConverter.ToString(session.PumpMac);
+                dev.PumpMac = BitConverter.ToString(session.SessionCommunicationParameters.PumpMac);
             }
-            if (session.LinkKey != null)
+            if (session.SessionCommunicationParameters.LinkKey != null)
             {
-                dev.LinkKey = BitConverter.ToString(session.LinkKey);
+                dev.LinkKey = BitConverter.ToString(session.SessionCommunicationParameters.LinkKey);
             }
 
-            dev.RadioChannel = session.RadioChannel.ToString();
+            dev.RadioChannel = session.SessionCommunicationParameters.RadioChannel.ToString();
 
 
             return _uow.Device.UpdateOrAdd(dev);

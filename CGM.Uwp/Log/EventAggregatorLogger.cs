@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight.Messaging;
+﻿using CGM.Communication.Common.Serialize.Log;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

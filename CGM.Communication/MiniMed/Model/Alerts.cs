@@ -18,7 +18,7 @@ namespace CGM.Communication.MiniMed.Model
         Basal_Delivery_Resumed_Alert_settings_change_815 = 815,
         Battery_Depleted_11 = 11,
         Battery_Out_Limit_Exceeded_6 = 6,
-        Device_Alarm_100 = 100,
+        Device_Alarm_100 = 100, //time out for the accept of bolus (some wizard-thing? not pushing the last key?)
         Device_Alarm_109 = 109, //change cannula/insulin 
         Device_Alarm_110 = 110,
         Device_Alarm_111 = 111,

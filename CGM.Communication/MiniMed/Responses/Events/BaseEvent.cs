@@ -39,7 +39,8 @@ namespace CGM.Communication.MiniMed.Responses.Events
 
 
 
-
+        [BsonIgnore]
+        [JsonIgnore]
         [BinaryElement(11)]
         [MessageType(typeof(SENSOR_GLUCOSE_READINGS_EXTENDED_Event), nameof(EventType), EventTypeEnum.SENSOR_GLUCOSE_READINGS_EXTENDED)]
         [MessageType(typeof(BOLUS_WIZARD_ESTIMATE_Event), nameof(EventType), EventTypeEnum.BOLUS_WIZARD_ESTIMATE)]

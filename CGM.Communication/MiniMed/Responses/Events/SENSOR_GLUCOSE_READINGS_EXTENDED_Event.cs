@@ -13,15 +13,21 @@ namespace CGM.Communication.MiniMed.Responses.Events
 {
     public class SENSOR_GLUCOSE_READINGS_EXTENDED_Event : BaseEvent
     {
+        [BsonIgnore]
+        [JsonIgnore]
         [BinaryElement(0)]
         public byte MinutesBetweenReadings { get; set; }
-
+        [BsonIgnore]
+        [JsonIgnore]
         [BinaryElement(1)]
         public byte NumberOfReadings { get; set; }
-
+        [BsonIgnore]
+        [JsonIgnore]
         [BinaryElement(2)]
         public UInt16 PredictedSg { get; set; }
 
+        [BsonIgnore]
+        [JsonIgnore]
         [BinaryElement(4)]
         [BinaryElementList(CountProperty = nameof(NumberOfReadings), Type = typeof(SENSOR_GLUCOSE_READINGS_EXTENDED_Detail), ByteSize = 9)]
         public List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail> Details { get; set; } = new List<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail>();

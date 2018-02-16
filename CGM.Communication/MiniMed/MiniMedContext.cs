@@ -49,7 +49,7 @@ namespace CGM.Communication.MiniMed
             }
 
 
-            return Session.Device;
+            return Session.SessionDevice.Device;
         }
 
 
@@ -113,7 +113,7 @@ namespace CGM.Communication.MiniMed
             {
                 cancelToken.ThrowIfCancellationRequested();
                 await StartCollectDeviceInfoAsync(cancelToken);
-                Logger.LogInformation($"Call pump with CNL: {this.Session.Device.SerialNumber} ");
+                Logger.LogInformation($"Call pump with CNL: {this.Session.SessionDevice.Device.SerialNumberFull} ");
 
                 try
                 {
@@ -239,17 +239,23 @@ namespace CGM.Communication.MiniMed
 
             Logger.LogInformation($"Pumpsession-time: {elapsedTime}");
 
-            //try
-            //{
-            //    if (Session.PumpDataHistory.MultiPacketHandlers != null && Session.PumpDataHistory.MultiPacketHandlers.Count > 0)
-            //    {
-            //        Session.PumpDataHistory.GetHistoryEvents();
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    Logger.LogError(e.Message);
-            //}
+            if (Session.PumpDataHistory.MultiPacketHandlers != null && Session.PumpDataHistory.MultiPacketHandlers.Count > 0)
+            {
+                Session.PumpDataHistory.ExtractHistoryEvents();
+            }
+            _stateRepository.SaveSession(Session);
+
+            if (Session.SessionSystem.OptimalNextRead.HasValue)
+            {
+                Session.SessionSystem.NextRun = Session.SessionSystem.OptimalNextRead.Value;
+                Logger.LogInformation($"Next session: {Session.SessionSystem.OptimalNextRead.Value} (PumpTime: {Session.SessionSystem.OptimalNextReadInPumpTime.Value})");
+            }
+            else
+            {
+                var time = DateTime.Now.AddMinutes(5);
+                Session.SessionSystem.NextRun = time;
+                Logger.LogInformation($"Next session: {time} (From local datetime. No sgv-time)");
+            }
 
             return Session;
         }
@@ -273,11 +279,11 @@ namespace CGM.Communication.MiniMed
 
             if (!cancelToken.IsCancellationRequested)
             {
-                if (string.IsNullOrEmpty(this.Session.Device.SerialNumber))
+                if (string.IsNullOrEmpty(this.Session.SessionDevice.Device.SerialNumber))
                 {
                     //if in bad state.....
                     //await CloseAsync(cancelToken);
-                    this.Session.NeedResetCommunication = true;
+                    this.Session.SessionCommunicationParameters.NeedResetCommunication = true;
                     throw new Exception("Could not communicate with CNL. Please unplug CNL and plug it in again to reset CNL-communication. ");
                 }
                 else
@@ -316,7 +322,7 @@ namespace CGM.Communication.MiniMed
         {
             Logger.LogInformation($"Open Connection");
 
-            if (this.Session.Device != null && this.Session.Device.HMACbyte != null)
+            if (this.Session.SessionDevice.Device != null && this.Session.SessionDevice.Device.HMACbyte != null)
             {
                 //Logger.LogInformation($"OpenConnection HMAC: {BitConverter.ToString(this.Session.Device.HMACbyte)}");
                 await StartCommunication(Session.GetOpenConnectionRequest(),
@@ -334,16 +340,16 @@ namespace CGM.Communication.MiniMed
         private async Task StartCollectPumpSettingsAsync(CancellationToken cancelToken)
         {
             //test this....
-            if (this.Session.LinkMac == null && this.Session.PumpMac == null)
+            if (this.Session.SessionCommunicationParameters.LinkMac == null && this.Session.SessionCommunicationParameters.PumpMac == null)
             {
                 Logger.LogInformation($"Getting linkmac/Pumpmac");
                 await StartCommunication(Session.GetReadInfoRequest(),
                         new ReadInfoResponsePattern(),
                         cancelToken);
-                Logger.LogInformation($"Got LinkMac: {BitConverter.ToString(this.Session.LinkMac)} AND PumpMac: {BitConverter.ToString(this.Session.PumpMac)}");
+                Logger.LogInformation($"Got LinkMac: {BitConverter.ToString(this.Session.SessionCommunicationParameters.LinkMac)} AND PumpMac: {BitConverter.ToString(this.Session.SessionCommunicationParameters.PumpMac)}");
 
 
-                if (this.Session.LinkMac == null && this.Session.PumpMac == null)
+                if (this.Session.SessionCommunicationParameters.LinkMac == null && this.Session.SessionCommunicationParameters.PumpMac == null)
                 {
                     throw new Exception("Error getting Linkmac/Pumpmac");
                 }
@@ -361,7 +367,7 @@ namespace CGM.Communication.MiniMed
 
 
 
-            if (this.Session.LinkKey == null)
+            if (this.Session.SessionCommunicationParameters.LinkKey == null)
             {
 
                 Logger.LogInformation($"Getting linkkey");
@@ -370,13 +376,13 @@ namespace CGM.Communication.MiniMed
         cancelToken);
 
 
-                if (this.Session.LinkKey == null)
+                if (this.Session.SessionCommunicationParameters.LinkKey == null)
                 {
                     throw new Exception("Error getting linkkey");
                 }
                 else
                 {
-                    Logger.LogInformation($"Got LinkKey: {BitConverter.ToString(this.Session.LinkKey)}");
+                    Logger.LogInformation($"Got LinkKey: {BitConverter.ToString(this.Session.SessionCommunicationParameters.LinkKey)}");
                     //save LinkKey
                     _stateRepository.AddUpdateSessionToDevice(Session);
                     //using (CgmUnitOfWork uow = new CgmUnitOfWork())
@@ -388,9 +394,9 @@ namespace CGM.Communication.MiniMed
             }
 
 
-            if (this.Session.LinkMac == null || this.Session.PumpMac == null)
+            if (this.Session.SessionCommunicationParameters.LinkMac == null || this.Session.SessionCommunicationParameters.PumpMac == null)
             {
-                throw new Exception($"Could not get linkmac/pumpmac: {this.Session.LinkMac}/{this.Session.PumpMac}");
+                throw new Exception($"Could not get linkmac/pumpmac: {this.Session.SessionCommunicationParameters.LinkMac}/{this.Session.SessionCommunicationParameters.PumpMac}");
             }
 
         }
@@ -416,29 +422,29 @@ namespace CGM.Communication.MiniMed
             //List<byte> channels = new List<byte>() { 0x1a,  0x14, 0x0e, 0x11 };
 
             //and then NOT.... because of no connections....
-            byte lastChannel = this.Session.RadioChannel;
+            byte lastChannel = this.Session.SessionCommunicationParameters.RadioChannel;
 
 
-            if (this.Session.RadioChannelConfirmed && this.Session.RadioChannel == 0x00)
+            if (this.Session.SessionCommunicationParameters.RadioChannelConfirmed && this.Session.SessionCommunicationParameters.RadioChannel == 0x00)
             {
-                this.Session.RadioChannelConfirmed = false;
+                this.Session.SessionCommunicationParameters.RadioChannelConfirmed = false;
             }
 
 
-            if (this.Session.RadioChannel != 0x00)
+            if (this.Session.SessionCommunicationParameters.RadioChannel != 0x00)
             {
-                byte trie = this.Session.RadioChannel;
-                this.Session.RadioChannel = 0x00;
+                byte trie = this.Session.SessionCommunicationParameters.RadioChannel;
+                this.Session.SessionCommunicationParameters.RadioChannel = 0x00;
                 Logger.LogInformation($"Looking for pump. Channel: {trie} (Last used)");
                 await StartCommunicationStandardResponse(Session.GetChannelRequest(trie), cancelToken);
-                if (this.Session.RadioChannel == 0x00)
+                if (this.Session.SessionCommunicationParameters.RadioChannel == 0x00)
                 {
                     Logger.LogInformation($"No connection on Channel {trie}");
                 }
             }
 
 
-            if (this.Session.RadioChannel == 0x00)
+            if (this.Session.SessionCommunicationParameters.RadioChannel == 0x00)
             {
 
                 if (lastChannel != 0x00)
@@ -452,7 +458,7 @@ namespace CGM.Communication.MiniMed
                     Logger.LogInformation($"Looking for pump. Channel: {item}");
                     await StartCommunicationStandardResponse(Session.GetChannelRequest(item), cancelToken);
 
-                    if (this.Session.RadioChannel != 0x00)
+                    if (this.Session.SessionCommunicationParameters.RadioChannel != 0x00)
                     {
                         break;
                     }
@@ -464,21 +470,21 @@ namespace CGM.Communication.MiniMed
                 }
             }
 
-            if (this.Session.RadioRSSI == 0 && this.Session.RadioChannel != 0x00)
+            if (this.Session.SessionCommunicationParameters.RadioRSSI == 0 && this.Session.SessionCommunicationParameters.RadioChannel != 0x00)
             {
-                Logger.LogInformation($"Signal on Radiochannel {this.Session.RadioChannel.ToString()} is too weak ({this.Session.RadioRSSI}%)");
-                this.Session.RadioChannel = 0x00;
+                Logger.LogInformation($"Signal on Radiochannel {this.Session.SessionCommunicationParameters.RadioChannel.ToString()} is too weak ({this.Session.SessionCommunicationParameters.RadioRSSI}%)");
+                this.Session.SessionCommunicationParameters.RadioChannel = 0x00;
             }
 
-            if (this.Session.RadioChannel == 0x00)
+            if (this.Session.SessionCommunicationParameters.RadioChannel == 0x00)
             {
-                this.Session.RadioChannelConfirmed = false;
+                this.Session.SessionCommunicationParameters.RadioChannelConfirmed = false;
                 throw new Exception("Could not find RadioChannel/Pump.");
             }
             else
             {
-                this.Session.RadioChannelConfirmed = true;
-                Logger.LogInformation($"Connected on radiochannel {this.Session.RadioChannel.ToString()}. ({this.Session.RadioRSSI}%)");
+                this.Session.SessionCommunicationParameters.RadioChannelConfirmed = true;
+                Logger.LogInformation($"Connected on radiochannel {this.Session.SessionCommunicationParameters.RadioChannel.ToString()}. ({this.Session.SessionCommunicationParameters.RadioRSSI}%)");
                 //save LinkKey
                 _stateRepository.AddUpdateSessionToDevice(Session);
                 //using (CgmUnitOfWork uow = new CgmUnitOfWork())

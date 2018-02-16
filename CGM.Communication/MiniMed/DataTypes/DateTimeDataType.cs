@@ -10,7 +10,7 @@ namespace CGM.Communication.MiniMed.DataTypes
 {
     public class DateTimeDataType : BaseDataType
     {
-        private long _baseTime = 946684800;
+        //private long _baseTime = 946684800;
 
         [BinaryElement(0, Length = 4)]
         public Int32 Rtc { get; set; }

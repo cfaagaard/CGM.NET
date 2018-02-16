@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using CGM.Communication.Log;
 using CGM.Communication.MiniMed.Model;
 using CGM.Communication.Common.Serialize;
+using CGM.Communication.Common.Serialize.Log;
 
 namespace CGM.Uwp.Models
 {

@@ -27,7 +27,7 @@ namespace CGM.Communication.MiniMed.Responses
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            settings.DeviceString = this;
+            settings.SessionDevice.DeviceString = this;
         }
     }
 }

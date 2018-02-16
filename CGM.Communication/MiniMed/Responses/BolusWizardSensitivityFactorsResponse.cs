@@ -35,7 +35,7 @@ namespace CGM.Communication.MiniMed.Responses
                 }
 
             }
-            settings.BolusWizardSensitivityFactors = this;
+            settings.PumpSettings.BolusWizardSensitivityFactors = this;
         }
 
         public override string ToString()

@@ -147,7 +147,11 @@ namespace CGM.Communication.Common.Serialize
 
         public byte[] Serialize<T>(T bytes) where T : class, new()
         {
-            this._session.All.Add(bytes);
+            if (this._session.SessionSystem.InsertMessages)
+            {
+                this._session.SessionSystem.Messages.Add(bytes);
+            }
+            
             return SerializeInternal<T>(bytes);
         }
 
@@ -281,11 +285,11 @@ namespace CGM.Communication.Common.Serialize
 
                 if (classtype.IsEncrypted)
                 {
-                    if (_session.EncryptKey == null || _session.EncryptIV == null)
+                    if (_session.SessionCommunicationParameters.EncryptKey == null || _session.SessionCommunicationParameters.EncryptIV == null)
                     {
                         throw new Exception("Missing encryptKey/IV in serializationsettings.");
                     }
-                    temp = temp.ToArray().Encrypt(_session.EncryptKey, _session.EncryptIV).ToList();
+                    temp = temp.ToArray().Encrypt(_session.SessionCommunicationParameters.EncryptKey, _session.SessionCommunicationParameters.EncryptIV).ToList();
                 }
 
                 return temp.ToArray();
@@ -346,7 +350,10 @@ namespace CGM.Communication.Common.Serialize
             _byteLevels = new List<byte[]>();
 
             T obj = DeserializeInternal<T>(bytes);
-            this._session.All.Add(obj);
+            if (this._session.SessionSystem.InsertMessages)
+            {
+                this._session.SessionSystem.Messages.Add(obj);
+            }
             return obj;
         }
 
@@ -361,11 +368,11 @@ namespace CGM.Communication.Common.Serialize
 
                 if (classtype.IsEncrypted)
                 {
-                    if (_session.EncryptKey == null || _session.EncryptIV == null)
+                    if (_session.SessionCommunicationParameters.EncryptKey == null || _session.SessionCommunicationParameters.EncryptIV == null)
                     {
                         throw new Exception("Missing encryptKey/IV in serializationsettings.");
                     }
-                    bytes = bytes.Decrypt(_session.EncryptKey, _session.EncryptIV);
+                    bytes = bytes.Decrypt(_session.SessionCommunicationParameters.EncryptKey, _session.SessionCommunicationParameters.EncryptIV);
                 }
 
 

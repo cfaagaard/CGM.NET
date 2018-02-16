@@ -14,6 +14,8 @@ namespace CGM.Communication.Common
 
 
         public bool UploadToNightscout { get; set; } = true;
+        public bool MongoUpload { get; set; } = false;
+        public string MongoDbUrl { get; set; }
         public string NightscoutUrl { get; set; }
         public string NightscoutApiUrl { get { return $"{this.NightscoutUrl}/api/v1"; } }
         public bool HandleAlert776 { get; set; } = true;

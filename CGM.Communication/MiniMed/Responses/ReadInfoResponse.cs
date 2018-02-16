@@ -16,8 +16,8 @@ namespace CGM.Communication.MiniMed.Responses
         public byte Unknown { get; set; }
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            settings.LinkMac = LinkMac;
-            settings.PumpMac = PumpMac;
+            settings.SessionCommunicationParameters.LinkMac = LinkMac;
+            settings.SessionCommunicationParameters.PumpMac = PumpMac;
 
         }
     }

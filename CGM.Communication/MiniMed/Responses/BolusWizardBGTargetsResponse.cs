@@ -35,7 +35,7 @@ namespace CGM.Communication.MiniMed.Responses
                 }
 
             }
-            settings.BolusWizardBGTargets = this;
+            settings.PumpSettings.BolusWizardBGTargets = this;
         }
 
         public override string ToString()

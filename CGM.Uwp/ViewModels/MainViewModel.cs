@@ -18,6 +18,7 @@ using CGM.Uwp.Helpers;
 using CGM.Uwp.Tasks;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;
+using CGM.Communication.Common.Serialize.Log;
 
 namespace CGM.Uwp.ViewModels
 {

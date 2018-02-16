@@ -28,7 +28,6 @@ namespace CGM.LocalClient
             }
         }
     
-
         protected override void AddEntries(CancellationToken cancelToken)
         {
             if (Entries.Count > 0)
