@@ -14,6 +14,8 @@
     <Description>Core Communication protocol for 600-series pumps.</Description>
     <RepositoryUrl>https://github.com/cfaagaard/CGM.NET</RepositoryUrl>
     <PackageProjectUrl>https://github.com/cfaagaard/CGM.NET</PackageProjectUrl>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
