@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CGM.LocalClient
 {
@@ -19,23 +20,30 @@ namespace CGM.LocalClient
         {
         }
 
-        protected override void AddDeviceStatus(CancellationToken cancelToken)
+        protected async override void AddDeviceStatus(CancellationToken cancelToken)
         {
+            if (string.IsNullOrEmpty(_session.Settings.NightscoutApiUrl) || string.IsNullOrEmpty(_session.Settings.NightscoutSecretkey))
+            {
+                throw new ArgumentException("Nightscout url or apikey is null.");
+            }
+            _client = new NightscoutClient(_session.Settings.NightscoutApiUrl, _session.Settings.NightscoutSecretkey);
+
             if (this.DeviceStatus != null && !string.IsNullOrEmpty(this.DeviceStatus.Device))
             {
-                _client.AddDeviceStatusAsync(new List<DeviceStatus>() { this.DeviceStatus }, cancelToken);
+                await _client.AddDeviceStatusAsync(new List<DeviceStatus>() { this.DeviceStatus }, cancelToken);
                 Logger.LogInformation("DeviceStatus uploaded to Nightscout.");
             }
         }
-    
-        protected override void AddEntries(CancellationToken cancelToken)
+
+        protected async override void AddEntries(CancellationToken cancelToken)
         {
             if (Entries.Count > 0)
             {
                 try
                 {
 
-                    _client.AddEntriesAsync(Entries, cancelToken);
+                    await _client.AddEntriesAsync(Entries, cancelToken);
+
                     Logger.LogInformation($"Entries uploaded to Nightscout. ({Entries.Count})");
                     //log uploads
                     using (CgmUnitOfWork uow = new CgmUnitOfWork())
@@ -52,13 +60,13 @@ namespace CGM.LocalClient
             }
         }
 
-        protected override void AddTreatments(CancellationToken cancelToken)
+        protected async override void AddTreatments(CancellationToken cancelToken)
         {
             if (this.Treatments.Count > 0)
             {
                 try
                 {
-                    _client.AddTreatmentsAsync(this.Treatments, cancelToken);
+                    await _client.AddTreatmentsAsync(this.Treatments, cancelToken);
                     Logger.LogInformation($"Treatments uploaded to Nightscout. ({Treatments.Count})");
                     using (CgmUnitOfWork uow = new CgmUnitOfWork())
                     {

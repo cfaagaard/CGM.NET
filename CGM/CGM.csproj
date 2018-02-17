@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>CGM.NET</PackageId>
+    <Authors>CGM.NET</Authors>
+    <Description>Communication for 600-series pumps.</Description>
+    <Copyright>Christian Aagaard</Copyright>
+    <Company>CGM.NET</Company>
+    <Product>CGM.NET</Product>
   </PropertyGroup>
 
   <ItemGroup>

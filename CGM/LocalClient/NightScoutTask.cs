@@ -192,8 +192,11 @@ namespace CGM.LocalClient
                         {
                             timer.Dispose();
                         }
-
-                        SetUpTimer(session.SessionSystem.NextRun.Value);
+                        if (session.SessionSystem.NextRun.HasValue)
+                        {
+                            SetUpTimer(session.SessionSystem.NextRun.Value);
+                        }
+                        
 
                         if (session.SessionCommunicationParameters.NeedResetCommunication)
                         {

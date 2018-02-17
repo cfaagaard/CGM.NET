@@ -11,7 +11,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Copyright>Christian Aagaard</Copyright>
-    <Description>Communication for 600-series pumps. Getting info from pump to Nightscout.</Description>
+    <Description>Core Communication protocol for 600-series pumps.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -37,6 +37,7 @@
     <Compile Remove="Common\Serialize\SessionOptions.cs" />
     <Compile Remove="MiniMed\ContextOptions.cs" />
     <Compile Remove="MiniMed\Model\Session.cs" />
+    <Compile Remove="MiniMed\RequestEnum.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CGM.Communication\CGM.Communication.csproj" />
+    <ProjectReference Include="..\CGM.Data.Nightscout\CGM.Data.Nightscout.csproj" />
   </ItemGroup>
 
 </Project>

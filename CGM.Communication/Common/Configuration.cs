@@ -41,6 +41,7 @@ namespace CGM.Communication.Common
 
         public int TimeoutSeconds { get; set; } = 5;
         public bool IncludeHistory { get; set; } = true;
+        public bool IncludePumpSettings { get; set; } = true;
         public int HistoryDaysBack { get; set; } = 7;
 
         public bool OnlyFromTheLastReading { get; set; } = false;

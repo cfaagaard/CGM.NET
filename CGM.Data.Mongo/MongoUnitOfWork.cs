@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CGM.Data.Mongo
@@ -31,6 +32,16 @@ namespace CGM.Data.Mongo
 
         }
 
+        public void Insert<T>(string collectionName,List<T> list)
+        {
+            var coll = _db.GetCollection<T>(collectionName);
+            coll.InsertMany(list);
+        }
+        public void Insert<T>(string collectionName, T entity)
+        {
+            var coll = _db.GetCollection<T>(collectionName);
+            coll.InsertOne(entity);
+        }
         public void SaveSession(SerializerSession session)
         {
 
@@ -56,6 +67,7 @@ namespace CGM.Data.Mongo
                         //filteredpumpevents.ForEach(e => e.Index = 0);
                         //filteredpumpevents.Last().Index = 1;
                         this.InsertPumpEvent(filteredpumpevents, HistoryDataTypeEnum.Pump);
+                        session.PumpDataHistory.PumpEventsNew = filteredpumpevents;
                         Logger.LogInformation($"{filteredpumpevents.Count} pumpevents uploaded to MongoDb");
                         last.Pump.Rtc = filteredpumpevents.Last().Rtc;
                     }
@@ -79,6 +91,7 @@ namespace CGM.Data.Mongo
                         //filteredsensorevents.ForEach(e => e.Index = 0);
                         //filteredsensorevents.Last().Index = 1;
                          this.InsertPumpEvent(filteredsensorevents, HistoryDataTypeEnum.Sensor);
+                        session.PumpDataHistory.SensorEventsNew = filteredsensorevents;
                         Logger.LogInformation($"{filteredsensorevents.Count} sensorevents uploaded to MongoDb");
                         last.Sensor.Rtc = filteredsensorevents.Last().Rtc;
 
@@ -91,12 +104,29 @@ namespace CGM.Data.Mongo
 
                 }
                 LastInserted(last);
+
+                NightscoutMongoUploader uploader = new NightscoutMongoUploader(session);
+                CancellationTokenSource _tokenSource = new CancellationTokenSource();
+                CancellationToken _token = _tokenSource.Token;
+                uploader.Upload(_token);
             }
             else
             {
                 Logger.LogInformation("No data uploaded to MongoDb");
             }
             //await ReplaceOne(session.Device);
+        }
+
+        public void DeleteCollections()
+        {
+            _db.DropCollection("devicestatus");
+            _db.DropCollection("entries");
+            _db.DropCollection("treatments");
+            _db.DropCollection("600GlucoseReadingsDetail");
+            _db.DropCollection("600LastInserted");
+            _db.DropCollection("600PumpEventPump");
+            _db.DropCollection("600PumpEventSensor");
+
         }
 
         private IMongoCollection<PumpEvent> GetCollection(HistoryDataTypeEnum historyDataType)

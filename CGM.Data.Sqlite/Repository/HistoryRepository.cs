@@ -36,7 +36,10 @@ namespace  CMG.Data.Sqlite.Repository
                 if (session.PumpDataHistory.SensorEvents.Count > 0)
                 {
                     this.Sync(session.PumpDataHistory.SensorEvents.Select(e => new History(e)).ToList(), (int)HistoryDataTypeEnum.Sensor);
+                    //var last = session.PumpDataHistory.SensorEvents.Last();
+                    //session.Settings.LastRead.Add(new LastPumpRead() { DataType = (int)HistoryDataTypeEnum.Sensor, LastRtc = rtc });
                 }
+
                 SaveLastReadHistoryInSettings();
             }
 
@@ -118,7 +121,11 @@ namespace  CMG.Data.Sqlite.Repository
             foreach (var value in values)
             {
                 int rtc = GetMaxRtc((int)value);
-                settings.LastRead.Add(new LastPumpRead() { DataType = (int)value, LastRtc = rtc });
+                if (rtc!=0)
+                {
+                    settings.LastRead.Add(new LastPumpRead() { DataType = (int)value, LastRtc = rtc });
+                }
+                
 
             }
             _uow.Setting.Update(settings);
@@ -126,7 +133,17 @@ namespace  CMG.Data.Sqlite.Repository
 
         private int GetMaxRtc(int historyDataType)
         {
-            return _uow.Connection.Table<History>().Where(e => e.HistoryDataType == historyDataType).Max(e => e.Rtc);
+            int max = 0;
+            try
+            {
+                max=_uow.Connection.Table<History>().Where(e => e.HistoryDataType == historyDataType).Max(e => e.Rtc);
+            }
+            catch (Exception)
+            {
+
+ 
+            }
+            return max;
 
         }
 

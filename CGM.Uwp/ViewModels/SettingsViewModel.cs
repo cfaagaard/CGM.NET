@@ -150,7 +150,16 @@ namespace CGM.Uwp.ViewModels
                 SaveSetting();
             }
         }
-
+        public bool IncludePumpSettings
+        {
+            get { return _setting.IncludePumpSettings; }
+            set
+            {
+                _setting.IncludePumpSettings = value;
+                this.RaisePropertyChanged(nameof(IncludePumpSettings));
+                SaveSetting();
+            }
+        }
         public bool OnlyFromTheLastReading
         {
             get { return _setting.OnlyFromTheLastReading; }

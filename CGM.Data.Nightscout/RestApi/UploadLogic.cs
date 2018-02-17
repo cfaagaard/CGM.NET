@@ -29,7 +29,7 @@ namespace CGM.Data.Nightscout.RestApi
         private string dateformat = "yyyy-MM-ddTHH\\:mm\\:sszzz";
         protected ILogger Logger = ApplicationLogging.CreateLogger<UploadLogic>();
 
-        private SerializerSession _session;
+        protected SerializerSession _session;
         protected NightscoutClient _client;
 
         public List<Treatment> Treatments { get; set; } = new List<Treatment>();
@@ -54,11 +54,7 @@ namespace CGM.Data.Nightscout.RestApi
         public UploadLogic(SerializerSession session)
         {
             _session = session;
-            if (string.IsNullOrEmpty(_session.Settings.NightscoutApiUrl) || string.IsNullOrEmpty(_session.Settings.NightscoutSecretkey))
-            {
-                throw new ArgumentException("Nightscout url or apikey is null.");
-            }
-            _client = new NightscoutClient(_session.Settings.NightscoutApiUrl, _session.Settings.NightscoutSecretkey);
+ 
         }
 
         protected abstract List<PumpEvent> GetHistoryWithNoStatus(List<int> eventFilter);

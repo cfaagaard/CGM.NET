@@ -74,6 +74,16 @@ namespace CGM.Communication.MiniMed
                 tasks.Add(() => StartReadHistory(cancelToken));
             }
 
+            if (Session.Settings.IncludePumpSettings)
+            {
+                tasks.Add(() => StartBasalPatternAsync(cancelToken));
+                tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_CHARACTERISTICS_REQUEST, cancelToken));
+                tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_STRING_REQUEST, cancelToken));
+                tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST, cancelToken));
+                tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST, cancelToken));
+                tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_SENSITIVITY_FACTORS_REQUEST, cancelToken));
+            }
+            
 
 
             return await CallPumpWithActions(tasks, cancelToken);
