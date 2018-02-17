@@ -9,9 +9,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Copyright>Christian Aagaard</Copyright>
     <Description>Core Communication protocol for 600-series pumps.</Description>
+    <RepositoryUrl>https://github.com/cfaagaard/CGM.NET</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/cfaagaard/CGM.NET</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

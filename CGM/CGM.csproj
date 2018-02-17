@@ -9,6 +9,8 @@
     <Copyright>Christian Aagaard</Copyright>
     <Company>CGM.NET</Company>
     <Product>CGM.NET</Product>
+    <RepositoryUrl>https://github.com/cfaagaard/CGM.NET</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/cfaagaard/CGM.NET</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
