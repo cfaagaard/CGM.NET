@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Christian Aagaard</Copyright>
     <Description>Core Communication protocol for 600-series pumps.</Description>
     <RepositoryUrl>https://github.com/cfaagaard/CGM.NET</RepositoryUrl>
