@@ -4,6 +4,8 @@
 // </auto-generated>
 //----------------------
 
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace CGM.Data.Nightscout.RestApi
 {
 #pragma warning disable // Disable all warnings
@@ -1209,6 +1211,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>sgv, mbg, cal, etc</summary>
         [Newtonsoft.Json.JsonProperty("type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("type")]
         public string Type
         {
             get { return _type; }
@@ -1224,6 +1227,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>dateString, prefer ISO `8601`</summary>
         [Newtonsoft.Json.JsonProperty("dateString", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("dateString")]
         public string DateString
         {
             get { return _dateString; }
@@ -1239,6 +1243,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Epoch</summary>
         [Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("date")]
         public double? Date
         {
             get { return _date; }
@@ -1254,6 +1259,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>The glucose reading. (only available for sgv types)</summary>
         [Newtonsoft.Json.JsonProperty("sgv", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("sgv")]
         public double? Sgv
         {
             get { return _sgv; }
@@ -1269,6 +1275,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Direction of glucose trend reported by CGM. (only available for sgv types)</summary>
         [Newtonsoft.Json.JsonProperty("direction", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("direction")]
         public string Direction
         {
             get { return _direction; }
@@ -1284,6 +1291,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Noise level at time of reading. (only available for sgv types)</summary>
         [Newtonsoft.Json.JsonProperty("noise", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("noise")]
         public double? Noise
         {
             get { return _noise; }
@@ -1299,6 +1307,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>The raw filtered value directly from CGM transmitter. (only available for sgv types)</summary>
         [Newtonsoft.Json.JsonProperty("filtered", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("filtered")]
         public double? Filtered
         {
             get { return _filtered; }
@@ -1314,6 +1323,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>The raw unfiltered value directly from CGM transmitter. (only available for sgv types)</summary>
         [Newtonsoft.Json.JsonProperty("unfiltered", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("unfiltered")]
         public double? Unfiltered
         {
             get { return _unfiltered; }
@@ -1329,6 +1339,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>The signal strength from CGM transmitter. (only available for sgv types)</summary>
         [Newtonsoft.Json.JsonProperty("rssi", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("rssi")]
         public double? Rssi
         {
             get { return _rssi; }
@@ -1365,7 +1376,7 @@ namespace CGM.Data.Nightscout.RestApi
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "9.2.4.0")]
     public partial class Treatment : System.ComponentModel.INotifyPropertyChanged
     {
-        private string __id;
+        //private string __id;
         private string _eventType;
         private string _created_at;
         private string _glucose;
@@ -1376,22 +1387,23 @@ namespace CGM.Data.Nightscout.RestApi
         private string _notes;
         private string _enteredBy;
 
-        /// <summary>Internally assigned id.</summary>
-        [Newtonsoft.Json.JsonProperty("_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string _id
-        {
-            get { return __id; }
-            set
-            {
-                if (__id != value)
-                {
-                    __id = value;
-                    RaisePropertyChanged();
-                }
-            }
-        }
+        ///// <summary>Internally assigned id.</summary>
+        //[Newtonsoft.Json.JsonProperty("_id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        //public string _id
+        //{
+        //    get { return __id; }
+        //    set
+        //    {
+        //        if (__id != value)
+        //        {
+        //            __id = value;
+        //            RaisePropertyChanged();
+        //        }
+        //    }
+        //}
 
         /// <summary>The type of treatment event.</summary>
+        [BsonElement("eventType"), BsonIgnoreIfNull]
         [Newtonsoft.Json.JsonProperty("eventType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string EventType
         {
@@ -1408,6 +1420,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>The date of the event, might be set retroactively .</summary>
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("created_at"), BsonIgnoreIfNull]
         public string Created_at
         {
             get { return _created_at; }
@@ -1423,6 +1436,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Current glucose.</summary>
         [Newtonsoft.Json.JsonProperty("glucose", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("glucose"), BsonIgnoreIfNull]
         public string Glucose
         {
             get { return _glucose; }
@@ -1438,6 +1452,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Method used to obtain glucose, Finger or Sensor.</summary>
         [Newtonsoft.Json.JsonProperty("glucoseType", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("glucoseType"), BsonIgnoreIfNull]
         public string GlucoseType
         {
             get { return _glucoseType; }
@@ -1453,6 +1468,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Number of carbs.</summary>
         [Newtonsoft.Json.JsonProperty("carbs", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("carbs"), BsonIgnoreIfNull]
         public double? Carbs
         {
             get { return _carbs; }
@@ -1468,6 +1484,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Amount of insulin, if any.</summary>
         [Newtonsoft.Json.JsonProperty("insulin", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("insulin"), BsonIgnoreIfNull]
         public double? Insulin
         {
             get { return _insulin; }
@@ -1483,6 +1500,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>The units for the glucose value, mg/dl or mmol.</summary>
         [Newtonsoft.Json.JsonProperty("units", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("units"), BsonIgnoreIfNull]
         public string Units
         {
             get { return _units; }
@@ -1498,6 +1516,7 @@ namespace CGM.Data.Nightscout.RestApi
 
         /// <summary>Description/notes of treatment.</summary>
         [Newtonsoft.Json.JsonProperty("notes", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("notes"), BsonIgnoreIfNull]
         public string Notes
         {
             get { return _notes; }
@@ -1511,8 +1530,21 @@ namespace CGM.Data.Nightscout.RestApi
             }
         }
 
+        // "isAnnouncement": true
+        private bool _isAnnouncement;
+        [BsonElement("isAnnouncement"), BsonIgnoreIfNull]
+        public bool IsAnnouncement
+        {
+            get { return _isAnnouncement; }
+            set { _isAnnouncement = value;
+
+                RaisePropertyChanged();
+            }
+        }
+
         /// <summary>Who entered the treatment.</summary>
         [Newtonsoft.Json.JsonProperty("enteredBy", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("enteredBy"), BsonIgnoreIfNull]
         public string EnteredBy
         {
             get { return _enteredBy; }

@@ -92,6 +92,7 @@ namespace CGM.Data.Nightscout.RestApi
                 OtherReadings(eventsToHandle);
 
                 AddEntries(cancelToken);
+                this.Treatments.Where(e => e.EventType == "Announcement").ToList().ForEach(e => e.IsAnnouncement = true);
                 AddTreatments(cancelToken);
                
 
@@ -257,7 +258,7 @@ namespace CGM.Data.Nightscout.RestApi
                     //announcement.Notification.Date = msg.Timestamp.Value.ToString();
                     //announcement.Notification.Type = EventTypeEnum.ALARM_NOTIFICATION.ToString();
                     //announcement.Notification.Text = msg.AlarmTypeName.ToString();
-
+                   
                     if (msg.AlarmTypeName == Alerts.Suspend_Before_Low_Alarm_quiet_810
                         || msg.AlarmTypeName == Alerts.Suspend_Before_Low_Alarm_811
                          || msg.AlarmTypeName == Alerts.Suspend_On_Low_Alarm_809
@@ -536,8 +537,8 @@ namespace CGM.Data.Nightscout.RestApi
                     msg = $"{alert.ToString()} <br> ISIG:{entry.Isig.ToString()}";
                 }
                 //var note = $"{alert.ToString()}";
-                CreateAnnouncement(msg, date, "Alert", entry.Key);
-
+               var treatment= CreateAnnouncement(msg, date, "Alert", entry.Key);
+              
             }
 
         }
@@ -549,6 +550,7 @@ namespace CGM.Data.Nightscout.RestApi
             treatment.Created_at = createdAt.ToString(Constants.Dateformat);
             treatment.Notes = note;
             treatment.Key = key;
+           
             //treatment.EnteredBy = $"ref:${reference}";
             Treatments.Add(treatment);
             return treatment;

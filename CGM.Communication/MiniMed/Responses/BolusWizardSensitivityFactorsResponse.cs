@@ -18,8 +18,10 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElementList(CountProperty = nameof(Count), Type = typeof(BolusWizardSensitivityFactorDetail), ByteSize = 5)]
         public List<BolusWizardSensitivityFactorDetail> BolusWizardSensitivityFactorDetails { get; set; } = new List<BolusWizardSensitivityFactorDetail>();
 
+        public string BytesAsString { get; set; }
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
+            this.BytesAsString = BitConverter.ToString(bytes);
             //settings.DeviceString = this;
             //calculate End....
             for (int i = 0; i < BolusWizardSensitivityFactorDetails.Count; i++)

@@ -196,9 +196,21 @@ namespace CGM.Communication.Common.Serialize
             return GetPumpEnvelope(type);
         }
 
-        public AstmStart GetPumpBasalPattern(int patternNumber)
+        public AstmStart GetSetting(AstmSendMessageType type, byte[] message)
         {
-            return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST, BitConverter.GetBytes(patternNumber));
+            return GetPumpEnvelope(type, message);
+        }
+
+        public AstmStart GetDeviceChar()
+        {
+            List<byte> message = new List<byte>(this.SessionCommunicationParameters.PumpMac);
+            message.Add(2);
+            return GetPumpEnvelope(AstmSendMessageType.DEVICE_CHARACTERISTICS_REQUEST, message.ToArray());
+        }
+
+        public AstmStart GetPumpBasalPattern(byte patternNumber)
+        {
+            return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST,new byte[]{ patternNumber});
         }
 
         public AstmStart GetReadHistoryInfo(HistoryDataTypeEnum historyDataType)

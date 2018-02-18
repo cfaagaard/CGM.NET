@@ -68,6 +68,13 @@ namespace CGM.Communication.MiniMed
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartPumpTimeAsync(cancelToken));
             tasks.Add(() => StartCollectPumpDataAsync(cancelToken));
+            tasks.Add(() => StartDeviceChar(cancelToken));
+            //tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_STRING_REQUEST, cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST, cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST, cancelToken));
+            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_SENSITIVITY_FACTORS_REQUEST, cancelToken));
+            tasks.Add(() => StartBasalPatternAsync(cancelToken));
+
 
             if (Session.Settings.IncludeHistory)
             {
@@ -76,12 +83,11 @@ namespace CGM.Communication.MiniMed
 
             if (Session.Settings.IncludePumpSettings)
             {
-                tasks.Add(() => StartBasalPatternAsync(cancelToken));
-                tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_CHARACTERISTICS_REQUEST, cancelToken));
-                tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_STRING_REQUEST, cancelToken));
-                tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST, cancelToken));
-                tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST, cancelToken));
-                tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_SENSITIVITY_FACTORS_REQUEST, cancelToken));
+                //tasks.Add(() => StartGetSetting(AstmSendMessageType.Read_Preset_Boluses_Request, cancelToken));
+                //tasks.Add(() => StartGetSetting(AstmSendMessageType.Read_Preset_Temp_Basals_Request, cancelToken));
+                //tasks.Add(() => StartGetSetting(AstmSendMessageType.Read_Timed_Notifications_Request, cancelToken));
+                //tasks.Add(() => StartGetSetting(AstmSendMessageType.Read_Low_Glucose_Sensor_Settings_Request, cancelToken));
+                //tasks.Add(() => StartGetSetting(AstmSendMessageType.Read_High_Glucose_Sensor_Settings_Request, cancelToken));
             }
             
 
@@ -99,11 +105,11 @@ namespace CGM.Communication.MiniMed
 
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartBasalPatternAsync(cancelToken));
-            tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_CHARACTERISTICS_REQUEST, cancelToken));
-            tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_STRING_REQUEST, cancelToken));
-            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST, cancelToken));
-            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST, cancelToken));
-            tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_SENSITIVITY_FACTORS_REQUEST, cancelToken));
+            tasks.Add(() => StartDeviceChar(cancelToken));
+            //tasks.Add(() => StartGetSetting(AstmSendMessageType.DEVICE_STRING_REQUEST, cancelToken));
+            //tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_BG_TARGETS_REQUEST, cancelToken));
+            //tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_CARB_RATIOS_REQUEST, cancelToken));
+            //tasks.Add(() => StartGetSetting(AstmSendMessageType.READ_BOLUS_WIZARD_SENSITIVITY_FACTORS_REQUEST, cancelToken));
 
             return await CallPumpWithActions(tasks, cancelToken);
         }
@@ -531,7 +537,7 @@ namespace CGM.Communication.MiniMed
 
             Logger.LogInformation("Getting BasalPatterns");
             ////check for 8 PumpBasal
-            for (int i = 1; i <= 8; i++)
+            for (byte i = 1; i <= 8; i++)
             {
                 await StartCommunicationStandardResponse(Session.GetPumpBasalPattern(i), cancelToken);
             }
@@ -539,6 +545,12 @@ namespace CGM.Communication.MiniMed
 
             //TODO: check if new basalPatterns, maybe save to SQLite and publish to profile on nightscout, if changed (but not here)
 
+        }
+
+        private async Task StartDeviceChar(CancellationToken cancelToken)
+        {
+           
+            await StartCommunicationStandardResponse(Session.GetDeviceChar(), cancelToken);
         }
 
         private async Task StartPumpTimeAsync(CancellationToken cancelToken)
@@ -616,6 +628,9 @@ namespace CGM.Communication.MiniMed
             Logger.LogInformation(type.ToString());
             await StartCommunicationStandardResponse(Session.GetSetting(type), cancelToken);
         }
+
+
+
 
         private async Task StartReadHistoryAsync(HistoryDataTypeEnum historytype, CancellationToken cancelToken)
         {

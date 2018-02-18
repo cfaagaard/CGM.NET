@@ -71,9 +71,11 @@ namespace CGM.Communication.MiniMed.Responses
 
         public BgUnitEnum BgUnit { get { return (BgUnitEnum)BgUnitRaw; } }
 
+        public string BytesAsString { get; set; }
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            settings.SessionDevice.DeviceCharacteristics = this;
+            this.BytesAsString = BitConverter.ToString(bytes);
+            settings.PumpSettings.DeviceCharacteristics = this;
         }
     }
 }

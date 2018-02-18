@@ -1,4 +1,5 @@
 ﻿using CGM.Communication.MiniMed.Responses;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,7 @@ namespace CGM.Communication.Common.Serialize
 {
     public class SessionSystem
     {
-        public bool InsertMessages { get; set; } = false;
+        public bool PreserveMessages { get; set; } = false;
         public List<object> Messages { get; set; } = new List<object>();
         public List<PumpMessageStartResponse> GeneralMessages { get; set; } = new List<PumpMessageStartResponse>();
 
@@ -27,9 +28,7 @@ namespace CGM.Communication.Common.Serialize
 
     public class SessionDevice
     {
-        public DeviceCharacteristicsResponse DeviceCharacteristics { get; set; }
 
-        public DeviceStringResponse DeviceString { get; set; }
 
         public BayerStickInfoResponse Device { get; set; } = new BayerStickInfoResponse();
     }
@@ -122,11 +121,36 @@ namespace CGM.Communication.Common.Serialize
 
     public class PumpSettings
     {
+        [BsonId]
+        public int Id { get; set; } = 1;
         public PumpCarbRatioResponse CarbRatio { get; set; }
 
         public BolusWizardBGTargetsResponse BolusWizardBGTargets { get; set; }
         public BolusWizardSensitivityFactorsResponse BolusWizardSensitivityFactors { get; set; }
+        public DeviceCharacteristicsResponse DeviceCharacteristics { get; set; }
+        public DeviceStringResponse DeviceString { get; set; }
         public List<PumpPattern> PumpPatterns { get; set; } = new List<PumpPattern>();
 
+        public string GetCompareString()
+        {
+            string compare = "";
+
+            compare += CarbRatio?.BytesAsString;
+            compare += BolusWizardBGTargets?.BytesAsString;
+            compare += BolusWizardSensitivityFactors?.BytesAsString;
+            compare += DeviceCharacteristics?.BytesAsString;
+
+            foreach (var item in PumpPatterns)
+            {
+                compare += item.BytesAsString;
+            }
+
+            return compare;
+        }
+
+        public bool IsNew(string OldString)
+        {
+            return this.GetCompareString() != OldString;
+        }
     }
 }

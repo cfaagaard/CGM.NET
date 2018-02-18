@@ -2,6 +2,7 @@
 using CGM.Communication.Extensions;
 using CGM.Communication.MiniMed.DataTypes;
 using CGM.Communication.MiniMed.Model;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace CGM.Communication.MiniMed.Responses
 
         [BinaryElement(1)]
         public int NowBolusingAmountDelivered { get; set; }
-
+        [BsonIgnore]
         [BinaryElement(5)]
         public byte[] Unknown1 { get; set; }
 
@@ -42,7 +43,21 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(17)]
         public int LastBolusTime { get; set; }
 
-        public DateTime LastBolusDateTime { get { return new DateTime(2000, 1, 1, 0, 0, 0, 0).AddSeconds(LastBolusTime); } }
+
+        private DateTime? _lastBolusDateTime;
+        public DateTime? LastBolusDateTime
+        {
+            get
+            {
+                if (!_lastBolusDateTime.HasValue)
+                {
+                    _lastBolusDateTime = new DateTime(2000, 1, 1, 0, 0, 0, 0).AddSeconds(LastBolusTime);
+                }
+                return _lastBolusDateTime;
+
+            }
+            set { _lastBolusDateTime = value; }
+        }
 
         [BinaryElement(21)]
         public Int16 LastBolusReference { get; set; }
@@ -107,23 +122,30 @@ namespace CGM.Communication.MiniMed.Responses
 
         [BinaryElement(62)]
         public byte SensorStatusFlag { get; set; }
-
+        [BsonIgnore]
         [BinaryElement(63)]
         public byte Unknown3 { get; set; }
 
         [BinaryElement(64)]
         public Int16 SensorCalibrationMinutesRemaining { get; set; }
 
+
+        private DateTime? _sensorCalibrationDateTime;
         public DateTime? SensorCalibrationDateTime
         {
             get
             {
-                if (this.SensorCalibrationMinutesRemaining > 0)
+                if (!_sensorCalibrationDateTime.HasValue && this.SensorCalibrationMinutesRemaining > 0)
                 {
-                    return DateTime.Now.AddMinutes(SensorCalibrationMinutesRemaining);
+                    if (this.SgvDateTime.DateTime.HasValue)
+                    {
+                        _sensorCalibrationDateTime = this.SgvDateTime.DateTime.Value.AddMinutes(SensorCalibrationMinutesRemaining);
+                    }
+                    
                 }
-                return null;
+                return _sensorCalibrationDateTime;
             }
+            set { _sensorCalibrationDateTime = value; }
         }
 
         [BinaryElement(66)]
@@ -143,6 +165,7 @@ namespace CGM.Communication.MiniMed.Responses
                 else _sensorBattery = 0;
                 return _sensorBattery;
             }
+            set { _sensorBattery = value; }
         }
 
         [BinaryElement(67)]
@@ -167,7 +190,7 @@ namespace CGM.Communication.MiniMed.Responses
 
         //[BinaryElement(78)]
         //public int AlertOffset { get; set; }
-
+        [BsonIgnore]
         [BinaryElement(82)]
         public byte[] Unknown7 { get; set; }
 
@@ -195,9 +218,29 @@ namespace CGM.Communication.MiniMed.Responses
 
         //    }
         //}
-        public double SgvMmol { get { return Math.Round(((double)this.Sgv / 18.01559), 1); } }
 
-        public double NormalBasal { get { return ((double)this.NormalBasalRaw / 10000); } }
+        private double _sgvMmol;
+        public double SgvMmol
+        {
+            get
+            {
+
+                _sgvMmol = Math.Round(((double)this.Sgv / 18.01559), 1);
+                return _sgvMmol;
+            }
+            set { _sgvMmol = value; }
+        }
+
+        private double _normalBasal;
+        public double NormalBasal
+        {
+            get
+            {
+                _normalBasal = ((double)this.NormalBasalRaw / 10000);
+                return _normalBasal;
+            }
+            set { _normalBasal = value; }
+        }
         //public double ActiveInsulin { get { return ((double)this.ActiveInsulinRawConvert / 10000); } }
 
         //public double RateOfChange
@@ -212,37 +255,71 @@ namespace CGM.Communication.MiniMed.Responses
         //        return 0;
         //    }
         //}
-
+        private double _bolusEstimate;
         public double BolusEstimate
         {
             get
             {
-                return ((double)this.LastBolusAmount / 10000);
+                _bolusEstimate = ((double)this.LastBolusAmount / 10000);
+                return _bolusEstimate;
             }
+            set { _bolusEstimate = value; }
         }
-
-        public double BasalUnitsDeliveredToday { get { return ((double)this.BasalUnitsDeliveredTodayRaw / 10000); } }
+        private double _basalUnitsDeliveredToday;
+        public double BasalUnitsDeliveredToday
+        {
+            get
+            {
+                _basalUnitsDeliveredToday = ((double)this.BasalUnitsDeliveredTodayRaw / 10000);
+                return _basalUnitsDeliveredToday;
+            }
+            set { _basalUnitsDeliveredToday = value; }
+        }
 
 
         //public double CalibrationFactor { get { return ((double)(this.CalibrationFactorRaw & 0x0000ffff )/ 10000); } }
-
-        public double ReservoirAmount { get { return ((double)this.ReservoirAmountRaw / 10000); } }
+        private double _reservoirAmount;
+        public double ReservoirAmount
+        {
+            get
+            {
+                _reservoirAmount = ((double)this.ReservoirAmountRaw / 10000);
+                return _reservoirAmount;
+            }
+            set { _reservoirAmount = value; }
+        }
+        private PumpStatus _status;
         public PumpStatus Status
         {
             get
-            { return new PumpStatus(this.StatusFlag); }
+            { _status= new PumpStatus(this.StatusFlag);
+                return _status;
+            }
+            set { _status = value; }
         }
-
+        private SensorStatus _sensorStatus;
         public SensorStatus SensorStatus
         {
             get
-            { return new SensorStatus(this.SensorStatusFlag); }
+            { _sensorStatus= new SensorStatus(this.SensorStatusFlag);
+                return _sensorStatus;
+            }
+            set { _sensorStatus = value; }
         }
 
+        private SgvTrend _cgmTrendName;
+        public SgvTrend CgmTrendName { get { _cgmTrendName= TrendConvert(this.CgmTrend);
+                return _cgmTrendName;
+            }
 
-        public SgvTrend CgmTrendName { get { return TrendConvert(this.CgmTrend); } }
-
-        public Alerts AlertName { get { return (Alerts)this.Alert; } }
+        set { _cgmTrendName = value; }
+        }
+        private Alerts _alertName;
+        public Alerts AlertName { get { _alertName=(Alerts)this.Alert;
+                return _alertName;
+            }
+            set { _alertName = value; }
+        }
 
 
         //public double SgvDateTimeEpoch
@@ -257,23 +334,23 @@ namespace CGM.Communication.MiniMed.Responses
         //        return 0;
         //    }
         //}
-
+        [BsonIgnore]
         public byte[] AllBytes { get; set; }
 
 
-        public DateTime LocalDateTime { get; set; }
+       // public DateTime LocalDateTime { get; set; }
         //public TimeSpan LocalDateTimePumpDateTimeDifference { get; set; }
         public PumpStatusMessage()
         {
-            LocalDateTime = DateTime.Now;
+            //LocalDateTime = DateTime.Now;
 
         }
-
+        public string BytesAsString { get; set; }
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             settings.AddStatus(this);
             this.AllBytes = bytes;
-
+            this.BytesAsString = BitConverter.ToString(bytes);
             //if (this.SgvDateTime.HasValue)
             //{
             //    this.LocalDateTimePumpDateTimeDifference = this.LocalDateTime.Subtract(this.SgvDateTime.Value);

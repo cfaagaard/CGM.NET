@@ -42,6 +42,14 @@ namespace CGM.Data.Mongo
             var coll = _db.GetCollection<T>(collectionName);
             coll.InsertOne(entity);
         }
+
+        public void SavePumpSettings(PumpSettings pumpSettings)
+        {
+            var coll = _db.GetCollection<PumpSettings>("600Pumpsettings");
+            coll.DeleteOne<PumpSettings>(e => e.Id == 1);
+            coll.InsertOne(pumpSettings);
+        }
+
         public void SaveSession(SerializerSession session)
         {
 
@@ -103,12 +111,33 @@ namespace CGM.Data.Mongo
                     }
 
                 }
+
+                if (string.IsNullOrEmpty(last.PumpSettings) || session.PumpSettings.IsNew(last.PumpSettings))
+                {
+                    last.PumpSettings = session.PumpSettings.GetCompareString();
+                    SavePumpSettings(session.PumpSettings);
+
+                }
+
+                List<PumpStatusMessage> statusList= session.Status;
+                if (last.StatusRtc!=0)
+                {
+                    statusList = session.Status.Where(e => e.SgvDateTime.Rtc > last.StatusRtc).ToList();
+                }
+                if (statusList.Count>0)
+                {
+                    this.Insert<PumpStatusMessage>("600PumpStatus", statusList);
+                    last.StatusRtc = statusList.Last().SgvDateTime.Rtc;
+                }
                 LastInserted(last);
+
 
                 NightscoutMongoUploader uploader = new NightscoutMongoUploader(session);
                 CancellationTokenSource _tokenSource = new CancellationTokenSource();
                 CancellationToken _token = _tokenSource.Token;
                 uploader.Upload(_token);
+
+
             }
             else
             {
@@ -126,7 +155,9 @@ namespace CGM.Data.Mongo
             _db.DropCollection("600LastInserted");
             _db.DropCollection("600PumpEventPump");
             _db.DropCollection("600PumpEventSensor");
-
+            _db.DropCollection("600Pumpsettings");
+            _db.DropCollection("600PumpStatus");
+            
         }
 
         private IMongoCollection<PumpEvent> GetCollection(HistoryDataTypeEnum historyDataType)

@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using CGM.Communication.Extensions;
 using Newtonsoft.Json;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace CGM.Data.Nightscout.RestApi
 {
@@ -115,11 +116,12 @@ namespace CGM.Data.Nightscout.RestApi
     {
 
         private string _device;
-
+        [BsonElement("key")]
         [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Key { get; set; }
 
         /// <summary>sgv, mbg, cal, etc</summary>
+       [BsonElement("device")]
         [Newtonsoft.Json.JsonProperty("device", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Device
         {
@@ -134,25 +136,26 @@ namespace CGM.Data.Nightscout.RestApi
             }
         }
 
-        private string _id;
+        //private string _id;
 
-        /// <summary>sgv, mbg, cal, etc</summary>
-        [Newtonsoft.Json.JsonProperty("_Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Id
-        {
-            get { return _id; }
-            set
-            {
-                if (_id != value)
-                {
-                    _id = value;
-                    RaisePropertyChanged();
-                }
-            }
-        }
+        ///// <summary>sgv, mbg, cal, etc</summary>
+        //[Newtonsoft.Json.JsonProperty("_Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        //public string Id
+        //{
+        //    get { return _id; }
+        //    set
+        //    {
+        //        if (_id != value)
+        //        {
+        //            _id = value;
+        //            RaisePropertyChanged();
+        //        }
+        //    }
+        //}
 
 
         private double? _mbg;
+        [BsonElement("mbg")]
         [Newtonsoft.Json.JsonProperty("mbg", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Mbg
         {
@@ -168,7 +171,8 @@ namespace CGM.Data.Nightscout.RestApi
         }
 
         private double? _isig;
-        [Newtonsoft.Json.JsonProperty("Isig", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("isig")]
+        [Newtonsoft.Json.JsonProperty("isig", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? Isig
         {
             get { return _isig; }
@@ -185,20 +189,22 @@ namespace CGM.Data.Nightscout.RestApi
 
     public partial class Treatment
     {
-
+        [BsonElement("key")]
         [Newtonsoft.Json.JsonProperty("key", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Key { get; set; }
 
         [JsonIgnore]
+        [BsonIgnore]
         public Notification Notification { get; set; } = new Notification();
 
 
         [Newtonsoft.Json.JsonProperty("duration", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("duration"), BsonIgnoreIfNull]
         public string Duration { get; set; }
-
+        [BsonElement("percent"), BsonIgnoreIfNull]
         [Newtonsoft.Json.JsonProperty("percent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Percent { get; set; }
-
+        [BsonElement("absolute"), BsonIgnoreIfNull]
         [Newtonsoft.Json.JsonProperty("absolute", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string absolute { get; set; }
     }

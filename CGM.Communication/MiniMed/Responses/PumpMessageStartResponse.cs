@@ -45,7 +45,7 @@ namespace CGM.Communication.MiniMed.Responses
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-            if (settings.SessionSystem.InsertMessages && Message is PumpGeneral)
+            if (settings.SessionSystem.PreserveMessages && Message is PumpGeneral)
             {
                 settings.SessionSystem.GeneralMessages.Add(this);
             }

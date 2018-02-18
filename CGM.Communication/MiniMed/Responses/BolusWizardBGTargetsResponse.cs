@@ -17,9 +17,10 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(3)]
         [BinaryElementList(CountProperty = nameof(Count), Type = typeof(BolusWizardBGTargetDetail), ByteSize = 9)]
         public List<BolusWizardBGTargetDetail> BolusWizardBGTargetDetails { get; set; } = new List<BolusWizardBGTargetDetail>();
-
+        public string BytesAsString { get; set; }
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
+            this.BytesAsString = BitConverter.ToString(bytes);
             //settings.DeviceString = this;
             //calculate End....
             for (int i = 0; i < BolusWizardBGTargetDetails.Count; i++)

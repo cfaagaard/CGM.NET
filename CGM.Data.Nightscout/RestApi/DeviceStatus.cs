@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,7 @@ namespace CGM.Data.Nightscout.RestApi
         private string _createdAt;
 
         [Newtonsoft.Json.JsonProperty("device", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [BsonElement("device")]
         public string Device
         {
             get { return _device; }
@@ -30,6 +32,7 @@ namespace CGM.Data.Nightscout.RestApi
 
 
         private PumpInfo _pump;
+        [BsonElement("pump")]
         [Newtonsoft.Json.JsonProperty("pump", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public PumpInfo PumpInfo
         {
@@ -44,7 +47,7 @@ namespace CGM.Data.Nightscout.RestApi
             }
         }
 
-
+        [BsonElement("created_at")]
         [Newtonsoft.Json.JsonProperty("created_at", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string CreatedAt
         {
@@ -58,6 +61,7 @@ namespace CGM.Data.Nightscout.RestApi
                 }
             }
         }
+        [BsonElement("uploaderBattery")]
         [Newtonsoft.Json.JsonProperty("uploaderBattery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double UploaderBattery
         {
@@ -147,6 +151,7 @@ namespace CGM.Data.Nightscout.RestApi
     {
 
         private double _reservoir;
+        [BsonElement("reservoir")]
         [Newtonsoft.Json.JsonProperty("reservoir", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Reservoir
         {
@@ -162,6 +167,7 @@ namespace CGM.Data.Nightscout.RestApi
         }
 
         private Iob _iob;
+        [BsonElement("iob")]
         [Newtonsoft.Json.JsonProperty("iob", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Iob Iob
         {
@@ -180,6 +186,7 @@ namespace CGM.Data.Nightscout.RestApi
 
 
         private Dictionary<string, object> _status;
+        [BsonElement("status")]
         [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Dictionary<string,object> Status
         {
@@ -195,6 +202,7 @@ namespace CGM.Data.Nightscout.RestApi
         }
 
         private string _clock;
+        [BsonElement("clock")]
         [Newtonsoft.Json.JsonProperty("clock", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Clock
         {
@@ -210,6 +218,7 @@ namespace CGM.Data.Nightscout.RestApi
         }
 
         private Battery _battery;
+        [BsonElement("battery")]
         [Newtonsoft.Json.JsonProperty("battery", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public Battery Battery
         {
@@ -259,6 +268,7 @@ namespace CGM.Data.Nightscout.RestApi
     {
 
         private string _timestamp;
+        [BsonElement("timestamp")]
         [Newtonsoft.Json.JsonProperty("timestamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Timestamp
         {
@@ -274,6 +284,7 @@ namespace CGM.Data.Nightscout.RestApi
         }
 
         private double _bolusiob;
+        [BsonElement("bolusiob")]
         [Newtonsoft.Json.JsonProperty("bolusiob", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double Bolusiob
         {
@@ -317,6 +328,7 @@ namespace CGM.Data.Nightscout.RestApi
 
 
         private int _percent;
+        [BsonElement("percent")]
         [Newtonsoft.Json.JsonProperty("percent", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Percent
         {

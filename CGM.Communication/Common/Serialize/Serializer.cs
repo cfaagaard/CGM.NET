@@ -147,7 +147,7 @@ namespace CGM.Communication.Common.Serialize
 
         public byte[] Serialize<T>(T bytes) where T : class, new()
         {
-            if (this._session.SessionSystem.InsertMessages)
+            if (this._session.SessionSystem.PreserveMessages)
             {
                 this._session.SessionSystem.Messages.Add(bytes);
             }
@@ -350,7 +350,7 @@ namespace CGM.Communication.Common.Serialize
             _byteLevels = new List<byte[]>();
 
             T obj = DeserializeInternal<T>(bytes);
-            if (this._session.SessionSystem.InsertMessages)
+            if (this._session.SessionSystem.PreserveMessages)
             {
                 this._session.SessionSystem.Messages.Add(obj);
             }

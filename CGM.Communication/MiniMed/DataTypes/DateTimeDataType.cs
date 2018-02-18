@@ -21,16 +21,27 @@ namespace CGM.Communication.MiniMed.DataTypes
 
         //public string DateTimeString { get { return DateTime.Value.ToString("ddd, MMM dd HH:mm:ss CEST yyyy", CultureInfo.InvariantCulture); } }
 
-        public string DateTimeString { get { return DateTime.Value.ToString(Constants.Dateformat); } }
+
+        public string DateTimeString {
+            get
+            { return DateTime.Value.ToString(Constants.Dateformat); }
+
+        }
+        private DateTime? _datetime;
+
         public DateTime? DateTime
         {
             get
             {
-                if (Rtc != 0 && Offset != 0)
+               
+                if (!_datetime.HasValue && Rtc != 0 && Offset != 0)
                 {
-                    return DateTimeExtension.GetDateTime(this.Rtc, this.Offset);
+                    _datetime= DateTimeExtension.GetDateTime(this.Rtc, this.Offset);
                 }
-                return null;
+                return _datetime;
+            }
+            set {
+                _datetime = value;
             }
         }
 
