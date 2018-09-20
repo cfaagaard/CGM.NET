@@ -1,12 +1,10 @@
 # Introduction
 
-#### !!!STATUS!!!: the project is being refactored right now. Do not use this code... yet.
-
 Beta version of Nightscout-uploader for the 600-series pump on:
 
 * Windows 10
-* Raspberry Pi 3 (with Windows Iot)
-
+* Raspberry Pi 3 (with Windows Iot, (linux is coming...)
+* Raspberry Pi Zero (is coming....)
 
 See [wiki](https://github.com/cfaagaard/CGM.NET/wiki) for further guidance.
 

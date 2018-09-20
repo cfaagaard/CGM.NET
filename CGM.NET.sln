@@ -50,6 +50,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CGM.Data.Minimed", "Data\CG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CGM.Web.DataTransfer", "Web\CGM.Web.DataTransfer\CGM.Web.DataTransfer.csproj", "{86F47BBC-9451-4114-96BE-204BFEE4EEF9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{07F2E37F-87F0-4C8F-AC4D-329219651E33}"
+	ProjectSection(SolutionItems) = preProject
+		Docs\2017-09-14 16_12_35-Edit your flow _ Microsoft Flow and 5 more pages ‎- Microsoft Edge.png = Docs\2017-09-14 16_12_35-Edit your flow _ Microsoft Flow and 5 more pages ‎- Microsoft Edge.png
+		Docs\2017-09-14 16_25_57-Microsoft Edge.png = Docs\2017-09-14 16_25_57-Microsoft Edge.png
+		Docs\2017-09-14 16_30_38-CGM.NET.png = Docs\2017-09-14 16_30_38-CGM.NET.png
+		Docs\IMG_20170817_162023.png = Docs\IMG_20170817_162023.png
+		Docs\lumia.png = Docs\lumia.png
+		Docs\MainScreen.png = Docs\MainScreen.png
+		Docs\pie.png = Docs\pie.png
+		Docs\PieCNL.jpg = Docs\PieCNL.jpg
+		readme.md = readme.md
+		Docs\SettingScreen.png = Docs\SettingScreen.png
+		Docs\StatusScreen.png = Docs\StatusScreen.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
