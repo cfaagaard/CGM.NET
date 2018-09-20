@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGM.Communication.MiniMed;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -8,10 +9,13 @@ namespace CGM.Communication.Interfaces
 {
     public delegate void DataReceivedEventHandler(object sender, byte[] data);
 
-    public interface IDevice:IDisposable
+    public interface IDevice : IDisposable
     {
-        Task SendBytes(byte[] message);
+        void SendBytes(List<List<byte>> messages);
         event DataReceivedEventHandler DataReceived;
         bool IsConnected { get; set; }
+        bool DoneReceived { get; set; }
+        event EventHandler DeviceAdded;
+        event EventHandler DeviceRemoved;
     }
 }

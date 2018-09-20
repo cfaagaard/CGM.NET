@@ -11,32 +11,50 @@ using System.Linq;
 using CGM.Communication.Log;
 using Microsoft.Extensions.Logging;
 using CGM.Communication.Common.Serialize.Log;
+using System.Runtime.Serialization;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using CGM.Communication.Interfaces;
+using Newtonsoft.Json;
 
 namespace CGM.Communication.Common.Serialize
 {
+    [Serializable]
     public class SerializerSession
     {
+        [NonSerialized]
         protected ILogger Logger = ApplicationLogging.CreateLogger<SerializerSession>();
         private char fieldDelimeter = ';';
         private char keyvalueDelimeter = ':';
         #region properties
-     
+
         public SessionSystem SessionSystem { get; set; } = new SessionSystem();
         public SessionDevice SessionDevice { get; set; } = new SessionDevice();
         public SessionCommunicationParameters SessionCommunicationParameters { get; set; }
         public SessionVariables SessionVariables { get; set; } = new SessionVariables();
-        public Configuration Settings { get; set; } = new Configuration();
+
+        public Dictionary<string,IConfiguration> Configurations { get; set; } = new Dictionary<string, IConfiguration>();
+
         public PumpSettings PumpSettings { get; set; } = new PumpSettings();
         public List<PumpStatusMessage> Status { get; set; } = new List<PumpStatusMessage>();
         public PumpTimeMessage PumpTime { get; set; } = new PumpTimeMessage();
         public PumpDataHistory PumpDataHistory { get; set; }
         public List<LogEntry> Logs { get; set; } = new List<LogEntry>();
-        public int UploaderBattery { get; set; }
+        public int DataLoggerBattery { get; set; } = 100;
         public bool CanSaveSession
         {
             get
             {
                 return !string.IsNullOrEmpty(this.SessionDevice.Device.SerialNumber);
+            }
+        }
+
+
+        public bool GotConnectionToPump
+        {
+            get
+            {
+                return this.SessionCommunicationParameters.RadioChannel != 0x00 && this.PumpTime != null;
             }
         }
 
@@ -56,6 +74,36 @@ namespace CGM.Communication.Common.Serialize
             this.PumpSettings = new PumpSettings();
             this.SessionSystem.NewSession();
             this.Logs = new List<LogEntry>();
+
+
+        }
+
+        public T GetConfiguration<T>() where T : IConfiguration
+        {
+            string key = typeof(T).Name;
+            if (this.Configurations.Keys.Contains(key))
+            {
+               return (T)this.Configurations.FirstOrDefault(e => e.Key == typeof(T).Name).Value;
+            }
+            else
+            {
+                
+                T newConfig;
+                //string configurationFile = $"{typeof(T).Name}.json";
+                //if (File.Exists(configurationFile))
+                //{
+                //    newConfig=JsonConvert.DeserializeObject<T>(File.ReadAllText(configurationFile));
+                //}
+                //else
+                //{
+                newConfig = (T)Activator.CreateInstance(typeof(T));
+                //}
+                
+                this.Configurations.Add(key, newConfig);
+                var repository=CommonServiceLocator.ServiceLocator.Current.GetInstance<IStateRepository>();
+                repository.SaveConfiguration(newConfig);
+                return newConfig;
+            }
         }
 
         public void AddStatus(PumpStatusMessage status)
@@ -127,6 +175,19 @@ namespace CGM.Communication.Common.Serialize
             this.SessionDevice.Device.ModelNumber = parameters[nameof(SessionDevice.Device.ModelNumber)];
             this.SessionDevice.Device.SerialNumberFull = parameters[nameof(SessionDevice.Device.SerialNumberFull)];
         }
+
+
+        public void Save(string path)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
+            formatter.Serialize(stream, this);
+            stream.Close();
+
+
+
+        }
+
 
         #region FactoryMethodes
 
@@ -208,9 +269,16 @@ namespace CGM.Communication.Common.Serialize
             return GetPumpEnvelope(AstmSendMessageType.DEVICE_CHARACTERISTICS_REQUEST, message.ToArray());
         }
 
+        public AstmStart GetRemoteBolus()
+        {
+            List<byte> message = new List<byte>(this.SessionCommunicationParameters.PumpMac);
+            message.Add(2);
+            return GetPumpEnvelope(AstmSendMessageType.REMOTE_BOLUS_REQUEST, message.ToArray());
+        }
+
         public AstmStart GetPumpBasalPattern(byte patternNumber)
         {
-            return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST,new byte[]{ patternNumber});
+            return GetPumpEnvelope(AstmSendMessageType.READ_BASAL_PATTERN_REQUEST, new byte[] { patternNumber });
         }
 
         public AstmStart GetReadHistoryInfo(HistoryDataTypeEnum historyDataType)
@@ -238,11 +306,14 @@ namespace CGM.Communication.Common.Serialize
 
         private int GetLastRtc(HistoryDataTypeEnum historyDataType)
         {
-            var lastRead = this.Settings.LastRead.FirstOrDefault(e => e.DataType == (int)historyDataType);
+            //var lastRead = this.Settings.LastRead.FirstOrDefault(e => e.DataType == (int)historyDataType);
+            var configuration = this.MinimedConfiguration();
+            var lastRead = configuration.LastRead.FirstOrDefault(e => e.DataType == (int)historyDataType);
+
             int lastRtc = 0;
             if (lastRead == null)
             {
-                lastRtc = DateTime.Now.AddDays(-1 * this.Settings.HistoryDaysBack).GetRtcBytes(this.PumpTime.OffSet).GetInt32(0);
+                lastRtc = DateTime.Now.AddDays(-1 * configuration.HistoryDaysBack).GetRtcBytes(this.PumpTime.OffSet).GetInt32(0);
             }
             else
             {
@@ -295,5 +366,20 @@ namespace CGM.Communication.Common.Serialize
         }
 
         #endregion
+
+        public void ReadPythonLog(string path)
+        {
+            PythonLogFileReader reader = new PythonLogFileReader(path, this);
+            this.PumpDataHistory.ExtractHistoryEvents();
+        }
+
+        public void LoadLog(string path)
+        {
+            LogFileReader file = new LogFileReader(path, this);
+            //this.PumpDataHistory.ExtractHistoryEvents();
+        }
+
+
+       
     }
 }

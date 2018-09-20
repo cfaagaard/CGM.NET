@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>DataLogger</h2>
+@Html.ActionLink("Stop", "Stop", "DataLogger")
+
+@Html.ActionLink("Start", "Start", "DataLogger")
+
+
+<div class="container">
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <text id="statusText"></text>
+    </div>
+    <div class="row">
+        <div class="col-6">&nbsp;</div>
+        <div class="col-6">
+            <ul id="messagesList"></ul>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/signalr/signalr.js"></script>
+<script src="~/js/datalogger.js"></script>

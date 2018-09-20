@@ -10,7 +10,7 @@ using CGM.Communication.Extensions;
 namespace CGM.Communication.MiniMed
 {
 
-
+    [Serializable]
     [BinaryType]
     public class MedtronicMessage2 : IBinaryType, IBinaryDeserializationSetting
     {

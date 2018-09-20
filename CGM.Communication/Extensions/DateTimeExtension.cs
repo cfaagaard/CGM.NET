@@ -51,6 +51,7 @@ namespace CGM.Communication.Extensions
 
         public static DateTime? GetDateTime(int Rtc, int offSet)
         {
+            //should try this: 946684800000 + (RTC * 1000) + ((Offset - 0x100000000) * 1000)
             if (Rtc == 0)
             {
                 return null;

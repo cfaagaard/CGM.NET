@@ -5,6 +5,7 @@ using System.Text;
 
 namespace CGM.Communication.Common.Serialize.Log
 {
+    [Serializable]
     public class LogEntry
     {
         public DateTime Date { get; set; }

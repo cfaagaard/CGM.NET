@@ -11,15 +11,16 @@ using CGM.Communication.MiniMed;
 
 namespace CGM.Communication.Common.Serialize
 {
+    [Serializable]
     public class PumpDataHistory
     {
         private SerializerSession _session;
 
-        public List<PumpEvent> PumpEvents { get; set; } = new List<PumpEvent>();
-        public List<PumpEvent> SensorEvents { get; set; } = new List<PumpEvent>();
+        public List<BasePumpEvent> PumpEvents { get; set; } = new List<BasePumpEvent>();
+        public List<BasePumpEvent> SensorEvents { get; set; } = new List<BasePumpEvent>();
 
-        public List<PumpEvent> PumpEventsNew { get; set; } = new List<PumpEvent>();
-        public List<PumpEvent> SensorEventsNew { get; set; } = new List<PumpEvent>();
+        public List<BasePumpEvent> PumpEventsNew { get; set; } = new List<BasePumpEvent>();
+        public List<BasePumpEvent> SensorEventsNew { get; set; } = new List<BasePumpEvent>();
 
         internal MultiPacketHandler CurrentMultiPacketHandler { get; set; }
 

@@ -3,6 +3,7 @@ using CGM.Communication.Common.Serialize;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     public class RadioChannelResponse : PumpResponse, IBinaryDeserializationSetting
     {
         [BinaryElement(4)]

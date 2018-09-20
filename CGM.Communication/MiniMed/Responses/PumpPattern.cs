@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class PumpPattern : IBinaryType, IBinaryDeserializationSetting
     {

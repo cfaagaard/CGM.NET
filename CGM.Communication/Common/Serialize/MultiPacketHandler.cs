@@ -12,8 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace CGM.Communication.Common.Serialize
 {
+    [Serializable]
     public class MultiPacketHandler
     {
+        [NonSerialized]
         private ILogger Logger = ApplicationLogging.CreateLogger<MultiPacketHandler>();
         private SerializerSession _session;
         internal Serializer _seri;
@@ -46,11 +48,11 @@ namespace CGM.Communication.Common.Serialize
            
         }
 
-        public List<PumpEvent> JoinAllEvents()
+        public List<BasePumpEvent> JoinAllEvents()
         {
-            List<PumpEvent> all = new List<PumpEvent>();
+            List<BasePumpEvent> all = new List<BasePumpEvent>();
             Segments.ForEach(f => all.AddRange(f.Events));
-            return all.OrderBy(e => e.Timestamp).ToList(); ;
+            return all.OrderBy(e => e.EventDate.DateTime).ToList(); ;
         }
     }
 }

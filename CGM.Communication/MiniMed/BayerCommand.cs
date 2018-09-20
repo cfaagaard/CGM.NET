@@ -1,10 +1,12 @@
 ﻿using CGM.Communication.Common.Serialize;
 using CGM.Communication.MiniMed.Infrastructur;
+using System;
 using System.Text;
 
 
 namespace CGM.Communication.MiniMed
 {
+    [Serializable]
     [BinaryType]
     public class BayerCommand : AstmStart
     {
@@ -25,7 +27,7 @@ namespace CGM.Communication.MiniMed
             this.CommandLength = 0x00;
         }
 
-        public BayerCommand(string command) : this(Encoding.ASCII.GetBytes(command))
+        public BayerCommand(string command) : this(Encoding.UTF8.GetBytes(command))
         {
 
         }
@@ -37,7 +39,7 @@ namespace CGM.Communication.MiniMed
 
         public override string ToString()
         {
-            return string.Format("{0} - {1}", base.ToString(), Encoding.ASCII.GetString(Command));
+            return string.Format("{0} - {1}", base.ToString(), Encoding.UTF8.GetString(Command));
         }
     }
 

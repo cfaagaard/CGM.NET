@@ -6,7 +6,7 @@ using System.Text;
 
 namespace CGM.Communication.MiniMed.Responses
 {
-
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class EndHistoryTransmissionResponse : IBinaryType, IBinaryDeserializationSetting
     {

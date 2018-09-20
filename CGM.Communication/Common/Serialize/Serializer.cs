@@ -11,6 +11,9 @@ using CGM.Communication.MiniMed.Requests;
 using CGM.Communication.MiniMed;
 using CGM.Communication.Interfaces;
 using System.Collections;
+using CGM.Communication.MiniMed.DataTypes;
+using CGM.Communication.Log;
+using Microsoft.Extensions.Logging;
 
 namespace CGM.Communication.Common.Serialize
 {
@@ -59,7 +62,7 @@ namespace CGM.Communication.Common.Serialize
                 {
                     if (element.Direction == DirectionEnum.Reverse)
                     {
-                        if (_bytes==null)
+                        if (_bytes == null)
                         {
                             element.FieldOffset = 1000;
                         }
@@ -67,7 +70,7 @@ namespace CGM.Communication.Common.Serialize
                         {
                             element.FieldOffset = _bytes.Length - element.Length - element.FieldOffset;
                         }
-                        
+
                     }
                     var el = new SerializeInfoElement() { Element = element, Info = property };
 
@@ -104,7 +107,7 @@ namespace CGM.Communication.Common.Serialize
 
     public class Serializer
     {
-
+        private ILogger Logger = ApplicationLogging.CreateLogger<Serializer>();
         private SerializerSession _session = new SerializerSession();
 
 
@@ -151,7 +154,7 @@ namespace CGM.Communication.Common.Serialize
             {
                 this._session.SessionSystem.Messages.Add(bytes);
             }
-            
+
             return SerializeInternal<T>(bytes);
         }
 
@@ -169,7 +172,7 @@ namespace CGM.Communication.Common.Serialize
                 SerializeInfo<T> serInfo = new SerializeInfo<T>(s);
                 bool IsLittleEndian = BitConverter.IsLittleEndian;
                 IsLittleEndian = classtype.IsLittleEndian;
-
+  
                 foreach (var item in serInfo.InfoElementOrderedList)
                 {
 
@@ -202,7 +205,8 @@ namespace CGM.Communication.Common.Serialize
 
                         if (checktype == typeof(string))
                         {
-                            value = Encoding.ASCII.GetBytes((string)property.GetValue(s));
+                            //value = Encoding.ASCII.GetBytes((string)property.GetValue(s));
+                            value = Encoding.UTF8.GetBytes((string)property.GetValue(s));
                         }
 
 
@@ -267,12 +271,12 @@ namespace CGM.Communication.Common.Serialize
                     foreach (var item in logicOrdered)
                     {
                         var element = serInfo.InfoElements.FirstOrDefault(e => e.Key == item.PropInfo.Name).Value;
-                        if (element!=null)
+                        if (element != null)
                         {
                             item.Logic.SetValue(temp, element.Element.FieldOffset, item.PropInfo, s, _session);
                         }
-                      //  var element = (BinaryElement)item.PropInfo.GetCustomAttribute(typeof(BinaryElement));
-                       
+                        //  var element = (BinaryElement)item.PropInfo.GetCustomAttribute(typeof(BinaryElement));
+
                     }
                 }
 
@@ -301,7 +305,7 @@ namespace CGM.Communication.Common.Serialize
         //public byte[] Join(List<byte[]> bytes)
         //{
 
-            
+
 
 
         //        if (bytes != null && bytes.Count > 0)
@@ -337,7 +341,7 @@ namespace CGM.Communication.Common.Serialize
         //            if (data_found) return false;
         //            if (point == 0x00) return true; else { data_found = true; return false; }
         //        }).Reverse().ToArray();
- 
+
         //        return new_data;
         //    }
         //    return null;
@@ -446,7 +450,8 @@ namespace CGM.Communication.Common.Serialize
                             if (property.PropertyType == typeof(string))
                             {
 
-                                setvalue = Encoding.ASCII.GetString(EndianValue.ToArray());
+                                //setvalue = Encoding.ASCII.GetString(EndianValue.ToArray());
+                                setvalue = Encoding.UTF8.GetString(EndianValue.ToArray());
                             }
 
                             if (property.PropertyType == typeof(Int16))
@@ -623,7 +628,14 @@ namespace CGM.Communication.Common.Serialize
                                         }
 
                                     }
-
+                                    if (property.PropertyType == typeof(SgDataType))
+                                    {
+                                        ((SgDataType)setvalue).BGUnits = this._session.PumpSettings.DeviceCharacteristics.BgUnitRaw;
+                                    }
+                                    if (property.PropertyType == typeof(BgDataType))
+                                    {
+                                        ((BgDataType)setvalue).BGUnits = this._session.PumpSettings.DeviceCharacteristics.BgUnitRaw;
+                                    }
                                 }
 
                             }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class PumpTimeMessage : IBinaryType, IBinaryDeserializationSetting
     {
@@ -36,7 +37,7 @@ namespace CGM.Communication.MiniMed.Responses
                
             }
         }
-
+        public byte[] AllBytes { get; set; }
         public DateTime? GetDateTime(byte[] Rtc)
         {
             if (Rtc != null && this.OffSet != null)
@@ -49,6 +50,7 @@ namespace CGM.Communication.MiniMed.Responses
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
             settings.PumpTime = this;
+            AllBytes = bytes;
         }
 
         public override string ToString()

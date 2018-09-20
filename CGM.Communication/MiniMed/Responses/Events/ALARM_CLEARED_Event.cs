@@ -7,12 +7,18 @@ using System.Text;
 
 namespace CGM.Communication.MiniMed.Responses.Events
 {
+    [Serializable]
     public class ALARM_CLEARED_Event : BaseEvent
     {
         [BinaryElement(0, Length = 2)]
         public Int16 AlarmType { get; set; }
 
         public Alerts AlarmTypeName { get { return (Alerts)this.AlarmType; } }
+
+        public override string ToString()
+        {
+            return AlarmTypeName.ToString();
+        }
 
     }
 }

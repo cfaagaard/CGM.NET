@@ -1,7 +1,9 @@
 ﻿using CGM.Communication.Common.Serialize;
+using System;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     public class PumpMessageResponse : PumpResponse
     {
         [BinaryElement(4)]

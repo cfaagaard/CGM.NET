@@ -5,6 +5,7 @@ using System.Text;
 
 namespace CGM.Communication.MiniMed.Responses.Events
 {
+    [Serializable]
     public class TEMP_BASAL_PROGRAMMED_Event : BaseEvent
     {
 
@@ -32,7 +33,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
 
         public override string ToString()
         {
-            return $"{this.Timestamp.Value} - {this.Percentage}% for {this.Duration} minutes)";
+            return $"{this.EventDate.DateTime.Value} - {this.Percentage}% for {this.Duration} minutes)";
         }
     }
 }

@@ -10,9 +10,14 @@ namespace CGM.Communication.MiniMed.Responses.Events
     //\"RAW_TYPE=869, RAW_MODULE=197, LINE_NUM=384, NOTIFY_MODE=vibration, DIAGNOSTIC_INFO=1, INSULIN_DELIVERY_FLAG=0, 
     //ALARM_HISTORY_SCREEN_FLAG=1, NOTIFICATION_SCREEN_FLAG=1, DYNAMIC_ACTION_REQUESTOR=0, SYSTIME_RTC=2215853399, SYSTIME_OFFSET=-1665586902, 
     //IS_CLOSED_LOOP_ACTIVE=false, EXTRA_DATA=\u00140\u0084\",21151858359,59891650,3920,MiniMed 640G - 1511/1711"
-   public class ALARM_NOTIFICATION_Event: ALARM_CLEARED_Event
+    [Serializable]
+    public class ALARM_NOTIFICATION_Event: ALARM_CLEARED_Event
     {
 
+        public override string ToString()
+        {
+            return this.AlarmTypeName.ToString();
+        }
     }
 
 

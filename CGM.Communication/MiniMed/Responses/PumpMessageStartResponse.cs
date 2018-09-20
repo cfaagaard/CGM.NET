@@ -5,6 +5,7 @@ using System;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType(IsLittleEndian = false, IsEncrypted = true)]
     public class PumpMessageStartResponse : IBinaryType, IBinaryDeserializationSetting
     {

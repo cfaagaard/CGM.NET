@@ -1,0 +1,54 @@
+﻿@model CGM.Data.Model.Device
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Device</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.SerialNumberFull)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SerialNumberFull)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LinkMac)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LinkMac)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PumpMac)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PumpMac)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RadioChannel)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RadioChannel)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LinkKey)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LinkKey)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.SerialNumber">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

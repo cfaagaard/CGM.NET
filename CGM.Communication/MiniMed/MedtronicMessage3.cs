@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace CGM.Communication.MiniMed
 {
+    [Serializable]
     [BinaryType]
     public class MedtronicMessage3 : IBinaryType, IBinaryDeserializationSetting
     {

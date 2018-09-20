@@ -10,6 +10,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
     //4651,10-06-17,16:01:28,10-06-17 16:01:28,,,,,,,,,,,Slangefyldning,"9,04",,,,,,,,,,,,,,,,,,Prime,"AMOUNT=9,04, PRIME_TYPE=tubing_fill, 
     //ACTION_REQUESTOR=dynamic, AMOUNT_AFTER_PRIME=148,975, DYNAMIC_ACTION_REQUESTOR=0, 
     //SYSTIME_RTC=2216012590, SYSTIME_OFFSET=-1665586902, IS_CLOSED_LOOP_ACTIVE=false",21175634181,59895147,2608,MiniMed 640G - 1511/1711
+    [Serializable]
     public class CANNULA_FILL_DELIVERED_Event : BaseEvent
     {
         [BinaryElement(0)]

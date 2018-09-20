@@ -1,0 +1,5 @@
+﻿see http://www.entityframeworktutorial.net/efcore/cli-commands-for-ef-core-migration.aspx
+
+goto VS2017 developer prompt
+cd C:\Users\cfa\Source\Github\CGM.NET\Data\cgm.data.minimed
+dotnet ef migrations add "name""

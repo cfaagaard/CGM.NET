@@ -8,6 +8,7 @@ using CGM.Communication.MiniMed.Infrastructur;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class BolusWizardBGTargetsResponse : IBinaryType, IBinaryDeserializationSetting
     {
@@ -45,6 +46,7 @@ namespace CGM.Communication.MiniMed.Responses
         }
     }
 
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class BolusWizardBGTargetDetail : IBinaryType, IBinaryDeserializationSetting
     {

@@ -89,7 +89,7 @@ namespace CGM.Communication.Log
         }
         public ILogger CreateLogger(string categoryName)
         {
-            return new OutputLogger(categoryName, _filter);
+            return new StaticLogger(categoryName, _filter);
         }
 
         public void Dispose()

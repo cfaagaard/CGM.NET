@@ -10,6 +10,7 @@ using System.IO;
 
 namespace CGM.Communication.Common.Serialize
 {
+    [Serializable]
     public class SegementHandler
     {
         private ILogger Logger = ApplicationLogging.CreateLogger<SegementHandler>();
@@ -17,7 +18,7 @@ namespace CGM.Communication.Common.Serialize
 
         public InitiateMultiPacketTransferResponse Init { get; set; }
         public PumpStateHistoryStart HistoryStart { get; set; }
-        public List<PumpEvent> Events { get; set; } = new List<PumpEvent>();
+        public List<BasePumpEvent> Events { get; set; } = new List<BasePumpEvent>();
         public List<Packet> Packets { get; set; } = new List<Packet>();
         public int ReadLength { get; set; } = 0;
         public bool Errors { get; set; } = false;
@@ -39,7 +40,7 @@ namespace CGM.Communication.Common.Serialize
         public void GetHistoryEvents()
         {
             Bytes = new List<byte>();
-            Events = new List<PumpEvent>();
+            Events = new List<BasePumpEvent>();
             Segments = new List<Segment>();
             Decompressed = null;
 

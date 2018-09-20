@@ -6,6 +6,7 @@ using System.Text;
 
 namespace CGM.Communication.Common.Serialize
 {
+    [Serializable]
     public class Segment
     {
      
@@ -18,7 +19,7 @@ namespace CGM.Communication.Common.Serialize
 
         public int CalculateCheckSum { get; set; }
 
-        public List<PumpEvent> Events { get; set; } = new List<PumpEvent>();
+        public List<BasePumpEvent> Events { get; set; } = new List<BasePumpEvent>();
 
         public bool IsBlockDataCorrect { get; set; }
 
@@ -63,7 +64,7 @@ namespace CGM.Communication.Common.Serialize
            
             try
             {
-                var eventmessage = _handler._seri.Deserialize<PumpEvent>(bytesMessage);
+                var eventmessage = _handler._seri.Deserialize<BasePumpEvent>(bytesMessage);
                 eventmessage.Index = start;
                 eventmessage.HistoryDataType = _handler.ReadInfoResponse.HistoryDataTypeRaw;
                 Events.Add(eventmessage);

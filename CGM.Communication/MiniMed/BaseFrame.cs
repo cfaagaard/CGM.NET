@@ -5,6 +5,7 @@ using System.Text;
 
 namespace CGM.Communication.MiniMed
 {
+    [Serializable]
     [BinaryType]
     public class BaseFrame
     {

@@ -15,21 +15,24 @@ namespace CGM.Communication.MiniMed.DataTypes
 
         [BinaryElement(0, Length = 2)]
         public Int16 BG_RAW { get; set; }
-
+        private double _BG;
         public double BG
         {
             get
             {
                 if (BgUnitName==BgUnitEnum.MG_DL)
                 {
-                    return (double)BG_RAW;
+                    _BG=(double)BG_RAW;
                 }
                 else
                 {
-                    return (double)BG_RAW / 10;
+                   //_BG=(double)BG_RAW / 10;
+                    //should it not be
+                    _BG= Math.Round(((double)this.BG_RAW / 18.01559), 1);
                 }
-                
+                return _BG;
             }
+            set { _BG = value; }
         }
 
 

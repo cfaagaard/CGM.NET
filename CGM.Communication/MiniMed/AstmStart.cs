@@ -9,6 +9,7 @@ using System.Linq;
 
 namespace CGM.Communication.MiniMed
 {
+    [Serializable]
     [BinaryType]
     public class AstmStart : IBinaryType, IBinarySerializationSetting
     {
@@ -57,7 +58,7 @@ namespace CGM.Communication.MiniMed
             this.CommandLength = (byte)command.Length;
         }
 
-        public AstmStart(string command) : this(System.Text.Encoding.ASCII.GetBytes(command))
+        public AstmStart(string command) : this(System.Text.Encoding.UTF8.GetBytes(command))
         {
 
         }
@@ -76,7 +77,7 @@ namespace CGM.Communication.MiniMed
             
             if (signes.Count()>0)
             {
-                commandName = System.Text.Encoding.ASCII.GetString(signes.ToArray());
+                commandName = System.Text.Encoding.UTF8.GetString(signes.ToArray());
             }
             var signes2 = Command.Where(e => Enum.IsDefined(typeof(AstmAscii),e)).Select(e=> (AstmAscii)e);
 

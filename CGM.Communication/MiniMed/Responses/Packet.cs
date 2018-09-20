@@ -8,6 +8,7 @@ using CGM.Communication.Common;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType(IsLittleEndian=false)]
     public class Packet : IBinaryType, IBinaryDeserializationSetting
     {

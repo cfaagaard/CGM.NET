@@ -7,6 +7,7 @@ using CGM.Communication.Extensions;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class PumpStateHistoryStart : IBinaryType, IBinaryDeserializationSetting
     {

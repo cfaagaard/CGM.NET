@@ -14,20 +14,22 @@ namespace CGM.Communication.MiniMed.DataTypes
 
         [BinaryElement(0, Length = 2)]
         public Int16 CARB_RAW { get; set; }
+        private double _CARB;
         public virtual double CARB
         {
             get
             {
                 if (CarbUnitName == CarbUnitEnum.GRAMS)
                 {
-                    return (double)CARB_RAW;
+                    _CARB=(double)CARB_RAW;
                 }
                 else
                 {
-                    return (double)CARB_RAW / 10;
+                    _CARB=(double)CARB_RAW / 10;
                 }
-                
+                return _CARB;
             }
+            set { _CARB = value; }
         }
 
         public override string ToString()

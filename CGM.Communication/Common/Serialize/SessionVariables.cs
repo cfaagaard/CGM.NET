@@ -4,6 +4,7 @@ using System.Text;
 
 namespace CGM.Communication.Common.Serialize
 {
+    [Serializable]
     public class SessionVariables
     {
 

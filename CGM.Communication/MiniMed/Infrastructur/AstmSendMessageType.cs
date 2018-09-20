@@ -42,7 +42,14 @@ namespace CGM.Communication.MiniMed.Infrastructur
         Read_High_Glucose_Sensor_Settings_Request = 0x0215,
         Read_High_Glucose_Sensor_Settings_Response = 0x0216,
         Read_Basic_NGP_Parameters_Request = 0x0138,
-        Read_Basic_NGP_Parameters_Response = 0x0139
+        Read_Basic_NGP_Parameters_Response = 0x0139,
+        //BOLUSES_REQUEST = 0x0114,
+        REMOTE_BOLUS_REQUEST = 0x0100,
+        //REQUEST_0x0124 = 0x0124
+        //REQUEST_0x0405 = 0x0405
+        //TEMP_BASAL_REQUEST = 0x0115
+        //SUSPEND_RESUME_REQUEST = 0x0107
+        //NGP_PARAMETER_REQUEST = 0x0138
         //NO_TYPE = 0x0,
         ////ACK_End_Multipacket_Command = 0x00FE,
         ////ACK_Set_Link_Key_Command = 0x00FE,
@@ -65,7 +72,7 @@ namespace CGM.Communication.MiniMed.Infrastructur
         //Read_Glucose_Sensor_Settings_Response = 0x020C,
         //Read_High_Glucose_Sensor_Settings_Request = 0x0215,
         //Read_High_Glucose_Sensor_Settings_Response = 0x0216,
-       
+
         //Read_Low_Glucose_Sensor_Settings_Request = 0x0211,
         //Read_Low_Glucose_Sensor_Settings_Response = 0x0212,
         //Read_Preset_Boluses_Request = 0x0114,

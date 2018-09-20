@@ -46,7 +46,7 @@ namespace CGM.Communication.MiniMed.Requests
         public HistoryDataTypeEnum HistoryDataType { get { return (HistoryDataTypeEnum)HistoryDataTypeRaw; } }
 
         [BinaryElement(1)]
-        public byte Unknown { get; set; }
+        public byte HistoryReading { get; set; } // full history = 0x03, partial history = 0x04
 
         [BinaryElement(2)]
         public byte[] FromRtc { get; set; }
@@ -76,7 +76,7 @@ namespace CGM.Communication.MiniMed.Requests
         {
             this.FromRtc =BitConverter.GetBytes(fromRtc);
             this.HistoryDataTypeRaw = (byte)historyDataType; 
-            this.Unknown = 0x04;
+            this.HistoryReading = 0x04; // full history = 0x03, partial history = 0x04
             this.Unknown3 = new byte[] { 0x00, 0x00 };
             this.ToRtc = new byte[] { 0xff, 0xff, 0xff, 0xff };
         }

@@ -9,12 +9,17 @@ namespace CGM.Communication.MiniMed.DataTypes
     public class InsulinDataType : BaseDataType
     {
         [BinaryElement(0, Length = 4)]
-        public Int32 INSULIN_RAW { get; set; }
-        public double INSULIN { get { return (double)INSULIN_RAW / 10000; } }
+        public Int32 InsulinRaw { get; set; }
+        private double _INSULIN;
+        public double Insulin { get { _INSULIN=(double)InsulinRaw / 10000;
+                return _INSULIN;
+            }
+            set { _INSULIN = value; }
+        }
 
         public override string ToString()
         {
-            return INSULIN.ToString();
+            return Insulin.ToString();
         }
     }
 }

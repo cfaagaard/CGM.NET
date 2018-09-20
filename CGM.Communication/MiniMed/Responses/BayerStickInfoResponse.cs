@@ -4,16 +4,16 @@ using System.Text;
 using CGM.Communication.Extensions;
 using System.Text.RegularExpressions;
 using CGM.Communication.MiniMed.Requests;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType]
     public class BayerStickInfoResponse : IBinaryType, IBinaryDeserializationSetting
     {
         [BinaryElement(0)]
         public string Value { get; set; }
-        [BsonId]
+        
         public string SerialNumberFull { get; set; }
 
         public string RFID { get; set; }
@@ -26,9 +26,13 @@ namespace CGM.Communication.MiniMed.Responses
 
         public BayerStickInfoReader Reader { get; set; }
 
+        public byte[] AllBytes { get; set; }
+        public string AllBytesAsString { get; set; }
+
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {
-
+            this.AllBytes = bytes;
+            this.AllBytesAsString = BitConverter.ToString(bytes);
             Reader = new BayerStickInfoReader(this.Value);
 
             this.ModelNumber = Reader.DeviceVersion.Name;

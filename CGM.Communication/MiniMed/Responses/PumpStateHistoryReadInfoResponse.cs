@@ -7,8 +7,8 @@ using System.Text;
 
 namespace CGM.Communication.MiniMed.Responses
 {
-
-        [BinaryType(IsLittleEndian = false)]
+    [Serializable]
+    [BinaryType(IsLittleEndian = false)]
         public class PumpStateHistoryReadInfoResponse : IBinaryType, IBinaryDeserializationSetting
         {
         [BinaryElement(0)]

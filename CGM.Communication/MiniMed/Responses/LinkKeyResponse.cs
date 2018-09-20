@@ -5,6 +5,7 @@ using System.Text;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType()]
     public class LinkKeyResponse : IBinaryType, IBinaryDeserializationSetting
     {

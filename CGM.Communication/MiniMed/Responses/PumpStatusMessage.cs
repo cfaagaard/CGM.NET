@@ -2,7 +2,6 @@
 using CGM.Communication.Extensions;
 using CGM.Communication.MiniMed.DataTypes;
 using CGM.Communication.MiniMed.Model;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,21 +14,21 @@ namespace CGM.Communication.MiniMed.Responses
         No_sgv = 16
     }
 
-
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class PumpStatusMessage : IBinaryType, IBinaryDeserializationSetting
     {
 
-
+    
 
         [BinaryElement(0)]
         public byte StatusFlag { get; set; }
 
         [BinaryElement(1)]
         public int NowBolusingAmountDelivered { get; set; }
-        [BsonIgnore]
+
         [BinaryElement(5)]
-        public byte[] Unknown1 { get; set; }
+        public int Unknown1 { get; set; }
 
         [BinaryElement(9)]
         public Int16 NowBolusingMinutesRemaining { get; set; }
@@ -97,8 +96,6 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(46)]
         public InsulinDataType ActiveInsulin { get; set; }
 
-        //public int ActiveInsulinRawConvert { get; set; }
-
         [BinaryElement(50)]
         public Int16 SgvRaw { get; set; }
 
@@ -108,12 +105,6 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(52)]
         public DateTimeDataType SgvDateTime { get; set; }
 
-        //[BinaryElement(52)]
-        //public int SgvDateTimeRtc { get; set; }
-
-        //[BinaryElement(56)]
-        //public int SgvDateTimeOffSet { get; set; }
-
         [BinaryElement(60)]
         public byte LowSuspendActive { get; set; }
 
@@ -122,7 +113,7 @@ namespace CGM.Communication.MiniMed.Responses
 
         [BinaryElement(62)]
         public byte SensorStatusFlag { get; set; }
-        [BsonIgnore]
+
         [BinaryElement(63)]
         public byte Unknown3 { get; set; }
 
@@ -185,39 +176,10 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(74)]
         public DateTimeDataType AlertDateTime { get; set; }
 
-        //[BinaryElement(74)]
-        //public int AlertRtc { get; set; }
-
-        //[BinaryElement(78)]
-        //public int AlertOffset { get; set; }
-        [BsonIgnore]
+      
         [BinaryElement(82)]
-        public byte[] Unknown7 { get; set; }
+        public byte[] Unknown6 { get; set; }
 
-        //[BinaryElement(92)]
-        //public Int16 UnknownNumber { get; set; }
-
-        //[BinaryElement(94)]
-        //public byte[] Unknown8 { get; set; }
-
-        //Calculated properties
-        //public DateTime? SgvDateTime { get { return DateTimeExtension.GetDateTime(this.SgvDateTimeRtc, this.SgvDateTimeOffSet); } }
-
-        //public DateTime? AlertDateTime
-        //{
-        //    get
-        //    {
-        //        if (this.AlertRtc != 0)
-        //        {
-        //            return DateTimeExtension.GetDateTime(this.AlertRtc, this.AlertOffset);
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-
-        //    }
-        //}
 
         private double _sgvMmol;
         public double SgvMmol
@@ -307,14 +269,9 @@ namespace CGM.Communication.MiniMed.Responses
             set { _sensorStatus = value; }
         }
 
-        private SgvTrend _cgmTrendName;
-        public SgvTrend CgmTrendName { get { _cgmTrendName= TrendConvert(this.CgmTrend);
-                return _cgmTrendName;
-            }
 
-        set { _cgmTrendName = value; }
-        }
         private Alerts _alertName;
+       
         public Alerts AlertName { get { _alertName=(Alerts)this.Alert;
                 return _alertName;
             }
@@ -334,7 +291,7 @@ namespace CGM.Communication.MiniMed.Responses
         //        return 0;
         //    }
         //}
-        [BsonIgnore]
+        
         public byte[] AllBytes { get; set; }
 
 
@@ -368,33 +325,7 @@ namespace CGM.Communication.MiniMed.Responses
 
         }
 
-        private SgvTrend TrendConvert(byte messageByte)
-        {
-            if (this.Sgv != 0)
-            {
-                switch (messageByte)
-                {
-                    case (byte)0x60:
-                        return SgvTrend.Flat;
-                    case (byte)0xc0:
-                        return SgvTrend.DoubleUp; //3 arrows up
-                    case (byte)0xa0:
-                        return SgvTrend.SingleUp; //2 arrows up
-                    case (byte)0x80:
-                        return SgvTrend.FortyFiveUp; //1 arrow up
-                    case (byte)0x40:
-                        return SgvTrend.FortyFiveDown; //1 arrow down
-                    case (byte)0x20:
-                        return SgvTrend.SingleDown;//2 arrows down
-                    case (byte)0x00:
-                        return SgvTrend.DoubleDown;//3 arrows down
-                    default:
-                        return SgvTrend.NotComputable;
-                }
-            }
-            return SgvTrend.NotSet;
 
-        }
 
 
         public override string ToString()
@@ -402,7 +333,7 @@ namespace CGM.Communication.MiniMed.Responses
             return string.Format("{0} ({1}/{2})", this.SgvDateTime?.ToString(), this.Sgv, this.SgvMmol);
         }
     }
-
+    [Serializable]
     public class SensorStatus
     {
         public bool Calibrating { get; set; }
@@ -426,7 +357,7 @@ namespace CGM.Communication.MiniMed.Responses
             return string.Join("/", names);
         }
     }
-
+    [Serializable]
     public class PumpStatus
     {
         public bool Suspended { get; set; }
@@ -460,8 +391,8 @@ namespace CGM.Communication.MiniMed.Responses
             List<string> names = new List<string>();
             if (Suspended) names.Add(nameof(Suspended));
             if (BolusingNormal) names.Add(nameof(BolusingNormal));
-            if (BolusingSquare) names.Add(nameof(BolusingNormal));
-            if (BolusingDual) names.Add(nameof(BolusingNormal));
+            if (BolusingSquare) names.Add(nameof(BolusingSquare));
+            if (BolusingDual) names.Add(nameof(BolusingDual));
             if (DeliveringInsulin) names.Add(nameof(DeliveringInsulin));
             if (CgmActive) names.Add(nameof(CgmActive));
             if (TempBasalActive) names.Add(nameof(TempBasalActive));

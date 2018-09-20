@@ -8,6 +8,7 @@ using CGM.Communication.MiniMed.Infrastructur;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     [BinaryType(IsLittleEndian = false)]
     public class DeviceStringResponse : IBinaryType, IBinaryDeserializationSetting
     {
@@ -23,7 +24,7 @@ namespace CGM.Communication.MiniMed.Responses
         [BinaryElement(11,Length =16)]
         public byte[] ModelRaw { get; set; }
 
-        public string Model { get { return Encoding.ASCII.GetString(ModelRaw.Reverse().ToArray()).Replace("\0",""); } }
+        public string Model { get { return Encoding.UTF8.GetString(ModelRaw.Reverse().ToArray()).Replace("\0",""); } }
 
         public void OnDeserialization(byte[] bytes, SerializerSession settings)
         {

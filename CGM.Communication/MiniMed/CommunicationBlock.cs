@@ -14,13 +14,14 @@ using System.Threading.Tasks;
 
 namespace CGM.Communication.MiniMed
 {
+    [Serializable]
     public class CommunicationBlock
     {
 
         private bool _running = false;
         private List<byte[]> _reports = new List<byte[]>();
         private System.Threading.Timer _timer;
-        private bool _waitForMoreReports = false;
+
         private IReportPattern _messageContinuePattern = new ReportPattern(0x3c, 4);
         private IDevice _device;
         private CancellationToken _cancelToken;
@@ -31,7 +32,7 @@ namespace CGM.Communication.MiniMed
 
         public SerializerSession Session { get; set; } = new SerializerSession();
 
-        public int TimeoutSeconds { get; set; } 
+        public int TimeoutSeconds { get; set; }
 
         public AstmStart Request { get; set; }
 
@@ -39,7 +40,7 @@ namespace CGM.Communication.MiniMed
 
         public bool LogDataRecieved { get; set; } = true;
 
-        private List<List<byte>> GetRequestBytes()
+        public List<List<byte>> GetRequestBytes()
         {
             Serializer serializer = new Serializer(Session);
             byte[] bytes = serializer.Serialize<AstmStart>(this.Request);
@@ -74,9 +75,9 @@ namespace CGM.Communication.MiniMed
             Session = session;
             _device = device;
 
-            if (TimeoutSeconds==0)
+            if (TimeoutSeconds == 0)
             {
-                TimeoutSeconds = session.Settings.TimeoutSeconds;
+                TimeoutSeconds = session.MinimedConfiguration().TimeoutSeconds;
                 //Logger.LogInformation($"Timeout in Seconds: {TimeoutSeconds}");
             }
 
@@ -86,18 +87,24 @@ namespace CGM.Communication.MiniMed
                 var lists = this.GetRequestBytes();
 
                 StartTimer();
-                foreach (var item in lists)
-                {
-                    Log(item.ToArray());
-                    await _device.SendBytes(item.ToArray());
-                }
+                _device.DoneReceived = false;
+                Log(lists);
+                _device.SendBytes(lists);
+
+                //foreach (var item in lists)
+                //{
+                //    var newarr = item.ToArray<byte>();
+                //    Log(newarr);
+                //    _device.SendBytes(newarr);
+                   
+                //}
 
                 if (this.ExpectedResponses.Count > 0)
                 {
                     //wait for all responses or timeout for whole block.
                     while (this._running && _device.IsConnected)
                     {
- 
+
                         periode += delay;
                         Task.Delay(delay).Wait();
                         if ((TimeoutSeconds * 1000) <= periode)
@@ -113,63 +120,75 @@ namespace CGM.Communication.MiniMed
 
         public virtual void _device_DataReceived(object sender, byte[] bytes)
         {
-            if (bytes == null)
+            lock (this._reports)
             {
-                StopTimer();
-                return;
-            }
-            if (this._messageContinuePattern.Evaluate(bytes))
-            {
-                _waitForMoreReports = true;
-            }
-            else
-            {
-                _waitForMoreReports = false;
-            }
-
-            _reports.Add(bytes);
-            if (LogDataRecieved)
-            {
-                Log(bytes);
-            }
 
 
-            if (_waitForMoreReports == false)
-            {
-                var response = this.ExpectedResponses.Take();
-                if (response.Evaluate(this._reports[0]))
+                bool _waitForMoreReports = false;
+                if (bytes == null)
                 {
-                    try
-                    {
-                        Serializer serializer = new Serializer(Session);
-
-                        var temp = this._reports.JoinToArray();
-                        var resp = serializer.Deserialize<AstmStart>(temp);
-                        ResponsesRecieved.Add(resp);
-                    }
-                    catch (Exception x)
-                    {
-                        CommunicationError(x.Message);
-                    }
-
-                    _reports = new List<byte[]>();
+                    StopTimer();
+                    return;
+                }
+                if (this._messageContinuePattern.Evaluate(bytes))
+                {
+                    _waitForMoreReports = true;
                 }
                 else
                 {
-                    Logger.LogError("Unexpected message received.");
-
-                    //CommunicationError("Unexpected message received.");
+                    _waitForMoreReports = false;
                 }
 
-                if (this.ExpectedResponses.Count == 0)
+                _reports.Add(bytes);
+                if (LogDataRecieved)
                 {
-                    StopTimer();
+                    Log(bytes);
                 }
-            }
 
+
+                if (_waitForMoreReports == false)
+                {
+                    var response = this.ExpectedResponses.Take();
+                    var firstReport = this._reports.First();//[0];
+
+                    if (response.Evaluate(firstReport))
+                    {
+                        try
+                        {
+                            var temp = this._reports.JoinToArray();
+                            Serializer serializer = new Serializer(Session);
+                            var resp = serializer.Deserialize<AstmStart>(temp);
+                            ResponsesRecieved.Add(resp);
+
+                        }
+                        catch (Exception x)
+                        {
+                            CommunicationError(x.Message);
+                        }
+
+                        _reports = new List<byte[]>();
+                    }
+                    else
+                    {
+                        Logger.LogError("Unexpected message received: " + BitConverter.ToString(firstReport));
+                    }
+
+                    if (this.ExpectedResponses.Count == 0)
+                    {
+                        StopTimer();
+                        _device.DoneReceived = true;
+                    }
+                }
+
+            }
         }
 
-        private void Log(byte[] bytes)
+        private void Log(List<List<byte>> bytes)
+        {
+            bytes.ForEach(e => Log(e.ToArray()));
+        }
+
+            private void Log(byte[] bytes)
         {
             string bytesStr = BitConverter.ToString(bytes);
             Logger.LogTrace(bytesStr);
@@ -184,6 +203,50 @@ namespace CGM.Communication.MiniMed
             var autoEvent = new AutoResetEvent(false);
             _timer = new Timer(TimeIsUp, autoEvent, TimeoutSeconds * 1000, TimeoutSeconds * 1000);
         }
+
+        //private void _device_MultiDataReceived(object sender, List<byte[]> data)
+        //{
+        //    lock (this.ExpectedResponses)
+        //    {
+        //        var response = this.ExpectedResponses.Take();
+        //        var firstReport = data.First();//[0];
+        //        if (response.Evaluate(firstReport))
+        //        {
+        //            try
+        //            {
+        //                foreach (var item in data)
+        //                {
+        //                    if (LogDataRecieved)
+        //                    {
+        //                        Log(item);
+        //                    }
+        //                }
+        //                Serializer serializer = new Serializer(Session);
+
+        //                var temp = data.JoinToArray();
+        //                var resp = serializer.Deserialize<AstmStart>(temp);
+        //                ResponsesRecieved.Add(resp);
+        //            }
+        //            catch (Exception x)
+        //            {
+        //                CommunicationError(x.Message);
+        //            }
+
+        //            _reports = new List<byte[]>();
+        //        }
+        //        else
+        //        {
+        //            Logger.LogError("Unexpected message received: " + BitConverter.ToString(firstReport));
+
+        //            //CommunicationError("Unexpected message received.");
+        //        }
+
+        //        if (this.ExpectedResponses.Count == 0)
+        //        {
+        //            StopTimer();
+        //        }
+        //    }
+        //}
 
         private void TimeIsUp(Object stateInfo)
         {
@@ -205,7 +268,7 @@ namespace CGM.Communication.MiniMed
             _reports = new List<byte[]>();
             _device.DataReceived -= _device_DataReceived;
             _running = false;
-           
+
 
         }
 
@@ -213,7 +276,7 @@ namespace CGM.Communication.MiniMed
         {
             this.ExpectedResponses = new BlockingCollection<IReportPattern>();
             this.Erorrs = true;
-            
+
             StopTimer();
             Logger.LogError(error);
         }

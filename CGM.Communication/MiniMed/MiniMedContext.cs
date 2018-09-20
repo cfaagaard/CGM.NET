@@ -21,18 +21,18 @@ using System.Diagnostics;
 
 namespace CGM.Communication.MiniMed
 {
-    public class MiniMedContext : BaseContext
+    [Serializable]
+    public class MiniMedContext : BaseContext,ISessionFactory
     {
         private IStateRepository _stateRepository;
-
-        public MiniMedContext(IDevice device, SerializerSession session, IStateRepository stateRepository) : base(device)
-        {
-            this.Session = session;
+        private MinimedConfiguration _configuration;
+        public MiniMedContext(IDevice device,  IStateRepository stateRepository) : base(device)
+        {      
             _stateRepository = stateRepository;
         }
 
 
-        public async Task<BayerStickInfoResponse> GetDeviceInformationAsync(CancellationToken cancelToken)
+        private async Task<BayerStickInfoResponse> GetDeviceInformationAsync(CancellationToken cancelToken)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace CGM.Communication.MiniMed
         }
 
 
-        public async Task<SerializerSession> GetSessionAsync(CancellationToken cancelToken)
+        private async Task<SerializerSession> GetSessionAsync(CancellationToken cancelToken)
         {
 
             List<Func<Task>> tasks = new List<Func<Task>>();
@@ -61,9 +61,10 @@ namespace CGM.Communication.MiniMed
             return await CallPumpWithActions(tasks, cancelToken);
         }
 
-        public async Task<SerializerSession> GetPumpSessionAsync(CancellationToken cancelToken)
+        public async Task<SerializerSession> GetPumpSessionAsync(SerializerSession session, CancellationToken cancelToken)
         {
-
+            this.Session = session;
+            _configuration = session.MinimedConfiguration();
 
             List<Func<Task>> tasks = new List<Func<Task>>();
             tasks.Add(() => StartPumpTimeAsync(cancelToken));
@@ -76,12 +77,12 @@ namespace CGM.Communication.MiniMed
             tasks.Add(() => StartBasalPatternAsync(cancelToken));
 
 
-            if (Session.Settings.IncludeHistory)
+            if (_configuration.IncludeHistory)
             {
                 tasks.Add(() => StartReadHistory(cancelToken));
             }
 
-            if (Session.Settings.IncludePumpSettings)
+            if (_configuration.IncludePumpSettings)
             {
                 //tasks.Add(() => StartGetSetting(AstmSendMessageType.Read_Preset_Boluses_Request, cancelToken));
                 //tasks.Add(() => StartGetSetting(AstmSendMessageType.Read_Preset_Temp_Basals_Request, cancelToken));
@@ -95,12 +96,12 @@ namespace CGM.Communication.MiniMed
             return await CallPumpWithActions(tasks, cancelToken);
         }
 
-        public async Task<SerializerSession> GetOnlyCnlSessionAsync(CancellationToken cancelToken)
+        private async Task<SerializerSession> GetOnlyCnlSessionAsync(CancellationToken cancelToken)
         {
             return await CallPumpWithActions(null, false, cancelToken);
         }
 
-        public async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
+        private async Task<SerializerSession> GetPumpConfigurationAsync(CancellationToken cancelToken)
         {
 
             List<Func<Task>> tasks = new List<Func<Task>>();
@@ -259,6 +260,7 @@ namespace CGM.Communication.MiniMed
             {
                 Session.PumpDataHistory.ExtractHistoryEvents();
             }
+
             _stateRepository.SaveSession(Session);
 
             if (Session.SessionSystem.OptimalNextRead.HasValue)
@@ -284,7 +286,7 @@ namespace CGM.Communication.MiniMed
 
             Logger.LogInformation("Getting CNL deviceInformation");
             CommunicationBlock block = new CommunicationBlock();
-            block.TimeoutSeconds = Session.Settings.TimeoutSeconds;;
+            block.TimeoutSeconds = _configuration.TimeoutSeconds;;
             block.Request = new AstmStart("X");
             //block.Request = new AstmStart("W");
             //expected responses for the request
@@ -362,7 +364,6 @@ namespace CGM.Communication.MiniMed
                 await StartCommunication(Session.GetReadInfoRequest(),
                         new ReadInfoResponsePattern(),
                         cancelToken);
-                Logger.LogInformation($"Got LinkMac: {BitConverter.ToString(this.Session.SessionCommunicationParameters.LinkMac)} AND PumpMac: {BitConverter.ToString(this.Session.SessionCommunicationParameters.PumpMac)}");
 
 
                 if (this.Session.SessionCommunicationParameters.LinkMac == null && this.Session.SessionCommunicationParameters.PumpMac == null)
@@ -371,6 +372,8 @@ namespace CGM.Communication.MiniMed
                 }
                 else
                 {
+                    Logger.LogInformation($"Got LinkMac: {BitConverter.ToString(this.Session.SessionCommunicationParameters.LinkMac)} AND PumpMac: {BitConverter.ToString(this.Session.SessionCommunicationParameters.PumpMac)}");
+
                     //save macs
                     _stateRepository.AddUpdateSessionToDevice(Session);
                     //using (CgmUnitOfWork uow = new CgmUnitOfWork())

@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace CGM.Communication.MiniMed.Responses
 {
+    [Serializable]
     public class GlucoseHiLo
     {
         public string glucoserangelo { get; set; }
@@ -18,6 +19,7 @@ namespace CGM.Communication.MiniMed.Responses
             glucoserangehi = value.Substring(2, 3);
         }
     }
+    [Serializable]
     public class HighLowTargetRanges
     {
         public string personalhypoglycemiclimit { get; set; }
@@ -58,7 +60,7 @@ namespace CGM.Communication.MiniMed.Responses
                 .Select(i => str.Substring(i * chunkSize, chunkSize)).ToList();
         }
     }
-
+    [Serializable]
     public class DeviceVersion
     {
         public string DigitalEngineVersion { get; set; }
@@ -77,6 +79,7 @@ namespace CGM.Communication.MiniMed.Responses
         public string SerialNumSmall { get; set; }
         public string SkuIdentifier { get; set; }
     }
+    [Serializable]
     public class BayerStickInfoReader
     {
         private string _value;
@@ -97,7 +100,10 @@ namespace CGM.Communication.MiniMed.Responses
 
 
         }
+        public BayerStickInfoReader()
+        {
 
+        }
         private void ReadValue()
         {
             char fielddelimiter = '|';

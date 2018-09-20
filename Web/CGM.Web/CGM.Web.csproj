@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>9c475cdc-d90f-4ac0-8fa2-5d5ba1959c62</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Views\Configurations\**" />
+    <Compile Remove="Views\DataLogger\**" />
+    <Compile Remove="Views\Devices\**" />
+    <Compile Remove="Views\Histories\**" />
+    <Content Remove="Views\Configurations\**" />
+    <Content Remove="Views\DataLogger\**" />
+    <Content Remove="Views\Devices\**" />
+    <Content Remove="Views\Histories\**" />
+    <EmbeddedResource Remove="Views\Configurations\**" />
+    <EmbeddedResource Remove="Views\DataLogger\**" />
+    <EmbeddedResource Remove="Views\Devices\**" />
+    <EmbeddedResource Remove="Views\Histories\**" />
+    <None Remove="Views\Configurations\**" />
+    <None Remove="Views\DataLogger\**" />
+    <None Remove="Views\Devices\**" />
+    <None Remove="Views\Histories\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\ConfigurationsController.cs" />
+    <Compile Remove="Controllers\DataLoggerController.cs" />
+    <Compile Remove="Controllers\DevicesController.cs" />
+    <Compile Remove="Controllers\HistoriesController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommonServiceLocator" Version="2.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
+    <PackageReference Include="Unity" Version="5.8.11" />
+    <PackageReference Include="Unity.Microsoft.DependencyInjection" Version="2.1.1" />
+    <PackageReference Include="Unity.ServiceLocation" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\signalr\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CGM.Communication\CGM.Communication.csproj" />
+    <ProjectReference Include="..\..\Data\CGM.Data.Minimed\CGM.Data.Minimed.csproj" />
+    <ProjectReference Include="..\..\Data\CGM.Data.Nightscout\CGM.Data.Nightscout.csproj" />
+    <ProjectReference Include="..\..\Data\CGM.Data\CGM.Data.csproj" />
+  </ItemGroup>
+
+</Project>

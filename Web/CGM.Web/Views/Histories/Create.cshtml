@@ -1,0 +1,48 @@
+﻿@model CGM.Data.Model.History
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create</h2>
+
+<h4>History</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="EventType" class="control-label"></label>
+                <input asp-for="EventType" class="form-control" />
+                <span asp-validation-for="EventType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Rtc" class="control-label"></label>
+                <input asp-for="Rtc" class="form-control" />
+                <span asp-validation-for="Rtc" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HistoryDataType" class="control-label"></label>
+                <input asp-for="HistoryDataType" class="form-control" />
+                <span asp-validation-for="HistoryDataType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HistoryBytes" class="control-label"></label>
+                <input asp-for="HistoryBytes" class="form-control" />
+                <span asp-validation-for="HistoryBytes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

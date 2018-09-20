@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace CGM.Communication.Patterns
 {
 
-    public class ReportPattern: IReportPattern
+    public class ReportPattern : IReportPattern
     {
         public byte[] Bytes { get; set; }
         public int StartPosition { get; set; }
@@ -26,9 +26,9 @@ namespace CGM.Communication.Patterns
         {
 
         }
-        public ReportPattern(byte b, int startPosition):this(new byte[] {b },startPosition)
+        public ReportPattern(byte b, int startPosition) : this(new byte[] { b }, startPosition)
         {
- 
+
         }
 
         public ReportPattern(byte b, int startPosition, int length) : this(new byte[] { b }, startPosition)
@@ -40,19 +40,19 @@ namespace CGM.Communication.Patterns
         {
 
         }
-        public ReportPattern(byte[] bytes, int startPosition):this(bytes,startPosition,bytes.Length)
+        public ReportPattern(byte[] bytes, int startPosition) : this(bytes, startPosition, bytes.Length)
         {
         }
-            public ReportPattern(byte[] bytes, int startPosition, int length)
+        public ReportPattern(byte[] bytes, int startPosition, int length)
         {
             this.Bytes = bytes;
             this.StartPosition = startPosition;
-            if (bytes.Length<length)
+            if (bytes.Length < length)
             {
                 length = bytes.Length;
             }
             this.Length = length;
-            
+
         }
 
         public int FindIndex(byte[] reportBytes)
@@ -72,12 +72,19 @@ namespace CGM.Communication.Patterns
         }
 
 
+        /// <summary>
+        /// Evaluates the specified report bytes.
+        /// </summary>
+        /// <param name="reportBytes">The report bytes.</param>
+        /// <returns></returns>
         public bool Evaluate(byte[] reportBytes)
         {
             int j = 0;
             bool match = false;
-            for (int i = StartPosition; i < (Length + StartPosition); i++)
+            if (reportBytes != null)
             {
+                for (int i = StartPosition; i < (Length + StartPosition); i++)
+                {
                     if (reportBytes[i] != Bytes[j])
                     {
                         match = false;
@@ -87,11 +94,12 @@ namespace CGM.Communication.Patterns
                     {
                         match = true;
                     }
-                j += 1;
+                    j += 1;
                 }
+            }
             return match;
         }
     }
 
-    
+
 }

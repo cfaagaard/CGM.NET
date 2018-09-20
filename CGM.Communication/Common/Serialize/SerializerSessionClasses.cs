@@ -1,11 +1,12 @@
-﻿using CGM.Communication.MiniMed.Responses;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using CGM.Communication.Interfaces;
+using CGM.Communication.MiniMed.Responses;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CGM.Communication.Common.Serialize
 {
+    [Serializable]
     public class SessionSystem
     {
         public bool PreserveMessages { get; set; } = false;
@@ -25,14 +26,14 @@ namespace CGM.Communication.Common.Serialize
             this.GeneralMessages = new List<PumpMessageStartResponse>();
         }
     }
-
+    [Serializable]
     public class SessionDevice
     {
 
 
         public BayerStickInfoResponse Device { get; set; } = new BayerStickInfoResponse();
     }
-
+    [Serializable]
     public class SessionCommunicationParameters
     {
         public bool NeedResetCommunication { get; set; }
@@ -81,7 +82,10 @@ namespace CGM.Communication.Common.Serialize
         {
             _session = session;
         }
+        public SessionCommunicationParameters()
+        {
 
+        }
         private byte[] GetKey(string serialnumber)
         {
             if (this.LinkKey == null || serialnumber == null)
@@ -118,10 +122,10 @@ namespace CGM.Communication.Common.Serialize
         }
 
     }
-
-    public class PumpSettings
+    [Serializable]
+    public class PumpSettings: IConfiguration
     {
-        [BsonId]
+     
         public int Id { get; set; } = 1;
         public PumpCarbRatioResponse CarbRatio { get; set; }
 
