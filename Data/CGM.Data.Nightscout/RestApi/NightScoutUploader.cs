@@ -67,7 +67,12 @@ namespace CGM.Data.Nightscout.RestApi
         {
             //NightscoutConfiguration = session.NightscoutConfiguration();
             //_notifiyConfiguration = session.NotifiyConfiguration();
-            _session = session;
+
+            Treatments = new List<Treatment>();
+            Entries = new List<Entry>();
+            DeviceStatus = new DeviceStatus();
+
+        _session = session;
 
             if (session.GotConnectionToPump)
             {

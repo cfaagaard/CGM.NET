@@ -80,30 +80,16 @@ namespace CGM.Communication.Common.Serialize
 
         public T GetConfiguration<T>() where T : IConfiguration
         {
-            string key = typeof(T).Name;
-            if (this.Configurations.Keys.Contains(key))
+
+            var repository = CommonServiceLocator.ServiceLocator.Current.GetInstance<IStateRepository>();
+            var config= repository.GetConfiguration<T>();
+
+            if (config==null)
             {
-               return (T)this.Configurations.FirstOrDefault(e => e.Key == typeof(T).Name).Value;
+                config = (T)Activator.CreateInstance(typeof(T));
+                repository.SaveConfiguration(config);
             }
-            else
-            {
-                
-                T newConfig;
-                //string configurationFile = $"{typeof(T).Name}.json";
-                //if (File.Exists(configurationFile))
-                //{
-                //    newConfig=JsonConvert.DeserializeObject<T>(File.ReadAllText(configurationFile));
-                //}
-                //else
-                //{
-                newConfig = (T)Activator.CreateInstance(typeof(T));
-                //}
-                
-                this.Configurations.Add(key, newConfig);
-                var repository=CommonServiceLocator.ServiceLocator.Current.GetInstance<IStateRepository>();
-                repository.SaveConfiguration(newConfig);
-                return newConfig;
-            }
+            return config;
         }
 
         public void AddStatus(PumpStatusMessage status)

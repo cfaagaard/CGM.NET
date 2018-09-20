@@ -159,6 +159,15 @@ namespace CGM.Data
             }
         }
 
+        public T GetConfiguration<T>()
+        {
+            using (CgmContext cgmContext = new CgmContext())
+            {
+               return cgmContext.GetConfiguration<T>();
+
+            }
+        }
+
         public void SaveSession(SerializerSession session)
         {
 
@@ -314,7 +323,7 @@ namespace CGM.Data
             {
                 using (CgmContext cgmContext = new CgmContext())
                 {
-                    max = cgmContext.History.Where(e => e.HistoryDataType == historyDataType).DefaultIfEmpty(new History() { Rtc = 0 }).Max(e => e.Rtc);
+                    max = cgmContext.History.Where(e => e.HistoryDataType == historyDataType).Max(e => e.Rtc);
                 }
             }
             catch (Exception)

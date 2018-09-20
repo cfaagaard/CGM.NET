@@ -14,6 +14,7 @@ namespace CGM.Communication.Interfaces
 
         void SaveSession(SerializerSession session);
         void SaveConfiguration<T>(T configuration);
+        T GetConfiguration<T>();
         void AddKeys(List<string> keys);
 
         List<BasePumpEvent> GetHistoryWithNoStatus(SerializerSession session);

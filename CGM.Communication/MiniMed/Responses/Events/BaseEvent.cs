@@ -100,7 +100,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
                 {
                     //string bytes = BytesAsString.Remove(20, 12);
                     //_key = string.Format("{0}_{1}", HistoryDataType, bytes);
-                    _key = $"{HistoryDataType}{(byte)EventType}{EventDate.Rtc}{Index}";
+                    _key = $"{HistoryDataType}{(byte)EventType}{EventDate.Rtc}";
                 }
                 return _key;
             }
