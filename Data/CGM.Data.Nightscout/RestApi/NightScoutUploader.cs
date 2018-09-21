@@ -38,25 +38,11 @@ namespace CGM.Data.Nightscout.RestApi
         public DeviceStatus DeviceStatus { get; set; } = new DeviceStatus();
         public SerializerSession Session { get { return _session; } }
 
-        private PumpStatusMessage _lastStatusMessage;
+   
         private readonly IStateRepository repository;
         private List<BasePumpEvent> eventsToHandle;
 
-        public PumpStatusMessage LastStatusMessage
-        {
-            get
-            {
-                if (_session == null)
-                {
-                    return null;
-                }
-                if (_session.Status.Count > 0 && _lastStatusMessage == null)
-                {
-                    _lastStatusMessage = _session.Status.Last();
-                }
-                return _lastStatusMessage;
-            }
-        }
+  
 
         public NightScoutUploader(IStateRepository repository)
         {
@@ -533,7 +519,7 @@ namespace CGM.Data.Nightscout.RestApi
         private void CreateDeviceStatus()
         {
 
-            PumpStatusMessage message = this.LastStatusMessage;
+            PumpStatusMessage message = _session.Status.Last();
             string serialNum = _session.SessionDevice.Device.SerialNumberFull;
             DateTime create = _session.PumpTime.PumpDateTime.Value;
 
