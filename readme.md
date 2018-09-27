@@ -1,6 +1,6 @@
 # Introduction
 
-Datalogger for (with Nightscout-uploader) for the 600-series pump. It runs on:
+Datalogger (with Nightscout-uploader) for the 600-series pump. It runs on:
 
 * Windows 10
 * Raspberry Pi 3 with Windows Iot
