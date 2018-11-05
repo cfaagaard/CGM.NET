@@ -1,13 +1,15 @@
 # Introduction
 
-Beta version of Nightscout-uploader for the 600-series pump on:
+Datalogger (with Nightscout-uploader) for the 600-series pump. It runs on:
 
 * Windows 10
-* Raspberry Pi 3 (with Windows Iot, (linux is coming...)
-* Raspberry Pi Zero (is coming....)
+* Raspberry Pi 3 with Windows Iot
 
 See [wiki](https://github.com/cfaagaard/CGM.NET/wiki) for further guidance.
 
+Got questions: ask in the forum on [gitter](https://gitter.im/CGM-NET/Lobby#)
+
+Got issues: feel free to add issues [here](https://github.com/cfaagaard/CGM.NET/issues)
 
 # Standing on the shoulders of giants....
 A big thanks goes out to the Nightscout community who without this project would not have been possible.
