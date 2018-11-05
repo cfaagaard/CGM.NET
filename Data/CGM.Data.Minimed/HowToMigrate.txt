@@ -2,4 +2,12 @@
 
 goto VS2017 developer prompt
 cd C:\Users\cfa\Source\Github\CGM.NET\Data\cgm.data.minimed
-dotnet ef migrations add "name""
+
+dotnet ef migrations add InitialCreate --context MinimedContext 
+
+dotnet ef migrations add InitialCreate --context SqlDbContext --output-dir Migrations/SqlServerMigrations
+dotnet ef migrations add InitialCreate --context SqliteDbContext --output-dir Migrations/SqliteMigrations
+
+
+dotnet ef database update --context SqlDbContext
+dotnet ef database update --context SqliteDbContext

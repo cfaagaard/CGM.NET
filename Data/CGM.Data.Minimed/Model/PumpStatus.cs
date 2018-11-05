@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CGM.Data.Minimed.Model.Owned;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -60,7 +61,7 @@ namespace CGM.Data.Minimed.Model
 
         public int Sgv { get; set; }
  
-        public DateTime SgvDateTime { get; set; }
+        public DateTimeDataType SgvDateTime { get; set; }
 
         public byte LowSuspendActive { get; set; }
 
@@ -88,7 +89,7 @@ namespace CGM.Data.Minimed.Model
 
         public Int16 Alert { get; set; }
 
-        public DateTime? AlertDateTime { get; set; }
+        public DateTimeDataType AlertDateTime { get; set; }
 
         public byte[] Unknown6 { get; set; }
    

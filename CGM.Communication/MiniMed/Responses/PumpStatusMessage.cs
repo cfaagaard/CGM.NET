@@ -294,8 +294,9 @@ namespace CGM.Communication.MiniMed.Responses
         
         public byte[] AllBytes { get; set; }
 
+        public DateTime PumpStatusDateTime { get; set; }
 
-       // public DateTime LocalDateTime { get; set; }
+        // public DateTime LocalDateTime { get; set; }
         //public TimeSpan LocalDateTimePumpDateTimeDifference { get; set; }
         public PumpStatusMessage()
         {
@@ -322,7 +323,10 @@ namespace CGM.Communication.MiniMed.Responses
             this.Sgv = this.SgvRaw & 0x0000ffff;
             this.BolusWizardBGL = this.BolusWizardBGLRaw & 0x0000ffff;
 
-
+            if (settings.PumpTime.PumpDateTime.HasValue)
+            {
+                PumpStatusDateTime = settings.PumpTime.PumpDateTime.Value;
+            }
         }
 
 

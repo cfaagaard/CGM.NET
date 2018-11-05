@@ -19,7 +19,7 @@ namespace CGM.Data.Minimed.Model
 
         public byte SgvRaw2 { get; set; }
 
-        public int Amount { get; set; }
+        public int? Amount { get; set; }
 
         public Int16 IsigRaw { get; set; }
 
@@ -44,25 +44,28 @@ namespace CGM.Data.Minimed.Model
 
         }
 
-        public SgvAlert? Alert
-        {
-            get
-            {
-                if (this.Amount > 700)
-                {
-                    return (SgvAlert)this.Amount;
-                }
-                return null;
-   
-            }
+        public int SensorReadingAlertId { get; set; }
+        public SensorReadingAlert SensorReadingAlert { get; set; }
 
-        }
+        //public SgvAlert? Alert
+        //{
+        //    get
+        //    {
+        //        if (this.Amount > 700)
+        //        {
+        //            return (SgvAlert)this.Amount;
+        //        }
+        //        return null;
+   
+        //    }
+
+        //}
 
         public byte SensorStatus { get; set; }
 
-        public UInt16 PredictedSg { get; set; }
+        public UInt16? PredictedSg { get; set; }
 
-
+        public UInt16? PredictedSg_Alert { get; set; }
 
     }
 }

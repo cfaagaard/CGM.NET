@@ -62,7 +62,7 @@ namespace CGM.Communication.MiniMed.Responses.Events
 
         public override string ToString()
         {
-            return $"{this.EventDate.DateTime.Value} - {this.BgSource} - {this.BgUnits} ({this.BgValueInMg}/{this.BgValueInMmol})";
+            return $"{this.BgSource} - {this.BgUnits} ({this.BgValueInMg}/{this.BgValueInMmol})";
         }
     }
 }

@@ -11,10 +11,14 @@ namespace CGM.Communication.Common.Serialize
     public class LogFileHistoryAdapter
     {
         private readonly string logPath;
-        private List<LogFileChuncker> logFileChunckers = new List<LogFileChuncker>();
+        public List<LogFileChuncker> logFileChunckers = new List<LogFileChuncker>();
 
-        public List<BasePumpEvent> PumpEvents { get; set; } = new List<BasePumpEvent>();
-        public List<BasePumpEvent> SensorEvents { get; set; } = new List<BasePumpEvent>();
+        //public List<BasePumpEvent> PumpEvents { get; set; } = new List<BasePumpEvent>();
+        //public List<BasePumpEvent> SensorEvents { get; set; } = new List<BasePumpEvent>();
+        public int MaxNumber { get; set; } = 0;
+
+
+        public List<SerializerSession> CollectedSessions { get; set; } = new List<SerializerSession>();
 
         public LogFileHistoryAdapter(string logPath)
         {
@@ -22,7 +26,7 @@ namespace CGM.Communication.Common.Serialize
 
         }
 
-        public void ExtractHistory(DateTime from, DateTime to,bool allHistory)
+        public void ExtractHistory(DateTime from, DateTime to, bool allHistory)
         {
             string logfileFormat = "{0}_log.txt";
 
@@ -32,60 +36,86 @@ namespace CGM.Communication.Common.Serialize
             {
                 DateTime fromDate = from.AddDays(i);
                 string fullpath = Path.Combine(this.logPath, string.Format(logfileFormat, fromDate.ToString("ddMMyyyy")));
-                var chuncker = new LogFileChuncker(fullpath);
-                logFileChunckers.Add(chuncker);
-                if (allHistory)
+                if (File.Exists(fullpath))
                 {
-                    chuncker.GetAllSessions();
-                }
-                else
-                {
-                    chuncker.GetLastSession();
-                    if (chuncker.Session != null)
-                    {
-                        DateTime toDate = fromDate.AddHours(24);
+                    var chuncker = new LogFileChuncker(fullpath);
+                    chuncker.MaxNumber = MaxNumber;
+                    logFileChunckers.Add(chuncker);
 
-                        PumpEvents.AddRange(chuncker.Session.PumpDataHistory.PumpEvents.Where(e => e.EventDate.DateTime.Value >= fromDate && e.EventDate.DateTime.Value < toDate));
-                        SensorEvents.AddRange(chuncker.Session.PumpDataHistory.SensorEvents.Where(e => e.EventDate.DateTime.Value >= fromDate && e.EventDate.DateTime.Value < toDate));
+                    chuncker.GetAllMessages();
+
+                    if (allHistory)
+                    {
+                        chuncker.GetAllSessions();
+                    }
+                    else
+                    {
+                        var first = chuncker.chuncks.First(e => e.session.PumpDataHistory.MultiPacketHandlers.Count > 0);
+                        var last = chuncker.chuncks.Last(e => e.session.PumpDataHistory.MultiPacketHandlers.Count > 0);
+
+                        first.session.PumpDataHistory.ExtractHistoryEvents();
+                        last.session.PumpDataHistory.ExtractHistoryEvents();
+
+                        var maxPumpEventDate = first.session.PumpDataHistory.PumpEvents.Max(e => e.EventDate.DateTime.Value);
+                        var maxSensorEventDate = first.session.PumpDataHistory.SensorEvents.Max(e => e.EventDate.DateTime.Value);
+
+                        var pumpevents = last.session.PumpDataHistory.PumpEvents.Where(e => e.EventDate.DateTime.Value > maxPumpEventDate).ToList();
+                        var sensorvents = last.session.PumpDataHistory.SensorEvents.Where(e => e.EventDate.DateTime.Value > maxSensorEventDate).ToList();
+
+                        first.session.PumpDataHistory.PumpEvents.AddRange(pumpevents);
+                        first.session.PumpDataHistory.SensorEvents.AddRange(sensorvents);
+
+                        var liststatus=chuncker.chuncks.Select(e => e.session.Status);
+
+                        first.session.Status = new List<MiniMed.Responses.PumpStatusMessage>();
+
+                        foreach (var statusses in liststatus)
+                        {
+                            foreach (var status in statusses)
+                            {
+                                first.session.Status.Add(status);
+                            }
+                        }
+
+                        CollectedSessions.Add(first.session);
+                        //chuncker.GetLastSession();
+                        //if (chuncker.Session != null)
+                        //{
+                        //    DateTime toDate = fromDate.AddHours(24);
+
+                        //    PumpEvents.AddRange(chuncker.Session.PumpDataHistory.PumpEvents.Where(e => e.EventDate.DateTime.Value >= fromDate && e.EventDate.DateTime.Value < toDate));
+                        //    SensorEvents.AddRange(chuncker.Session.PumpDataHistory.SensorEvents.Where(e => e.EventDate.DateTime.Value >= fromDate && e.EventDate.DateTime.Value < toDate));
+                        //}
                     }
                 }
-
-
-
-
-
-
 
             }
 
         }
 
+        //public void Save(string filePath)
+        //{
+        //    List<BasePumpEvent> all = new List<BasePumpEvent>(PumpEvents);
+        //    all.AddRange(SensorEvents);
 
-        public void Save(string filePath)
-        {
-            List<BasePumpEvent> all = new List<BasePumpEvent>(PumpEvents);
-            all.AddRange(SensorEvents);
+        //    List<EventExporter> eventExporters = new List<EventExporter>();
 
-            List<EventExporter> eventExporters = new List<EventExporter>();
+        //    //var events = all.OrderBy(e => e.EventDate);
 
-            //var events = all.OrderBy(e => e.EventDate);
-            
-            var events = all.Select(e => new EventExporter()
-            {
-                EventDate = e.EventDate.DateTimeString,
-                EventType = e.EventType.ToString(),
-                EventToString=e.ToString()
-            });
-
-
-            string content = CsvExporter.GenerateReport<EventExporter>(events.ToList());
-
-            System.IO.File.AppendAllText(filePath, content);
+        //    var events = all.Select(e => new EventExporter()
+        //    {
+        //        EventDate = e.EventDate.DateTimeString,
+        //        EventType = e.EventType.ToString(),
+        //        EventToString = e.ToString()
+        //    });
 
 
-        }
+        //    string content = CsvExporter.GenerateReport<EventExporter>(events.ToList());
+
+        //    System.IO.File.AppendAllText(filePath, content);
 
 
+        //}
     }
 
 
@@ -96,10 +126,11 @@ namespace CGM.Communication.Common.Serialize
         public string EventToString { get; set; }
     }
 
-    class LogFileChuncker
+    public class LogFileChuncker
     {
         private readonly string filepath;
-        private List<LogChunck> chuncks = new List<LogChunck>();
+        public List<LogChunck> chuncks = new List<LogChunck>();
+        public int MaxNumber { get; set; }
 
         public SerializerSession Session { get; set; }
 
@@ -109,12 +140,31 @@ namespace CGM.Communication.Common.Serialize
             ChunckFile();
         }
 
-        public void GetAllSessions()
+        public void GetAllMessages()
         {
             foreach (var item in chuncks)
             {
-                item.ExtractHistory();
+                item.GetMessages();
             }
+        }
+
+        public void GetAllSessions()
+        {
+
+            int toNumber = chuncks.Count;
+            if (MaxNumber != 0)
+            {
+                toNumber = MaxNumber;
+            }
+
+            for (int i = 0; i < toNumber; i++)
+            {
+                chuncks[i].session.PumpDataHistory.ExtractHistoryEvents();
+            }
+            //foreach (var item in chuncks)
+            //{
+            //    item.ExtractHistory();
+            //}
         }
 
 
@@ -125,8 +175,7 @@ namespace CGM.Communication.Common.Serialize
 
             foreach (var item in chuncks)
             {
-
-                item.ExtractHistory();
+                item.session.PumpDataHistory.ExtractHistoryEvents();
                 if (item.session.PumpDataHistory.PumpEvents.Count > 0 && item.session.PumpDataHistory.SensorEvents.Count > 0)
                 {
                     Session = item.session;
@@ -158,12 +207,12 @@ namespace CGM.Communication.Common.Serialize
         }
     }
 
-    class LogChunck
+    public class LogChunck
     {
         public List<string> Lines { get; set; } = new List<string>();
         ByteMessageCollection Messages;
-        internal SerializerSession session;
-        public void ExtractHistory()
+        public SerializerSession session;
+        public void GetMessages()
         {
 
             session = new SerializerSession();
@@ -196,7 +245,7 @@ namespace CGM.Communication.Common.Serialize
                     }
 
                 }
-                session.PumpDataHistory.ExtractHistoryEvents();
+
             }
 
 
@@ -204,7 +253,7 @@ namespace CGM.Communication.Common.Serialize
 
         public override string ToString()
         {
-            if (session!=null && session.PumpTime.PumpDateTime.HasValue)
+            if (session != null && session.PumpTime.PumpDateTime.HasValue)
             {
                 return session.PumpTime.PumpDateTime.Value.ToString();
             }

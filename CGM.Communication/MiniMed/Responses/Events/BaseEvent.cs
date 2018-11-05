@@ -142,11 +142,13 @@ namespace CGM.Communication.MiniMed.Responses.Events
         {
             if (this.Message != null && !string.IsNullOrEmpty(this.Message.ToString()))
             {
-                return $"{EventDate.DateTime.Value} - {EventType.ToString()} - {this.Message.ToString()}";
+                //return $"{EventDate.DateTime.Value} - {EventType.ToString()} - {this.Message.ToString()}";
+                return $"{EventType.ToString()} - {this.Message.ToString()}";
             }
             else
             {
-                return $"{EventDate.DateTime.Value} - {EventType.ToString()}";
+                //return $"{EventDate.DateTime.Value} - {EventType.ToString()}";
+                return $"{EventType.ToString()}";
             }
 
         }

@@ -32,7 +32,7 @@ namespace CGM.Communication.Common.Serialize
             }
             else
             {
-                throw new Exception("Parameter string in logfile.Line should start with 'RadioChannel'.");
+                //throw new Exception("Parameter string in logfile.Line should start with 'RadioChannel'.");
             }
             //6/1/2017 12:02:23 AM; 00-00-00-00-01-58
             foreach (var item in lines)

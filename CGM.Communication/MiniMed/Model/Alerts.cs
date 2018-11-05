@@ -26,8 +26,8 @@ namespace CGM.Communication.MiniMed.Model
         Device_Alarm_58 = 58,
         Device_Alarm_Button_Pressed_3minutes=61,
         Device_Alarm_70 = 70,
-        Device_Alarm_73 = 73,
-        Device_Alarm_84 = 84,
+        //Device_Alarm_73 = 73,
+        //Device_Alarm_84 = 84,
         Device_Alarm_Change_Battery_73 = 73,
         Device_Alarm_Insert_Battery_84 = 84,
         Low_Battery_104 = 104,
@@ -79,6 +79,7 @@ namespace CGM.Communication.MiniMed.Model
         Sensor_Reading_High_776 = 776,
         Sensor_Reading_Low_777 = 777,
         Sensor_Time_Unknown_780 = 780,
+        No_Warning_0 = 0,
     }
 
     //Sensor_Alert_Change_774 = 774,

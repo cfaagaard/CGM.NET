@@ -37,11 +37,11 @@ namespace CGM.Data.Minimed.Model
    
         public string AllBytesAsString { get; set; }
 
-        public ICollection<PumpEvent> PumpEvents { get; set; }
+        public ICollection<DataLoggerReading> DataLoggerReadings { get; set; }
 
         public BayerStick()
         {
-            PumpEvents = new HashSet<PumpEvent>();
+            DataLoggerReadings = new HashSet<DataLoggerReading>();
         }
     }
 }

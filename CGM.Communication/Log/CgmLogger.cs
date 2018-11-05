@@ -59,6 +59,12 @@ namespace CGM.Communication.Log
             string filename = DateTime.Now.ToString("ddMMyyyy") + "_log.txt";
             string path = Path.Combine(_path , filename);
 
+            var file = new FileInfo(path);
+            if (!file.Directory.Exists)
+            {
+                file.Directory.Create();
+            }
+
 
             using (var stream = File.Open(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
             {

@@ -11,6 +11,20 @@ namespace CGM.Data.Minimed.Model
 
         public int PumpEventId { get; set; }
 
+        public int PumpEventAlertId { get; set; }
+
+        public PumpEventAlert PumpEventAlert { get; set; }
+
+        public ICollection<DailyTotal> DailyTotals { get; set; }
+        public ICollection<Calibration> Calibrations { get; set; }
+
+        public PumpEvent()
+        {
+            DailyTotals= new HashSet<DailyTotal>();
+            Calibrations = new HashSet<Calibration>();
+        }
+
+
         public override string ToString()
         {
             return Title;

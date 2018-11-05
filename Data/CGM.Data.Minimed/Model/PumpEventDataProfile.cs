@@ -6,6 +6,8 @@ using System.Text;
 using System.Linq;
 using CGM.Communication.MiniMed.Responses;
 using CGM.Communication.Extensions;
+using CGM.Communication.MiniMed.DataTypes;
+
 namespace CGM.Data.Minimed.Model
 {
     public class PumpEventDataProfile : Profile
@@ -37,17 +39,14 @@ namespace CGM.Data.Minimed.Model
 
             //PumpEvent
             CreateMap<BasePumpEvent, Model.PumpEvent>()
-                    .ForMember(dest => dest.EventDate, opt => opt.MapFrom(src => src.EventDate.DateTime))
-                    .ForMember(dest => dest.Rtc, opt => opt.MapFrom(src => src.EventDate.Rtc))
-                    .ForMember(dest => dest.Offset, opt => opt.MapFrom(src => src.EventDate.Offset))
-                    .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.ToString()));
-
+                    .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.ToString()))
+            .ForMember(dest => dest.EventTypeId, opt => opt.MapFrom(src => src.EventTypeRaw))
+            .ForMember(dest=> dest.EventType,opt=>opt.Ignore());
             //SensorEvent
             CreateMap<BasePumpEvent, Model.SensorEvent>()
-        .ForMember(dest => dest.EventDate, opt => opt.MapFrom(src => src.EventDate.DateTime))
-        .ForMember(dest => dest.Rtc, opt => opt.MapFrom(src => src.EventDate.Rtc))
-        .ForMember(dest => dest.Offset, opt => opt.MapFrom(src => src.EventDate.Offset))
-        .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.ToString()));
+        .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.ToString()))
+        .ForMember(dest => dest.EventTypeId, opt => opt.MapFrom(src => src.EventTypeRaw))
+        .ForMember(dest => dest.EventType, opt => opt.Ignore());
 
             //SgReading
             CreateMap<SENSOR_GLUCOSE_READINGS_EXTENDED_Detail, SensorReading>()
@@ -55,7 +54,6 @@ namespace CGM.Data.Minimed.Model
 
             //PumpStatus
             CreateMap<PumpStatusMessage, PumpStatus>()
-                   .ForMember(dest => dest.AlertDateTime, opt => opt.MapFrom(src => src.AlertDateTime.DateTime))
 
                    .ForMember(dest => dest.PS_BolusingDual, opt => opt.MapFrom(src => src.Status.BolusingDual))
                    .ForMember(dest => dest.PS_BolusingNormal, opt => opt.MapFrom(src => src.Status.BolusingNormal))
@@ -74,11 +72,17 @@ namespace CGM.Data.Minimed.Model
                    .ForMember(dest => dest.ActiveInsulin, opt => opt.MapFrom(src => src.ActiveInsulin.Insulin))
                    .ForMember(dest => dest.ActiveInsulinRaw, opt => opt.MapFrom(src => src.ActiveInsulin.InsulinRaw))
 
-                   .ForMember(dest => dest.SgvDateTime, opt => opt.MapFrom(src => src.SgvDateTime.DateTime))
-
+      
                    .ForMember(dest => dest.AlertName, opt => opt.MapFrom(src => src.AlertName.ToString()));
 
 
+
+
+            //dailytotal
+            CreateMap<DAILY_TOTALS_Event, DailyTotal>();
+
+            CreateMap<CALIBRATION_COMPLETE_Event, Calibration>();
+            
         }
     }
 }

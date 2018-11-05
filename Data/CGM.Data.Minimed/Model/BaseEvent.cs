@@ -1,4 +1,5 @@
 ﻿using CGM.Communication.MiniMed.Infrastructur;
+using CGM.Data.Minimed.Model.Owned;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,33 +14,21 @@ namespace CGM.Data.Minimed.Model
 
         public virtual Pump Pump { get; set; }
 
-        public int BayerStickId { get; set; }
+        public int DataLoggerReadingId { get; set; }
 
-        public virtual BayerStick BayerStick { get; set; }
+        public virtual DataLoggerReading DataLoggerReading { get; set; }
 
         public string Title { get; set; }
 
-        public byte EventTypeRaw { get; set; }
-
-        public EventTypeEnum EventType
-        {
-            get
-            {
-                return (EventTypeEnum)EventTypeRaw;
-
-            }
-
-        }
+        public int EventTypeId { get; set; }
+        public EventType EventType { get; set; }
 
         public byte Source { get; set; }
 
         public byte Length { get; set; }
 
-        public DateTime EventDate { get; set; }
+        public DateTimeDataType EventDate { get; set; }
 
-        public Int32 Rtc { get; set; }
-
-        public Int32 Offset { get; set; }
 
         public string BytesAsString { get; set; }
 
