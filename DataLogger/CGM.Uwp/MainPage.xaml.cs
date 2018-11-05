@@ -49,8 +49,8 @@ namespace CGM.Console.Uwp
             cgmApplication.AddStateRepsitory();
             cgmApplication.AddDevice<CGM.Uwp.Device.UwpBayerDevice>();
 
-
-            cgmApplication.AddNightscoutBehavoir("---- insert your nightscout url here ", " ----- and the api-key here");
+            cgmApplication.AddNightscoutBehavoir("https://aagaarddiabetes.azurewebsites.net/", "1234567890abc");
+           // cgmApplication.AddNightscoutBehavoir("---- insert your nightscout url here ", " ----- and the api-key here");
 
             //not implemented yet
             //cgmApplication.AddWebTransferBehavoir("", "");
